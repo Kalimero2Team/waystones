@@ -216,7 +216,7 @@ public class WayStonesListener implements Listener {
                 current_page = Component.empty();
                 counter = 0;
             }
-            current_page = current_page.append(Component.text(wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
+            current_page = current_page.append(Component.text("• "+wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
             current_page = current_page.append(Component.newline());
         }
         pages.add(current_page);
