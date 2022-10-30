@@ -13,15 +13,18 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.wesjd.anvilgui.AnvilGUI;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -32,8 +35,13 @@ import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Merchant;
+import org.bukkit.inventory.MerchantInventory;
+import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -57,23 +65,26 @@ public class WayStonesListener implements Listener {
     public void onCustomBlockDataRemove(CustomBlockDataRemoveEvent event){
         CustomBlockData customBlockData = event.getCustomBlockData();
         if(customBlockData.has(PaperWayStones.WAYSTONE_KEY)){
-
-
             Block block = event.getBlock();
             PaperWayStones.plugin.removeWaystone(block.getLocation());
-
-
         }
     }
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event){
+        if(event.isCancelled()){
+            return;
+        }
         if(event.getBlock().getType() == Material.STONE_BRICK_WALL && event.getItemInHand().isSimilar(PaperWayStones.plugin.getItem())){
             Player player = event.getPlayer();
 
 
             Location location = event.getBlock().getLocation();
+            if(!location.clone().add(0,1,0).getBlock().isEmpty()){
+                event.setCancelled(true);
+                return;
+            }
 
             new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(new ItemStack(Material.STONE_BRICK_WALL)).onComplete((p, name) -> {
                 if(name.length() > 16){
@@ -184,18 +195,19 @@ public class WayStonesListener implements Listener {
     }
 
     @EventHandler
-    public void onInteract(PlayerInteractAtEntityEvent event){
-        if(event.getRightClicked().getPersistentDataContainer().has(PaperWayStones.WAYSTONE_KEY)){
-            event.setCancelled(true);
-
-            if(PaperWayStones.plugin.bedrockSupport){
-                boolean bedrock =  org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(event.getPlayer().getUniqueId());
-                if(bedrock){
-                    BedrockCompat.showBedrockForm(event.getPlayer());
+    public void onBlockInteract(PlayerInteractEvent event){
+        if(event.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
+            Block clickedBlock = event.getClickedBlock();
+            if(clickedBlock != null && new CustomBlockData(clickedBlock, PaperWayStones.plugin).has(PaperWayStones.WAYSTONE_KEY)){
+                event.setCancelled(true);
+                if(PaperWayStones.plugin.bedrockSupport){
+                    boolean bedrock =  org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(event.getPlayer().getUniqueId());
+                    if(bedrock){
+                        BedrockCompat.showBedrockForm(event.getPlayer());
+                    }
                 }
+                showJavaBook(event.getPlayer());
             }
-            showJavaBook(event.getPlayer());
-
         }
     }
 

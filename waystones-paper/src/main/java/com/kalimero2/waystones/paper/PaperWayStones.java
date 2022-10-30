@@ -14,20 +14,16 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.type.Wall;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EnderPearl;
-import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -38,6 +34,7 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
     public boolean bedrockSupport = false;
     public static final NamespacedKey WAYSTONE_KEY = new NamespacedKey("waystones", "waystone");
     public static final NamespacedKey WAYSTONE_LIST_KEY = new NamespacedKey("waystones", "waystone_list");
+    public static final NamespacedKey WAYSTONE_VILLAGER = new NamespacedKey("waystones", "waystone_villager");
 
     @Override
     public void onLoad() {
@@ -87,41 +84,31 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
         SerializableWayStone data = new SerializableWayStone(player.getUniqueId().toString(), name, centerLocation);
 
         centerLocation.getWorld().spawnParticle(Particle.REVERSE_PORTAL, centerLocation, 100, 0.0125, 0.0125, 0.0125,2);
-        Wall blockData = (Wall) Material.STONE_BRICK_WALL.createBlockData();
-        blockData.setHeight(BlockFace.NORTH, Wall.Height.LOW);
-        blockData.setHeight(BlockFace.EAST, Wall.Height.LOW);
-        blockData.setHeight(BlockFace.SOUTH, Wall.Height.LOW);
-        blockData.setHeight(BlockFace.WEST, Wall.Height.LOW);
-        blockData.setUp(false);
-        blockData.setWaterlogged(false);
 
-
-        FallingBlock fallingBlock = centerLocation.getWorld().spawnFallingBlock(centerLocation.clone().add(0,-0.5,0), blockData);
-        fallingBlock.setDropItem(false);
-        fallingBlock.setGravity(false);
-        fallingBlock.setInvulnerable(false);
-        fallingBlock.shouldAutoExpire(false);
-        fallingBlock.getPersistentDataContainer().set(WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE, data);
-
-        EnderPearl eye = centerLocation.getWorld().spawn(centerLocation.clone().add(0, 0.75, 0), EnderPearl.class);
-        ItemStack item = new ItemStack(Material.ENDER_EYE);
-        item.addUnsafeEnchantment(Enchantment.BINDING_CURSE,1);
-        eye.setItem(item);
-        eye.setGravity(false);
-        eye.setInvulnerable(true);
-        eye.setCustomNameVisible(true);
-        eye.customName(Component.text(name));
-        eye.setGravity(false);
-        eye.getPersistentDataContainer().set(WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE, data);
+        ArmorStand armorStand = centerLocation.getWorld().spawn(centerLocation.add(0,-0.5,0), ArmorStand.class);
+        armorStand.setItem(EquipmentSlot.HEAD, getItem());
+        armorStand.addDisabledSlots(EquipmentSlot.values());
+        armorStand.setInvisible(true);
+        armorStand.setCollidable(false);
+        armorStand.setGravity(false);
+        armorStand.setInvulnerable(true);
+        armorStand.setCustomNameVisible(true);
+        armorStand.customName(Component.text(name));
+        armorStand.setGravity(false);
+        armorStand.getPersistentDataContainer().set(WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE, data);
 
         new BukkitRunnable(){
             @Override
             public void run() {
 
-                Block block = centerLocation.getBlock();
-                block.setType(Material.BLACKSTONE_WALL);
-                CustomBlockData customBlockData = new CustomBlockData(block, PaperWayStones.plugin);
-                customBlockData.set(WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE, data);
+                Block bottom_block = centerLocation.getBlock();
+                Block top_block = centerLocation.clone().add(0, 1, 0).getBlock();
+                bottom_block.setType(Material.BARRIER);
+                top_block.setType(Material.BARRIER);
+                CustomBlockData bottomBlockData = new CustomBlockData(bottom_block, PaperWayStones.plugin);
+                CustomBlockData topBlockData  = new CustomBlockData(top_block, PaperWayStones.plugin);
+                bottomBlockData.set(WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE, data);
+                topBlockData.set(WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE, data);
 
             }
         }.runTaskLater(PaperWayStones.plugin, 1);
@@ -140,17 +127,25 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
 
     public void removeWaystone(Location location){
         Block block = location.getBlock();
-        CustomBlockData customBlockData1 = new CustomBlockData(block, PaperWayStones.plugin);
-        SerializableWayStone wayStone = customBlockData1.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
+        CustomBlockData customBlockData = new CustomBlockData(block, PaperWayStones.plugin);
+        SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
 
         location.getNearbyEntities(2,2,2).forEach(entity -> {
-            if(entity instanceof FallingBlock stone_brick_part && Objects.equals(entity.getPersistentDataContainer().get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE), wayStone)){
-                stone_brick_part.remove();
-            }
-            if(entity instanceof EnderPearl ender_pearl_part && Objects.equals(entity.getPersistentDataContainer().get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE), wayStone)){
-                ender_pearl_part.remove();
+            if(entity instanceof ArmorStand armorStand && Objects.equals(entity.getPersistentDataContainer().get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE), wayStone)){
+                armorStand.remove();
             }
         });
+
+        Block second_block = location.clone().add(0, 1, 0).getBlock();
+        if(new CustomBlockData(second_block,PaperWayStones.plugin).has(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE)){
+            second_block.setType(Material.AIR);
+        }else{
+            second_block = location.clone().add(0, -1, 0).getBlock();
+            if(new CustomBlockData(second_block,PaperWayStones.plugin).has(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE)){
+                second_block.setType(Material.AIR);
+            }
+        }
+
 
         SerializableWayStones wayStones = getSerializableWayStones(location.getWorld());
 
@@ -180,10 +175,9 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.displayName(Component.text("WayStone").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
-        itemMeta.setCustomModelData(12);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemMeta.setCustomModelData(22022);
         item.setItemMeta(itemMeta);
-        item.addUnsafeEnchantment(Enchantment.BINDING_CURSE,1);
         return item;
     }
 }
