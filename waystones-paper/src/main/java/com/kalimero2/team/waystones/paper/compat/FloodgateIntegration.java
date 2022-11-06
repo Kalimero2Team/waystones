@@ -1,6 +1,10 @@
-package com.kalimero2.waystones.paper;
+package com.kalimero2.team.waystones.paper.compat;
 
 import com.jeff_media.customblockdata.CustomBlockData;
+import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.SerializableWayStone;
+import com.kalimero2.team.waystones.paper.SerializableWayStones;
+import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.SimpleForm;
@@ -12,7 +16,7 @@ import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BedrockCompat {
+public class FloodgateIntegration {
     public static void showBedrockForm(Player player){
 
         SimpleForm.Builder builder = SimpleForm.builder().title("WayStones").content("Wähle einen Waystone aus!");

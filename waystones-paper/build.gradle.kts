@@ -13,12 +13,14 @@ repositories {
     maven("https://repo.opencollab.dev/maven-snapshots/")
     maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     paperDevBundle(libs.versions.paper.api.get())
     bukkitLibrary(libs.cloud.paper)
     compileOnly(libs.floodgate.api)
+    compileOnly("com.github.Kalimero2Team:claims:7ba760c75b")
     implementation(libs.customblockdata)
     implementation(libs.morepersistentdatatypes)
     implementation(libs.anvilgui)
@@ -40,9 +42,9 @@ tasks{
 
 
 bukkit {
-    main = "com.kalimero2.waystones.paper.PaperWayStones"
+    main = "com.kalimero2.team.waystones.paper.PaperWayStones"
     apiVersion = "1.19"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     authors = listOf("byquanton")
-    softDepend = listOf("floodgate")
+    softDepend = listOf("floodgate","claims-paper")
 }

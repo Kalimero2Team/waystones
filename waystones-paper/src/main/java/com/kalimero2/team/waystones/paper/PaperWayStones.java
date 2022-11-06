@@ -1,10 +1,10 @@
-package com.kalimero2.waystones.paper;
+package com.kalimero2.team.waystones.paper;
 
 import com.jeff_media.customblockdata.CustomBlockData;
+import com.kalimero2.team.waystones.paper.command.CommandManager;
+import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.waystones.api.WayStonesApi;
 import com.kalimero2.waystones.api.WayStonesApiHolder;
-import com.kalimero2.waystones.paper.command.CommandManager;
-import com.kalimero2.waystones.paper.listener.WayStonesListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -31,7 +31,8 @@ import java.util.UUID;
 
 public class PaperWayStones extends JavaPlugin implements WayStonesApi {
     public static PaperWayStones plugin;
-    public boolean bedrockSupport = false;
+    public boolean bedrockIntegration = false;
+    public boolean claimsIntegration = false;
     public static final NamespacedKey WAYSTONE_KEY = new NamespacedKey("waystones", "waystone");
     public static final NamespacedKey WAYSTONE_LIST_KEY = new NamespacedKey("waystones", "waystone_list");
     public static final NamespacedKey WAYSTONE_VILLAGER = new NamespacedKey("waystones", "waystone_villager");
@@ -52,11 +53,21 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
 
         try {
             Class.forName("org.geysermc.floodgate.api.FloodgateApi");
-            bedrockSupport = true;
-            getLogger().info("Bedrock support enabled");
+            bedrockIntegration = true;
+            getLogger().info("Bedrock integration enabled");
         } catch (ClassNotFoundException e) {
-            bedrockSupport = false;
-            getLogger().info("Floodgate not found, disabling bedrock support");
+            bedrockIntegration = false;
+            getLogger().info("Floodgate not found, disabling bedrock integration");
+        }
+
+
+        try{
+            Class.forName("com.kalimero2.team.claims.api.ClaimsApi");
+            claimsIntegration = true;
+            getLogger().info("Claims integration enabled");
+        } catch (ClassNotFoundException e) {
+            claimsIntegration = false;
+            getLogger().info("Claims not found, disabling Claims integration");
         }
 
 
@@ -136,20 +147,28 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
             }
         });
 
+        boolean secondBlockIsUpperBlock = false;
+
         Block second_block = location.clone().add(0, 1, 0).getBlock();
-        if(new CustomBlockData(second_block,PaperWayStones.plugin).has(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE)){
+        CustomBlockData secondBlockData = new CustomBlockData(second_block, PaperWayStones.plugin);
+        if(secondBlockData.has(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE)){
+            secondBlockData.remove(PaperWayStones.WAYSTONE_KEY);
             second_block.setType(Material.AIR);
+            secondBlockIsUpperBlock = true;
         }else{
             second_block = location.clone().add(0, -1, 0).getBlock();
-            if(new CustomBlockData(second_block,PaperWayStones.plugin).has(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE)){
+            if(secondBlockData.has(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE)){
+                secondBlockData.remove(PaperWayStones.WAYSTONE_KEY);
                 second_block.setType(Material.AIR);
             }
         }
 
-
         SerializableWayStones wayStones = getSerializableWayStones(location.getWorld());
-
-        int wayStone1 = wayStones.getWayStone(location);
+        Location mainLocation = location.clone();
+        if(secondBlockIsUpperBlock){
+            mainLocation.add(0,-1,0);
+        }
+        int wayStone1 = wayStones.getWayStone(mainLocation);
         if(wayStone1 != -1){
             wayStones.removeWayStone(wayStone1);
         }

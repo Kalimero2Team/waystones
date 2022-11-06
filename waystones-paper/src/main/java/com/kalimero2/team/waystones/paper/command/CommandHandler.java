@@ -1,6 +1,6 @@
-package com.kalimero2.waystones.paper.command;
+package com.kalimero2.team.waystones.paper.command;
 
-import com.kalimero2.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.PaperWayStones;
 
 public abstract class CommandHandler {
     protected final PaperWayStones wayStonesPlugin;

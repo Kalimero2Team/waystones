@@ -1,4 +1,4 @@
-package com.kalimero2.waystones.paper;
+package com.kalimero2.team.waystones.paper;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;

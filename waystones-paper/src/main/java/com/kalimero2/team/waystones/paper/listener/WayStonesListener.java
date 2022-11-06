@@ -1,26 +1,25 @@
-package com.kalimero2.waystones.paper.listener;
+package com.kalimero2.team.waystones.paper.listener;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.jeff_media.customblockdata.events.CustomBlockDataMoveEvent;
 import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
-import com.kalimero2.waystones.paper.BedrockCompat;
-import com.kalimero2.waystones.paper.PaperWayStones;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
-import com.kalimero2.waystones.paper.WayStoneDataTypes;
+import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
+import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
+import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.SerializableWayStone;
+import com.kalimero2.team.waystones.paper.SerializableWayStones;
+import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -35,13 +34,8 @@ import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.MerchantInventory;
-import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -71,10 +65,15 @@ public class WayStonesListener implements Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler
     public void onBlockPlace(BlockPlaceEvent event){
         if(event.isCancelled()){
             return;
+        }
+        if(PaperWayStones.plugin.claimsIntegration){
+            if(ClaimsIntegration.shouldCancel(event.getBlock().getChunk(), event.getPlayer())){
+                return;
+            }
         }
         if(event.getBlock().getType() == Material.STONE_BRICK_WALL && event.getItemInHand().isSimilar(PaperWayStones.plugin.getItem())){
             Player player = event.getPlayer();
@@ -200,10 +199,10 @@ public class WayStonesListener implements Listener {
             Block clickedBlock = event.getClickedBlock();
             if(clickedBlock != null && new CustomBlockData(clickedBlock, PaperWayStones.plugin).has(PaperWayStones.WAYSTONE_KEY)){
                 event.setCancelled(true);
-                if(PaperWayStones.plugin.bedrockSupport){
+                if(PaperWayStones.plugin.bedrockIntegration){
                     boolean bedrock =  org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(event.getPlayer().getUniqueId());
                     if(bedrock){
-                        BedrockCompat.showBedrockForm(event.getPlayer());
+                        FloodgateIntegration.showBedrockForm(event.getPlayer());
                     }
                 }
                 showJavaBook(event.getPlayer());

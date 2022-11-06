@@ -1,4 +1,4 @@
-package com.kalimero2.waystones.paper;
+package com.kalimero2.team.waystones.paper;
 
 import com.jeff_media.morepersistentdatatypes.datatypes.serializable.ConfigurationSerializableDataType;
 import org.bukkit.persistence.PersistentDataType;

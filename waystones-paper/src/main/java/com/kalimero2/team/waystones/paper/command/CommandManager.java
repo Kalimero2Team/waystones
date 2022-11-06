@@ -1,11 +1,11 @@
-package com.kalimero2.waystones.paper.command;
+package com.kalimero2.team.waystones.paper.command;
 
 import cloud.commandframework.brigadier.CloudBrigadierManager;
 import cloud.commandframework.bukkit.CloudBukkitCapabilities;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.paper.PaperCommandManager;
 import com.google.common.collect.ImmutableList;
-import com.kalimero2.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.PaperWayStones;
 import org.bukkit.command.CommandSender;
 
 import java.util.function.UnaryOperator;
