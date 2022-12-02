@@ -6,8 +6,8 @@ import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
 import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
 import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
+import com.kalimero2.team.waystones.paper.SerializableWayStone;
+import com.kalimero2.team.waystones.paper.SerializableWayStones;
 import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -34,6 +34,7 @@ import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -64,6 +65,14 @@ public class WayStonesListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onAnvilRename(PrepareAnvilEvent event){
+        ItemStack waystone = PaperWayStones.plugin.getItem();
+        if(waystone.isSimilar(event.getInventory().getFirstItem())){
+            event.getInventory().close();
+            event.setResult(waystone);
+        }
+    }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event){
@@ -199,7 +208,7 @@ public class WayStonesListener implements Listener {
             Block clickedBlock = event.getClickedBlock();
             if(clickedBlock != null && new CustomBlockData(clickedBlock, PaperWayStones.plugin).has(PaperWayStones.WAYSTONE_KEY)){
                 event.setCancelled(true);
-                if(PaperWayStones.plugin.bedrockIntegration){
+                if(PaperWayStones.plugin.floodgateIntegration){
                     boolean bedrock =  org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(event.getPlayer().getUniqueId());
                     if(bedrock){
                         FloodgateIntegration.showBedrockForm(event.getPlayer());
@@ -221,6 +230,11 @@ public class WayStonesListener implements Listener {
             Location location = entry.getValue();
             CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), PaperWayStones.plugin);
             SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
+            if(wayStone == null){
+                PaperWayStones.plugin.getLogger().warning("Removed WayStone with ID "+integer+" it can't be serialized");
+                wayStones.removeWayStone(integer);
+                PaperWayStones.plugin.setSerializableWayStones(player.getWorld(), wayStones);
+            }
             counter++;
             if(counter == 14){
                 pages.add(current_page);

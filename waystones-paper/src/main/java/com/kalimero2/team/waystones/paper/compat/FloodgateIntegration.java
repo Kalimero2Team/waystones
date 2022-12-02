@@ -2,8 +2,8 @@ package com.kalimero2.team.waystones.paper.compat;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
+import com.kalimero2.team.waystones.paper.SerializableWayStone;
+import com.kalimero2.team.waystones.paper.SerializableWayStones;
 import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FloodgateIntegration {
+    // TODO: https://github.com/GeyserMC/Cumulus/wiki/Updating-from-1.0-to-1.1-(and-2.0)#response-handling-changes
+
     public static void showBedrockForm(Player player){
 
         SimpleForm.Builder builder = SimpleForm.builder().title("WayStones").content("Wähle einen Waystone aus!");

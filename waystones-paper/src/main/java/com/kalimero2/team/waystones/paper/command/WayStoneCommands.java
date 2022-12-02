@@ -5,18 +5,15 @@ import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.context.CommandContext;
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
+import com.kalimero2.team.waystones.paper.SerializableWayStone;
+import com.kalimero2.team.waystones.paper.SerializableWayStones;
 import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
-import org.bukkit.persistence.PersistentDataType;
 
 public class WayStoneCommands extends CommandHandler{
     public WayStoneCommands(PaperWayStones wayStones, CommandManager commandManager) {
@@ -34,11 +31,6 @@ public class WayStoneCommands extends CommandHandler{
                 .literal("list")
                 .permission("waystones.list")
                 .handler(this::listWaystones)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone")
-                .literal("setVillager")
-                .permission("waystones.setVillager")
-                .handler(this::setVillager)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("tp")
@@ -63,23 +55,13 @@ public class WayStoneCommands extends CommandHandler{
         }
     }
 
-    private void setVillager(CommandContext<CommandSender> context) {
-        if(context.getSender() instanceof Player player){
-            Entity targetEntity = player.getTargetEntity(4);
-            if(targetEntity instanceof Villager villager){
-                villager.getPersistentDataContainer().set(PaperWayStones.WAYSTONE_VILLAGER, PersistentDataType.BYTE, (byte) 1);
-                player.sendMessage("Villager is now a Waystone Villager");
-            }
-        }
-    }
-
     private void teleportToWayStone(CommandContext<CommandSender> context) {
         if(context.getSender() instanceof Player player) {
             SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
             Location location = wayStones.getWayStone(Integer.parseInt(context.get("id")));
             if (location != null) {
                 if(player.getLocation().getNearbyEntitiesByType(ArmorStand.class,5).stream().anyMatch(entity -> entity.getPersistentDataContainer().has(PaperWayStones.WAYSTONE_KEY))){
-                    player.teleportAsync(location.clone().add(0, 1, 0));
+                    player.teleportAsync(location.clone().add(player.getLocation().getDirection()));
                 }
             } else {
                 player.sendMessage("Waystone not found");

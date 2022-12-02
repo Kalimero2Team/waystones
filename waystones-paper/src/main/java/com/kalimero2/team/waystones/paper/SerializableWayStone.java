@@ -1,13 +1,15 @@
-package com.kalimero2.waystones.paper;
+package com.kalimero2.team.waystones.paper;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@SerializableAs("com.kalimero2.waystones.paper.SerializableWayStone")  // Backwards compatibility with old versions.
 public class SerializableWayStone implements ConfigurationSerializable {
 
     String owner_uuid;

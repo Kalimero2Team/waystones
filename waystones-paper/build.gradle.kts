@@ -10,7 +10,7 @@ plugins {
 repositories {
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/")
-    maven("https://repo.opencollab.dev/maven-snapshots/")
+    maven("https://repo.opencollab.dev/main")
     maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
     maven("https://jitpack.io")
@@ -19,6 +19,13 @@ repositories {
 dependencies {
     paperDevBundle(libs.versions.paper.api.get())
     bukkitLibrary(libs.cloud.paper)
+
+    api(libs.geyser.base.api)
+    api(libs.geyser.api)
+    api(libs.geyser.core){
+        isTransitive = false
+    }
+
     compileOnly(libs.floodgate.api)
     compileOnly("com.github.Kalimero2Team:claims:7ba760c75b")
     implementation(libs.customblockdata)
@@ -40,11 +47,11 @@ tasks{
     }
 }
 
-
 bukkit {
     main = "com.kalimero2.team.waystones.paper.PaperWayStones"
     apiVersion = "1.19"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     authors = listOf("byquanton")
     softDepend = listOf("floodgate","claims-paper")
+    loadBefore = listOf("Geyser-Spigot")
 }

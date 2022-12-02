@@ -1,12 +1,14 @@
-package com.kalimero2.waystones.paper;
+package com.kalimero2.team.waystones.paper;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@SerializableAs("com.kalimero2.waystones.paper.SerializableWayStones") // Backwards compatibility with old versions.
 public class SerializableWayStones implements ConfigurationSerializable {
 
     HashMap<Integer, Location> wayStones;

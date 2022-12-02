@@ -5,11 +5,7 @@ import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.waystones.api.WayStonesApi;
 import com.kalimero2.waystones.api.WayStonesApiHolder;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -33,11 +29,10 @@ import java.util.UUID;
 
 public class PaperWayStones extends JavaPlugin implements WayStonesApi {
     public static PaperWayStones plugin;
-    public boolean bedrockIntegration = false;
+    public boolean floodgateIntegration = false;
     public boolean claimsIntegration = false;
     public static final NamespacedKey WAYSTONE_KEY = new NamespacedKey("waystones", "waystone");
     public static final NamespacedKey WAYSTONE_LIST_KEY = new NamespacedKey("waystones", "waystone_list");
-    public static final NamespacedKey WAYSTONE_VILLAGER = new NamespacedKey("waystones", "waystone_villager");
 
     @Override
     public void onLoad() {
@@ -55,13 +50,12 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
 
         try {
             Class.forName("org.geysermc.floodgate.api.FloodgateApi");
-            bedrockIntegration = true;
-            getLogger().info("Bedrock integration enabled");
+            floodgateIntegration = true;
+            getLogger().info("Floodgate integration enabled");
         } catch (ClassNotFoundException e) {
-            bedrockIntegration = false;
-            getLogger().info("Floodgate not found, disabling bedrock integration");
+            floodgateIntegration = false;
+            getLogger().info("Floodgate not found, disabling Floodgate integration");
         }
-
 
         try{
             Class.forName("com.kalimero2.team.claims.api.ClaimsApi");
@@ -113,7 +107,6 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
         new BukkitRunnable(){
             @Override
             public void run() {
-
                 Block bottom_block = centerLocation.getBlock();
                 Block top_block = centerLocation.clone().add(0, 1, 0).getBlock();
                 bottom_block.setType(Material.BARRIER);
@@ -195,7 +188,7 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
     public ItemStack getItem(){
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.displayName(Component.text("WayStone").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
+        itemMeta.displayName(Component.translatable(""));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);
         item.setItemMeta(itemMeta);
