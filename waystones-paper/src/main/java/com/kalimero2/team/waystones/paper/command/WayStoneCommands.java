@@ -15,7 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 
-public class WayStoneCommands extends CommandHandler{
+public class WayStoneCommands extends CommandHandler {
     public WayStoneCommands(PaperWayStones wayStones, CommandManager commandManager) {
         super(wayStones, commandManager);
     }
@@ -46,7 +46,7 @@ public class WayStoneCommands extends CommandHandler{
     }
 
     private void removeWayStone(CommandContext<CommandSender> context) {
-        if(context.getSender() instanceof Player player){
+        if (context.getSender() instanceof Player player) {
             Integer id = context.get("id");
             SerializableWayStones serializableWayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
             serializableWayStones.removeWayStone(id);
@@ -56,12 +56,12 @@ public class WayStoneCommands extends CommandHandler{
     }
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
-        if(context.getSender() instanceof Player player) {
+        if (context.getSender() instanceof Player player) {
             SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
             Location location = wayStones.getWayStone(Integer.parseInt(context.get("id")));
             if (location != null) {
-                if(player.getLocation().getNearbyEntitiesByType(ArmorStand.class,5).stream().anyMatch(entity -> entity.getPersistentDataContainer().has(PaperWayStones.WAYSTONE_KEY))){
-                    player.teleportAsync(location.clone().add(player.getLocation().getDirection()));
+                if (player.getLocation().getNearbyEntitiesByType(ArmorStand.class, 5).stream().anyMatch(entity -> entity.getPersistentDataContainer().has(PaperWayStones.WAYSTONE_KEY))) {
+                    player.teleportAsync(location.clone().add(0, 1, 0));
                 }
             } else {
                 player.sendMessage("Waystone not found");
@@ -70,19 +70,19 @@ public class WayStoneCommands extends CommandHandler{
     }
 
     private void listWaystones(CommandContext<CommandSender> context) {
-        if(context.getSender() instanceof Player player){
+        if (context.getSender() instanceof Player player) {
             player.sendMessage("Waystones:");
             SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
             wayStones.getWayStones().forEach((integer, location) -> {
                 SerializableWayStone wayStone = new CustomBlockData(location.getBlock(), PaperWayStones.plugin).get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
-                player.sendMessage(Component.text("Waystone " + integer + ": " + wayStone.getName()+ " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")"+" Owner: "+wayStone.getOwnerUUID()).clickEvent(ClickEvent.runCommand("/tp " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ())));
+                player.sendMessage(Component.text("Waystone " + integer + ": " + wayStone.getName() + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + " Owner: " + wayStone.getOwnerUUID()).clickEvent(ClickEvent.runCommand("/tp " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ())));
             });
         }
     }
 
     private void giveWaystone(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSender();
-        if(sender instanceof Player player){
+        if (sender instanceof Player player) {
             player.getInventory().addItem(PaperWayStones.plugin.getItem());
         }
     }

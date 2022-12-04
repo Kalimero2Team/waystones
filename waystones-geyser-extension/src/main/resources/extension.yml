@@ -1,6 +1,6 @@
 id: waystones
 name: Waystones
-main: com.kalimero2.team.waystones.compat.GeyserIntegration
+main: com.kalimero2.team.waystones.geyser.GeyserWayStones
 api: 1.0.0
 version: 1.0.0
 authors: [byquanton]

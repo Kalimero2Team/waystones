@@ -19,13 +19,6 @@ repositories {
 dependencies {
     paperDevBundle(libs.versions.paper.api.get())
     bukkitLibrary(libs.cloud.paper)
-
-    api(libs.geyser.base.api)
-    api(libs.geyser.api)
-    api(libs.geyser.core){
-        isTransitive = false
-    }
-
     compileOnly(libs.floodgate.api)
     compileOnly("com.github.Kalimero2Team:claims:7ba760c75b")
     implementation(libs.customblockdata)
