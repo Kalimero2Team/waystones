@@ -2,9 +2,6 @@ package com.kalimero2.team.waystones.paper.compat;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.SerializableWayStone;
-import com.kalimero2.team.waystones.paper.SerializableWayStones;
-import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.SimpleForm;

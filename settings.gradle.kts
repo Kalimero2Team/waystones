@@ -8,18 +8,18 @@ dependencyResolutionManagement{
             version("geyser-baseApi","2.1.0-byquanton-SNAPSHOT")
             version("geyser-geyserApi","2.1.0-byquanton-SNAPSHOT")
             version("geyser-geyserCore","2.1.0-byquanton-SNAPSHOT")
+            version("sqlite","3.39.2.0")
             version("cloud", "1.7.1")
             version("customblockdata","2.1.0")
             version("morepersistentdatatypes","2.3.1")
-            version("anvilgui","1.5.3-SNAPSHOT")
 
             library("floodgate-api","org.geysermc.floodgate","api").versionRef("floodgate-api")
             library("geyser-base-api","org.geysermc","api").versionRef("geyser-baseApi")
             library("geyser-api","org.geysermc.geyser","api").versionRef("geyser-geyserApi")
             library("geyser-core","org.geysermc.geyser","core").versionRef("geyser-geyserCore")
+            library("sqlite","org.xerial","sqlite-jdbc").versionRef("sqlite")
             library("customblockdata","com.jeff_media","CustomBlockData").versionRef("customblockdata")
             library("morepersistentdatatypes","com.jeff_media","MorePersistentDataTypes").versionRef("morepersistentdatatypes")
-            library("anvilgui","net.wesjd","anvilgui").versionRef("anvilgui")
 
             // Paper
             plugin("paper-run","xyz.jpenilla.run-paper").version("1.0.6")

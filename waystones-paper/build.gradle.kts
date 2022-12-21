@@ -19,24 +19,24 @@ repositories {
 dependencies {
     paperDevBundle(libs.versions.paper.api.get())
     bukkitLibrary(libs.cloud.paper)
+    bukkitLibrary(libs.sqlite)
     compileOnly(libs.floodgate.api)
     compileOnly("com.github.Kalimero2Team:claims:7ba760c75b")
     implementation(libs.customblockdata)
     implementation(libs.morepersistentdatatypes)
-    implementation(libs.anvilgui)
     implementation(project(":waystones-api"))
 }
 
-tasks{
+tasks {
     assemble {
         dependsOn(reobfJar)
     }
 
-    shadowJar{
+    shadowJar {
         fun reloc(pkg: String, name: String) = relocate(pkg, "com.kalimero2.team.claims.paper.shaded.$name")
-        reloc("com.jeff_media.customblockdata","customblockdata")
-        reloc("com.jeff_media.morepersistentdatatypes","morepersistentdatatypes")
-        reloc("net.wesjd.anvilgui","anvilgui")
+        reloc("com.jeff_media.customblockdata", "customblockdata")
+        reloc("com.jeff_media.morepersistentdatatypes", "morepersistentdatatypes")
+        reloc("net.wesjd.anvilgui", "anvilgui")
     }
 }
 
@@ -45,6 +45,6 @@ bukkit {
     apiVersion = "1.19"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     authors = listOf("byquanton")
-    softDepend = listOf("floodgate","claims-paper")
+    softDepend = listOf("floodgate", "claims-paper")
     loadBefore = listOf("Geyser-Spigot")
 }

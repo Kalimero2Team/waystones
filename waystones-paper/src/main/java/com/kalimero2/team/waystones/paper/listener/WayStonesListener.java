@@ -49,23 +49,6 @@ import java.util.Map;
 public class WayStonesListener implements Listener {
 
     @EventHandler
-    public void onCustomBlockDataMove(CustomBlockDataMoveEvent event){
-        CustomBlockData customBlockData = event.getCustomBlockData();
-        if(customBlockData.has(PaperWayStones.WAYSTONE_KEY)){
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onCustomBlockDataRemove(CustomBlockDataRemoveEvent event){
-        CustomBlockData customBlockData = event.getCustomBlockData();
-        if(customBlockData.has(PaperWayStones.WAYSTONE_KEY)){
-            Block block = event.getBlock();
-            PaperWayStones.plugin.removeWaystone(block.getLocation());
-        }
-    }
-
-    @EventHandler
     public void onAnvilRename(PrepareAnvilEvent event){
         ItemStack waystone = PaperWayStones.plugin.getItem();
         if(waystone.isSimilar(event.getInventory().getFirstItem())){
