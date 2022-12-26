@@ -8,8 +8,8 @@ dependencyResolutionManagement{
             version("geyser-baseApi","2.1.0-byquanton-SNAPSHOT")
             version("geyser-geyserApi","2.1.0-byquanton-SNAPSHOT")
             version("geyser-geyserCore","2.1.0-byquanton-SNAPSHOT")
-            version("sqlite","3.39.2.0")
-            version("cloud", "1.7.1")
+            version("sqlite","3.40.0.0")
+            version("cloud", "1.8.0")
             version("customblockdata","2.1.0")
             version("morepersistentdatatypes","2.3.1")
 
@@ -22,11 +22,11 @@ dependencyResolutionManagement{
             library("morepersistentdatatypes","com.jeff_media","MorePersistentDataTypes").versionRef("morepersistentdatatypes")
 
             // Paper
-            plugin("paper-run","xyz.jpenilla.run-paper").version("1.0.6")
-            plugin("paper-userdev","io.papermc.paperweight.userdev").version("1.3.8")
+            plugin("paper-run","xyz.jpenilla.run-paper").version("2.0.1")
+            plugin("paper-userdev","io.papermc.paperweight.userdev").version("1.4.0")
             plugin("plugin-yml","net.minecrell.plugin-yml.bukkit").version("0.5.2")
 
-            version("paper-api","1.19.2-R0.1-SNAPSHOT")
+            version("paper-api","1.19.3-R0.1-SNAPSHOT")
 
             library("cloud-paper","cloud.commandframework","cloud-paper").versionRef("cloud")
         }
