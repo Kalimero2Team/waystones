@@ -5,17 +5,19 @@ import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.context.CommandContext;
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
+import com.kalimero2.team.waystones.paper.SerializableWayStone;
+import com.kalimero2.team.waystones.paper.SerializableWayStones;
 import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public class WayStoneCommands extends CommandHandler{
@@ -50,6 +52,16 @@ public class WayStoneCommands extends CommandHandler{
                 .permission("waystones.remove")
                 .argument(IntegerArgument.of("id"))
                 .handler(this::removeWayStone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("addfavourite")
+                .argument(IntegerArgument.of("id"))
+                .handler(this::addFavourite)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("removefavourite")
+                .argument(IntegerArgument.of("id"))
+                .handler(this::removeFavourite)
         );
     }
 
@@ -104,4 +116,70 @@ public class WayStoneCommands extends CommandHandler{
             player.getInventory().addItem(PaperWayStones.plugin.getItem());
         }
     }
+
+    private void addFavourite(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            PersistentDataContainer dataContainer = player.getPersistentDataContainer();
+            int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY);
+            if (oldList == null) oldList = new int[0];
+            int waystone_id = context.get("id");
+            boolean added = false;
+            for (int id : oldList) {
+                if (id == waystone_id) {
+                    added = true;
+                    player.sendMessage("Waystone " + waystone_id + " was already marked as favourite");
+                }
+            }
+            if (!added) {
+                if (oldList.length < 12) {
+                    int[] newList = new int[oldList.length + 1];
+                    for (int i = 0; i < oldList.length; i++) {
+                        newList[i] = oldList[i];
+                    }
+                    newList[oldList.length] = waystone_id;
+                    player.sendMessage("Marked Waystone " + waystone_id + " as favourite");
+                    dataContainer.set(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
+                }
+                else {
+                    player.sendMessage("Maximum number of favourite waystones is 12");
+                }
+            }
+        }
+    }
+
+
+    private void removeFavourite(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            player.sendMessage("THIS IS NOT IMPLEMENTED YET");
+            PersistentDataContainer dataContainer = player.getPersistentDataContainer();
+            int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY);
+            if (oldList == null) oldList = new int[0];
+            int waystone_id = context.get("id");
+            boolean added = false;
+
+            for (int id : oldList) {
+
+                if (id == waystone_id) {
+
+                    added = true;
+                    int[] newList = new int[oldList.length - 1];
+
+                    int shift = 0;
+
+                    for (int i = 0; i < oldList.length-1; i++) {
+                        if (oldList[i] == waystone_id) shift = 1;
+                        newList[i] = oldList[i+shift];
+                    }
+
+                    player.sendMessage("Removed Waystone " + waystone_id + " from favourites");
+                    dataContainer.set(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
+                }
+            }
+
+            if (!added) {
+                player.sendMessage("Waystone " + waystone_id + " was already not marked as favourite");
+            }
+        }
+    }
+
 }

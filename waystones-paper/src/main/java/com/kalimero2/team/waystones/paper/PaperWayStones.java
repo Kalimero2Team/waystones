@@ -5,8 +5,6 @@ import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.waystones.api.WayStonesApi;
 import com.kalimero2.waystones.api.WayStonesApiHolder;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;

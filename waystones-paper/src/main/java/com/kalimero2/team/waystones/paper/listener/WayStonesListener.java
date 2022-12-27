@@ -6,17 +6,19 @@ import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
 import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
 import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.waystones.paper.SerializableWayStone;
-import com.kalimero2.waystones.paper.SerializableWayStones;
+import com.kalimero2.team.waystones.paper.SerializableWayStone;
+import com.kalimero2.team.waystones.paper.SerializableWayStones;
 import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextColor;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -36,6 +38,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -227,7 +230,18 @@ public class WayStonesListener implements Listener {
                 current_page = Component.empty();
                 counter = 0;
             }
-            current_page = current_page.append(Component.text("• "+wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
+            String action = "add";
+            TextColor color = TextColor.color(0, 0, 0);
+            if (player.getPersistentDataContainer().has(new NamespacedKey("waystones", "favourite_waystones"))) {
+                for (int id : player.getPersistentDataContainer().get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY)) {
+                    if (id == integer) {
+                        action = "remove";
+                        color = TextColor.color(200, 200, 0);
+                    }
+                }
+            }
+            current_page = current_page.append(Component.text("[★]").color(color).clickEvent(ClickEvent.runCommand("/waystone " + action + "favourite " + integer)));
+            current_page = current_page.append(Component.text(" "+wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
             current_page = current_page.append(Component.newline());
         }
         pages.add(current_page);
