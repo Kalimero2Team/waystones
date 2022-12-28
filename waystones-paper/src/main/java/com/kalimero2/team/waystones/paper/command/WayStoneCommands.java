@@ -56,19 +56,18 @@ public class WayStoneCommands extends CommandHandler{
                 .handler(this::removeWayStone)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
-                .literal("addfavourite")
+                .literal("favorite")
                 .argument(IntegerArgument.of("id"))
-                .handler(this::addFavourite)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone")
-                .literal("removefavourite")
-                .argument(IntegerArgument.of("id"))
-                .handler(this::removeFavourite)
+                .handler(this::switchFavorite)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("sortingmode")
                 .argument(IntegerArgument.of("id"))
                 .handler(this::setSortMode)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("favoriteselectionmenu")
+                .handler(this::switchFavoriteMenu)
         );
     }
 
@@ -123,11 +122,69 @@ public class WayStoneCommands extends CommandHandler{
             player.getInventory().addItem(PaperWayStones.plugin.getItem());
         }
     }
+    
+    
+    private void switchFavorite(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            
+            PersistentDataContainer dataContainer = player.getPersistentDataContainer();
+            
+            int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favorite_waystones"), PersistentDataType.INTEGER_ARRAY);
+            if (oldList == null) oldList = new int[0];
+            
+            int waystone_id = context.get("id");
+            boolean added = false;
+            
+            for (int id : oldList) {
+                if (id == waystone_id) {
+                    added = true;
+                }
+            }
+            
+            if (added) {
+                for (int id : oldList) {
+                    if (id == waystone_id) {
+    
+                        added = true;
+                        int[] newList = new int[oldList.length - 1];
+    
+                        int shift = 0;
+    
+                        for (int i = 0; i < oldList.length-1; i++) {
+                            if (oldList[i] == waystone_id) shift = 1;
+                            newList[i] = oldList[i+shift];
+                        }
+    
+                        dataContainer.set(new NamespacedKey("waystones", "favorite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
+                    }
+                }
+            }
+            
+            else {
+                if (oldList.length < 12) {
+                    int[] newList = new int[oldList.length + 1];
+                    for (int i = 0; i < oldList.length; i++) {
+                        newList[i] = oldList[i];
+                    }
+                    newList[oldList.length] = waystone_id;
+                    dataContainer.set(new NamespacedKey("waystones", "favorite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
+                }
+                else {
+                    player.sendMessage("Maximum number of favorite waystones is 12");
+                }
+                
+            }
+            openMenu(player);
+        }
+    }
 
-    private void addFavourite(CommandContext<CommandSender> context) {
+    
+    // No longer needed because switchFavorite() is used:
+    /*
+    private void addFavorite(Player player, int waystone) {
         if (context.getSender() instanceof Player player) {
             PersistentDataContainer dataContainer = player.getPersistentDataContainer();
-            int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY);
+            int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favorite_waystones"), PersistentDataType.INTEGER_ARRAY);
             if (oldList == null) oldList = new int[0];
             int waystone_id = context.get("id");
             boolean added = false;
@@ -143,10 +200,10 @@ public class WayStoneCommands extends CommandHandler{
                         newList[i] = oldList[i];
                     }
                     newList[oldList.length] = waystone_id;
-                    dataContainer.set(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
+                    dataContainer.set(new NamespacedKey("waystones", "favorite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
                 }
                 else {
-                    player.sendMessage("Maximum number of favourite waystones is 12");
+                    player.sendMessage("Maximum number of favorite waystones is 12");
                 }
             }
             openMenu(player);
@@ -154,10 +211,10 @@ public class WayStoneCommands extends CommandHandler{
     }
 
 
-    private void removeFavourite(CommandContext<CommandSender> context) {
+    private void removeFavorite(Player player, int waystone) {
         if (context.getSender() instanceof Player player) {
             PersistentDataContainer dataContainer = player.getPersistentDataContainer();
-            int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY);
+            int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favorite_waystones"), PersistentDataType.INTEGER_ARRAY);
             if (oldList == null) oldList = new int[0];
             int waystone_id = context.get("id");
             boolean added = false;
@@ -176,7 +233,7 @@ public class WayStoneCommands extends CommandHandler{
                         newList[i] = oldList[i+shift];
                     }
 
-                    dataContainer.set(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
+                    dataContainer.set(new NamespacedKey("waystones", "favorite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
                 }
             }
 
@@ -185,11 +242,27 @@ public class WayStoneCommands extends CommandHandler{
             openMenu(player);
         }
     }
+    */
 
     private void setSortMode(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             PersistentDataContainer dataContainer = player.getPersistentDataContainer();
             dataContainer.set(new NamespacedKey("waystones", "sorting_mode"), PersistentDataType.INTEGER, context.get("id"));
+            openMenu(player);
+        }
+    }
+
+
+    private void switchFavoriteMenu(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            NamespacedKey key = new NamespacedKey("waystones", "favorite_selection_mode");
+            PersistentDataContainer dataContainer = player.getPersistentDataContainer();
+            if (dataContainer.has(key)) {
+                if (dataContainer.get(key, PersistentDataType.INTEGER) == 0) dataContainer.set(key, PersistentDataType.INTEGER, 1);
+                else dataContainer.set(key, PersistentDataType.INTEGER, 0);
+            }
+            else dataContainer.set(key, PersistentDataType.INTEGER, 1);
+            
             openMenu(player);
         }
     }
