@@ -63,6 +63,11 @@ public class WayStoneCommands extends CommandHandler{
                 .argument(IntegerArgument.of("id"))
                 .handler(this::removeFavourite)
         );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("sortingmode")
+                .argument(IntegerArgument.of("id"))
+                .handler(this::setSortMode)
+        );
     }
 
     private void removeWayStone(CommandContext<CommandSender> context) {
@@ -179,6 +184,13 @@ public class WayStoneCommands extends CommandHandler{
             if (!added) {
                 player.sendMessage("Waystone " + waystone_id + " was already not marked as favourite");
             }
+        }
+    }
+
+    private void setSortMode(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            PersistentDataContainer dataContainer = player.getPersistentDataContainer();
+            dataContainer.set(new NamespacedKey("waystones", "sorting_mode"), PersistentDataType.INTEGER, context.get("id"));
         }
     }
 
