@@ -15,10 +15,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -218,6 +215,19 @@ public class WayStonesListener implements Listener {
         Component current_page = Component.empty();
         int counter = 0;
 
+        // Determines the sorting mode for the given player (NOT implemented yet!)
+        // 0 = Numerical
+        // 1 = Alphabetical
+        // 2 = Sorted by popularity (how often players teleport to a specific waystone)
+        Integer mode = player.getPersistentDataContainer().get(new NamespacedKey("waystones", "sorting_mode"), PersistentDataType.INTEGER);
+
+        if (mode == null) {
+            player.getPersistentDataContainer().set(new NamespacedKey("waystones", "sorting_mode"), PersistentDataType.INTEGER, 0);
+            mode = 0;
+        }
+
+        // TODO: Implement system to sort entries
+
         SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
         for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
             Integer integer = entry.getKey();
@@ -225,25 +235,67 @@ public class WayStonesListener implements Listener {
             CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), PaperWayStones.plugin);
             SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
             counter++;
-            if(counter == 14){
+
+            if(counter == 13){
+                Bukkit.getLogger().info("Counter is 13");
+                TextColor color = TextColor.color(0, 0, 0);
+                TextColor colorSelected = TextColor.color(0, 150, 255);
+
+                if (mode == 1) current_page.append(Component.text("  [A-Z]").color(colorSelected));
+                else current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
+
+                if (mode == 0) { current_page.append(Component.text("  [1-2]").color(colorSelected)); Bukkit.getLogger().info("success"); }
+                else { current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0"))); Bukkit.getLogger().info("Also success"); }
+
+                if (mode == 2) current_page.append(Component.text("  [★★★]").color(colorSelected));
+                else current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
+
+                if (mode < 0 || mode > 2) Bukkit.getLogger().info("Mode is invalid: " + mode);
+
+                Bukkit.getLogger().info("Current Page: "+current_page);
+
                 pages.add(current_page);
                 current_page = Component.empty();
                 counter = 0;
             }
-            String action = "add";
-            TextColor color = TextColor.color(0, 0, 0);
-            if (player.getPersistentDataContainer().has(new NamespacedKey("waystones", "favourite_waystones"))) {
-                for (int id : player.getPersistentDataContainer().get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY)) {
-                    if (id == integer) {
-                        action = "remove";
-                        color = TextColor.color(200, 200, 0);
+            else {
+                String action = "add";
+                TextColor color = TextColor.color(0, 0, 0);
+                if (player.getPersistentDataContainer().has(new NamespacedKey("waystones", "favourite_waystones"))) {
+                    for (int id : player.getPersistentDataContainer().get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY)) {
+                        if (id == integer) {
+                            action = "remove";
+                            color = TextColor.color(200, 200, 0);
+                        }
                     }
                 }
+                current_page = current_page.append(Component.text("[★]").color(color).clickEvent(ClickEvent.runCommand("/waystone " + action + "favourite " + integer)));
+                current_page = current_page.append(Component.text(" " + wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
+                current_page = current_page.append(Component.newline());
             }
-            current_page = current_page.append(Component.text("[★]").color(color).clickEvent(ClickEvent.runCommand("/waystone " + action + "favourite " + integer)));
-            current_page = current_page.append(Component.text(" "+wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
-            current_page = current_page.append(Component.newline());
         }
+
+        if (counter < 13) {
+
+            Bukkit.getLogger().info("Counter is too small :" + counter);
+
+            for (int i = 0; i < 13-counter; i++) {
+                current_page.append(Component.newline());
+            }
+
+            TextColor color = TextColor.color(0, 0, 0);
+            TextColor colorSelected = TextColor.color(0, 150, 255);
+
+            if (mode == 1) current_page.append(Component.text("  [A-Z]").color(colorSelected));
+            else current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
+
+            if (mode == 0) current_page.append(Component.text("  [1-2]").color(colorSelected));
+            else current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
+
+            if (mode == 2) current_page.append(Component.text("  [★★★]").color(colorSelected));
+            else current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
+        }
+
         pages.add(current_page);
 
         player.openBook(Book.book(Component.empty(),Component.empty(), pages));
