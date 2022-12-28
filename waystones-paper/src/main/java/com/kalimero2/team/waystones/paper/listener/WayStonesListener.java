@@ -210,7 +210,7 @@ public class WayStonesListener implements Listener {
         }
     }
 
-    private static void showJavaBook(Player player) {
+    public static void showJavaBook(Player player) {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.empty();
         int counter = 0;
@@ -229,6 +229,7 @@ public class WayStonesListener implements Listener {
         // TODO: Implement system to sort entries
 
         SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
+
         for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
             Integer integer = entry.getKey();
             Location location = entry.getValue();

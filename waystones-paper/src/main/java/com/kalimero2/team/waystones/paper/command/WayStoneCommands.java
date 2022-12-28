@@ -8,6 +8,8 @@ import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.SerializableWayStone;
 import com.kalimero2.team.waystones.paper.SerializableWayStones;
 import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
+import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
+import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Location;
@@ -132,7 +134,6 @@ public class WayStoneCommands extends CommandHandler{
             for (int id : oldList) {
                 if (id == waystone_id) {
                     added = true;
-                    player.sendMessage("Waystone " + waystone_id + " was already marked as favourite");
                 }
             }
             if (!added) {
@@ -142,20 +143,19 @@ public class WayStoneCommands extends CommandHandler{
                         newList[i] = oldList[i];
                     }
                     newList[oldList.length] = waystone_id;
-                    player.sendMessage("Marked Waystone " + waystone_id + " as favourite");
                     dataContainer.set(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
                 }
                 else {
                     player.sendMessage("Maximum number of favourite waystones is 12");
                 }
             }
+            openMenu(player);
         }
     }
 
 
     private void removeFavourite(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
-            player.sendMessage("THIS IS NOT IMPLEMENTED YET");
             PersistentDataContainer dataContainer = player.getPersistentDataContainer();
             int[] oldList = dataContainer.get(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY);
             if (oldList == null) oldList = new int[0];
@@ -176,14 +176,13 @@ public class WayStoneCommands extends CommandHandler{
                         newList[i] = oldList[i+shift];
                     }
 
-                    player.sendMessage("Removed Waystone " + waystone_id + " from favourites");
                     dataContainer.set(new NamespacedKey("waystones", "favourite_waystones"), PersistentDataType.INTEGER_ARRAY, newList);
                 }
             }
 
             if (!added) {
-                player.sendMessage("Waystone " + waystone_id + " was already not marked as favourite");
             }
+            openMenu(player);
         }
     }
 
@@ -191,7 +190,20 @@ public class WayStoneCommands extends CommandHandler{
         if (context.getSender() instanceof Player player) {
             PersistentDataContainer dataContainer = player.getPersistentDataContainer();
             dataContainer.set(new NamespacedKey("waystones", "sorting_mode"), PersistentDataType.INTEGER, context.get("id"));
+            openMenu(player);
         }
     }
 
+
+    private void openMenu(Player player) {
+        if (PaperWayStones.plugin.bedrockIntegration) {
+            boolean bedrock = org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
+            if (bedrock) {
+                FloodgateIntegration.showBedrockForm(player);
+            }
+            else {
+                WayStonesListener.showJavaBook(player);
+            }
+        }
+    }
 }
