@@ -241,17 +241,20 @@ public class WayStonesListener implements Listener {
                 TextColor color = TextColor.color(0, 0, 0);
                 TextColor colorSelected = TextColor.color(0, 150, 255);
 
-                if (mode == 1) current_page.append(Component.text("  [A-Z]").color(colorSelected));
-                else current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
+                current_page = current_page.append(Component.newline());
 
-                if (mode == 0) { current_page.append(Component.text("  [1-2]").color(colorSelected)); Bukkit.getLogger().info("success"); }
-                else { current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0"))); Bukkit.getLogger().info("Also success"); }
+                if (mode == 1) current_page = current_page.append(Component.text("  [A-Z]").color(colorSelected));
+                else current_page = current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
 
-                if (mode == 2) current_page.append(Component.text("  [★★★]").color(colorSelected));
-                else current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
+                if (mode == 0) current_page = current_page.append(Component.text("  [1-2]").color(colorSelected));
+                else current_page = current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
+
+                if (mode == 2) current_page = current_page.append(Component.text("  [★★★]").color(colorSelected));
+                else current_page = current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
 
                 if (mode < 0 || mode > 2) Bukkit.getLogger().info("Mode is invalid: " + mode);
 
+                //current_page.append(Component.text("  [A-Z]").color(colorSelected));
                 Bukkit.getLogger().info("Current Page: "+current_page);
 
                 pages.add(current_page);
@@ -280,20 +283,20 @@ public class WayStonesListener implements Listener {
             Bukkit.getLogger().info("Counter is too small :" + counter);
 
             for (int i = 0; i < 13-counter; i++) {
-                current_page.append(Component.newline());
+                current_page = current_page.append(Component.newline());
             }
 
             TextColor color = TextColor.color(0, 0, 0);
             TextColor colorSelected = TextColor.color(0, 150, 255);
 
-            if (mode == 1) current_page.append(Component.text("  [A-Z]").color(colorSelected));
-            else current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
+            if (mode == 1) current_page = current_page.append(Component.text("  [A-Z]").color(colorSelected));
+            else current_page = current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
 
-            if (mode == 0) current_page.append(Component.text("  [1-2]").color(colorSelected));
-            else current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
+            if (mode == 0) current_page = current_page.append(Component.text("  [1-2]").color(colorSelected));
+            else current_page = current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
 
-            if (mode == 2) current_page.append(Component.text("  [★★★]").color(colorSelected));
-            else current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
+            if (mode == 2) current_page = current_page.append(Component.text("  [★★★]").color(colorSelected));
+            else current_page = current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
         }
 
         pages.add(current_page);
