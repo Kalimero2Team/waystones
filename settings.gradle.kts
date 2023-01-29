@@ -9,7 +9,7 @@ dependencyResolutionManagement{
             version("geyser-geyserApi","2.1.0-byquanton-SNAPSHOT")
             version("geyser-geyserCore","2.1.0-byquanton-SNAPSHOT")
             version("cloud", "1.8.0")
-            version("customblockdata","2.1.0")
+            version("customblockdata","2.2.0")
             version("morepersistentdatatypes","2.3.1")
             version("anvilgui","1.6.3-SNAPSHOT")
 
