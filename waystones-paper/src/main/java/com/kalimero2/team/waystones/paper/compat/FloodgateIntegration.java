@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FloodgateIntegration {
+    /*
     // TODO: https://github.com/GeyserMC/Cumulus/wiki/Updating-from-1.0-to-1.1-(and-2.0)#response-handling-changes
 
     public static void showBedrockForm(Player player){
@@ -47,5 +48,5 @@ public class FloodgateIntegration {
         floodgatePlayer.sendForm(builder.build());
 
     }
-
+*/
 }

@@ -1,37 +1,89 @@
 package com.kalimero2.team.waystones.paper.compat;
 
+import com.jeff_media.customblockdata.CustomBlockData;
 import com.jeff_media.morepersistentdatatypes.datatypes.serializable.ConfigurationSerializableDataType;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Server;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.configuration.serialization.SerializableAs;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.logging.Logger;
 
 public class LegacyConverter {
 
-    public static void convert() {
+    private final PaperWayStones plugin;
+
+    private final Logger LOGGER = Logger.getLogger("LegacyConverter");
+    private final NamespacedKey WAYSTONE_KEY = new NamespacedKey("waystones", "waystone");
+    private final NamespacedKey WAYSTONE_LIST_KEY = new NamespacedKey("waystones", "waystone_list");
+
+    private final PersistentDataType<byte[], SerializableWayStone> WAY_STONE = new ConfigurationSerializableDataType<>(SerializableWayStone.class);
+    private final PersistentDataType<byte[], SerializableWayStones> WAY_STONES = new ConfigurationSerializableDataType<>(SerializableWayStones.class);
+
+
+    public LegacyConverter(PaperWayStones plugin) {
+        this.plugin = plugin;
+        convert();
+    }
+
+    public void convert() {
         ConfigurationSerialization.registerClass(SerializableWayStones.class);
         ConfigurationSerialization.registerClass(SerializableWayStone.class);
 
-        // TODO: Convert
+        Server server = plugin.getServer();
+        server.getWorlds().forEach(world -> {
+            PersistentDataContainer persistentDataContainer = world.getPersistentDataContainer();
+            if (persistentDataContainer.has(WAYSTONE_LIST_KEY)) {
+                LOGGER.info("Converting Waystones in world " + world.getName());
+                SerializableWayStones wayStones = persistentDataContainer.get(WAYSTONE_LIST_KEY, WAY_STONES);
+                if (wayStones != null) {
+                    wayStones.getWayStones().forEach((id, location) -> {
+                        LOGGER.info("Converting Waystone with old id:" + id);
+                        CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), plugin);
+                        SerializableWayStone wayStone = customBlockData.get(WAYSTONE_KEY, WAY_STONE);
+                        plugin.getStorage().addWaystone(wayStone.getName(), wayStone.getOwnerUUID(), location.getChunk().getX(), location.getChunk().getZ(), location.getBlockX(), location.getBlockY(), location.getBlockZ(), world.getUID());
+                    });
+                }
+            } else {
+                LOGGER.info("No Waystones found in world " + world.getName());
+            }
+        });
 
-        // ConfigurationSerialization.unregisterClass(SerializableWayStones.class);
-        // ConfigurationSerialization.unregisterClass(SerializableWayStone.class);
+        plugin.getConfig().set("did-legacy-conversion", true);
+        plugin.saveConfig();
+
+        LOGGER.info("Conversion finished. Unregistering serialization classes ...");
+        ConfigurationSerialization.unregisterClass(SerializableWayStones.class);
+        ConfigurationSerialization.unregisterClass(SerializableWayStone.class);
     }
 
-
+    @Deprecated(forRemoval = true)
     @SerializableAs("com.kalimero2.waystones.paper.SerializableWayStone")
     public static class SerializableWayStone implements ConfigurationSerializable {
 
         String owner_uuid;
         String name;
         Location location;
+
+        public SerializableWayStone(String owner_uuid, String name, Location location) {
+            this.owner_uuid = owner_uuid;
+            this.name = name;
+            this.location = location;
+        }
+
+        public static SerializableWayStone deserialize(Map<String, Object> map) {
+            return new SerializableWayStone((String) map.get("owner"), (String) map.get("name"), (Location) map.get("location"));
+        }
 
         @Override
         public @NotNull Map<String, Object> serialize() {
@@ -42,26 +94,12 @@ public class LegacyConverter {
             return map;
         }
 
-        public static SerializableWayStone deserialize(Map<String,Object> map) {
-            return new SerializableWayStone((String) map.get("owner"), (String) map.get("name"), (Location) map.get("location"));
-        }
-
-        public SerializableWayStone(String owner_uuid, String name, Location location) {
-            this.owner_uuid = owner_uuid;
-            this.name = name;
-            this.location = location;
-        }
-
-        public String getOwnerUUID() {
-            return owner_uuid;
+        public UUID getOwnerUUID() {
+            return UUID.fromString(owner_uuid);
         }
 
         public String getName() {
             return name;
-        }
-
-        public Location getLocation() {
-            return location;
         }
 
         @Override
@@ -87,6 +125,7 @@ public class LegacyConverter {
         }
     }
 
+    @Deprecated(forRemoval = true)
     @SerializableAs("com.kalimero2.waystones.paper.SerializableWayStones")
     public static class SerializableWayStones implements ConfigurationSerializable {
 
@@ -94,21 +133,21 @@ public class LegacyConverter {
         Integer nextId;
 
 
+        public SerializableWayStones(HashMap<Integer, Location> wayStones, Integer nextId) {
+            this.wayStones = wayStones;
+            this.nextId = nextId;
+        }
+
+        public static SerializableWayStones deserialize(Map<String, Object> map) {
+            return new SerializableWayStones((HashMap<Integer, Location>) map.get("data"), (int) map.get("nextId"));
+        }
+
         @Override
         public @NotNull Map<String, Object> serialize() {
             Map<String, Object> map = new HashMap<>();
             map.put("data", wayStones);
             map.put("nextId", nextId);
             return map;
-        }
-
-        public static SerializableWayStones deserialize(Map<String,Object> map) {
-            return new SerializableWayStones((HashMap<Integer, Location>) map.get("data"), (int) map.get("nextId"));
-        }
-
-        public SerializableWayStones(HashMap<Integer, Location> wayStones, Integer nextId) {
-            this.wayStones = wayStones;
-            this.nextId = nextId;
         }
 
         public HashMap<Integer, Location> getWayStones() {
@@ -135,26 +174,6 @@ public class LegacyConverter {
             }
             return -1;
         }
-
-        public int getNextId() {
-            if(nextId == null){
-                nextId = 0;
-            }
-            nextId ++;
-            return nextId;
-        }
-
-        public void addWayStone(int id, Location location) {
-            wayStones.put(id, location);
-        }
-
-    }
-
-    public static interface WayStoneDataTypes {
-
-        PersistentDataType<byte[], SerializableWayStone> WAY_STONE = new ConfigurationSerializableDataType<>(SerializableWayStone.class);
-        PersistentDataType<byte[], SerializableWayStones> WAY_STONES = new ConfigurationSerializableDataType<>(SerializableWayStones.class);
-
     }
 
 

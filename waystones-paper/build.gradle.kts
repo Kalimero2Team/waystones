@@ -13,23 +13,24 @@ repositories {
     maven("https://repo.opencollab.dev/main")
     maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
-    maven("https://jitpack.io")
+    maven("https://repo.byquanton.eu/releases")
+    maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
-    paperDevBundle(libs.versions.paper.api.get())
+    paperDevBundle(libs.versions.paper.get())
     bukkitLibrary(libs.cloud.paper)
     bukkitLibrary(libs.sqlite)
     compileOnly(libs.floodgate.api)
-    compileOnly("com.github.Kalimero2Team:claims:7ba760c75b")
+    compileOnly("com.kalimero2.team:claims-api:1.1.5")
     implementation(libs.customblockdata)
     implementation(libs.morepersistentdatatypes)
     implementation(project(":waystones-api"))
 }
 
 tasks {
-    assemble {
-        dependsOn(reobfJar)
+    runServer {
+        minecraftVersion("1.19.3")
     }
 
     shadowJar {
@@ -43,8 +44,7 @@ tasks {
 bukkit {
     main = "com.kalimero2.team.waystones.paper.PaperWayStones"
     apiVersion = "1.19"
-    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
+    load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("byquanton")
     softDepend = listOf("floodgate", "claims-paper")
-    loadBefore = listOf("Geyser-Spigot")
 }

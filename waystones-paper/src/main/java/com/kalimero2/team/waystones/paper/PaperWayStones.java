@@ -1,55 +1,24 @@
 package com.kalimero2.team.waystones.paper;
 
-import com.jeff_media.customblockdata.CustomBlockData;
 import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
+import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
-import com.kalimero2.waystones.api.WayStonesApi;
-import com.kalimero2.waystones.api.WayStonesApiHolder;
-import net.kyori.adventure.text.Component;
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
+import com.kalimero2.team.waystones.paper.storage.Storage;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.io.File;
 
-import static com.kalimero2.team.waystones.paper.WayStoneDataTypes.*;
-
-public class PaperWayStones extends JavaPlugin implements WayStonesApi {
-    public static final NamespacedKey WAYSTONE_KEY = new NamespacedKey("waystones", "waystone");
-    public static final NamespacedKey WAYSTONE_LIST_KEY = new NamespacedKey("waystones", "waystone_list");
-    public static PaperWayStones plugin;
+public class PaperWayStones extends JavaPlugin {
     public boolean floodgateIntegration = false;
     public boolean claimsIntegration = false;
 
-    @Override
-    public void onLoad() {
-        plugin = this;
-
-        if (getDataFolder().mkdirs()) {
-
-        }
-
-
-    }
+    private Storage storage;
 
     @Override
     public void onEnable() {
-        WayStonesApiHolder.setApi(this);
 
-        CustomBlockData.registerListener(this);
-
-
+        //WayStonesApiHolder.setApi(this);
         try {
             Class.forName("org.geysermc.floodgate.api.FloodgateApi");
             floodgateIntegration = true;
@@ -58,7 +27,6 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
             floodgateIntegration = false;
             getLogger().info("Floodgate not found, disabling Floodgate integration");
         }
-
         try {
             Class.forName("com.kalimero2.team.claims.api.ClaimsApi");
             claimsIntegration = true;
@@ -68,13 +36,22 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
             getLogger().info("Claims not found, disabling Claims integration");
         }
 
+        getDataFolder().mkdirs();
+        this.storage = new Storage(this, new File(getDataFolder(), "waystones.db"));
+
+        if (!getConfig().getBoolean("did-legacy-conversion", false)) {
+            new LegacyConverter(this).convert();
+        }
+
 
         try {
             new CommandManager(this);
         } catch (Exception e) {
             getLogger().warning("Failed to register commands");
         }
-        getServer().getPluginManager().registerEvents(new WayStonesListener(), this);
+
+        new WayStonesListener( this);
+        new ChunkListener(this);
     }
 
     @Override
@@ -82,9 +59,14 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
 
     }
 
+    public Storage getStorage() {
+        return storage;
+    }
+
+    /*
     @Override
-    public void createWayStone(UUID player, UUID world, int x, int y, int z, String name) {
-        createWayStone(getServer().getPlayer(player), new Location(getServer().getWorld(world), x, y, z), name);
+    public void createWayStone(UUID player, UUID world, int block_x, int block_y, int block_z, String name) {
+        createWayStone(getServer().getPlayer(player), new Location(getServer().getWorld(world), block_x, block_y, block_z), name);
     }
 
     public void createWayStone(Player player, Location location, String name) {
@@ -129,8 +111,8 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
         setSerializableWayStones(location.getWorld(), wayStones);
     }
 
-    public void removeWayStone(UUID world, int x, int y, int z) {
-        removeWaystone(new Location(getServer().getWorld(world), x, y, z));
+    public void removeWayStone(UUID world, int block_x, int block_y, int block_z) {
+        removeWaystone(new Location(getServer().getWorld(world), block_x, block_y, block_z));
     }
 
     public void removeWaystone(Location location) {
@@ -196,4 +178,6 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
         item.setItemMeta(itemMeta);
         return item;
     }
+
+ */
 }

@@ -1,19 +1,6 @@
 package com.kalimero2.team.waystones.paper.command;
 
-import cloud.commandframework.arguments.standard.IntegerArgument;
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.context.CommandContext;
-import com.jeff_media.customblockdata.CustomBlockData;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.SerializableWayStone;
-import com.kalimero2.team.waystones.paper.SerializableWayStones;
-import com.kalimero2.team.waystones.paper.WayStoneDataTypes;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 
 public class WayStoneCommands extends CommandHandler {
     public WayStoneCommands(PaperWayStones wayStones, CommandManager commandManager) {
@@ -22,6 +9,7 @@ public class WayStoneCommands extends CommandHandler {
 
     @Override
     public void register() {
+        /*
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("give")
                 .permission("waystones.give")
@@ -42,9 +30,10 @@ public class WayStoneCommands extends CommandHandler {
                 .permission("waystones.remove")
                 .argument(IntegerArgument.of("id"))
                 .handler(this::removeWayStone)
-        );
+        );*/
     }
 
+/*
     private void removeWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             Integer id = context.get("id");
@@ -85,5 +74,5 @@ public class WayStoneCommands extends CommandHandler {
         if (sender instanceof Player player) {
             player.getInventory().addItem(PaperWayStones.plugin.getItem());
         }
-    }
+    }*/
 }

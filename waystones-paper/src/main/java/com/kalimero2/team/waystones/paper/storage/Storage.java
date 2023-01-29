@@ -1,0 +1,167 @@
+package com.kalimero2.team.waystones.paper.storage;
+
+import com.kalimero2.team.waystones.paper.PaperWayStones;
+import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.UUID;
+
+public class Storage {
+
+    private final PaperWayStones plugin;
+    private Connection connection;
+
+    public Storage(PaperWayStones plugin, File dataBase) {
+        this.plugin = plugin;
+
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dataBase.getPath());
+            createTablesIfNotExists();
+        } catch (ClassNotFoundException | SQLException e) {
+            plugin.getSLF4JLogger().error("Error while creating database connection", e);
+        }
+    }
+
+
+    public ResultSet executeQuery(@Language(value = "SQL") String sql) {
+        try {
+            return connection.createStatement().executeQuery(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public int executeUpdate(@Language(value = "SQL") String sql) {
+        try {
+            return connection.createStatement().executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
+    private void createTablesIfNotExists() {
+        createWaystonesTableIfNotExists();
+    }
+
+    private void createWaystonesTableIfNotExists() {
+        // ID, NAME, Owner(UUID), CHUNK_X, CHUNK_Z , X, Y, Z, WORLD(UUID)
+
+        executeUpdate("CREATE TABLE IF NOT EXISTS WAYSTONES(" +
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "NAME TEXT NOT NULL," +
+                "OWNER_UUID VARCHAR(36) NOT NULL," +
+                "CHUNK_X INTEGER NOT NULL," +
+                "CHUNK_Z INTEGER NOT NULL," +
+                "BLOCK_X INTEGER NOT NULL," +
+                "BLOCK_Y INTEGER NOT NULL," +
+                "BLOCK_Z INTEGER NOT NULL," +
+                "WORLD_UUID VARCHAR(36) NOT NULL" +
+                ");");
+
+    }
+
+    public void addWaystone(String name, UUID owner, int chunkX, int chunkZ, int x, int y, int z, UUID world) {
+        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID) VALUES('" + name + "', '" + owner + "', " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "');");
+    }
+
+    public void updateWaystone(Waystone waystone) {
+        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "' WHERE ID = " + waystone.id() + ";");
+    }
+
+
+    public Waystone getWaystone(int id) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE ID = " + id + ";")) {
+            if (resultSet.next()) {
+                return new Waystone(resultSet.getInt("ID"),
+                        resultSet.getString("NAME"),
+                        resultSet.getString("OWNER_UUID"),
+                        resultSet.getInt("CHUNK_X"),
+                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("BLOCK_X"),
+                        resultSet.getInt("BLOCK_Y"),
+                        resultSet.getInt("BLOCK_Z"),
+                        resultSet.getString("WORLD_UUID"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Waystone getWaystone(int block_x, int block_y, int block_z, UUID world) {
+        try (ResultSet resultSet = executeQuery("SELECT  * FROM WAYSTONES WHERE BLOCK_X = " + block_x + " AND BLOCK_Y = " + block_y + " AND BLOCK_Z = " + block_z + " AND WORLD_UUID = '"+world+"';")) {
+            if (resultSet.next()) {
+                return new Waystone(resultSet.getInt("ID"),
+                        resultSet.getString("NAME"),
+                        resultSet.getString("OWNER_UUID"),
+                        resultSet.getInt("CHUNK_X"),
+                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("BLOCK_X"),
+                        resultSet.getInt("BLOCK_Y"),
+                        resultSet.getInt("BLOCK_Z"),
+                        resultSet.getString("WORLD_UUID"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Waystone[] getWaystones(int chunk_x, int chunk_y, UUID world) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE CHUNK_X = " + chunk_x + " AND CHUNK_Z = " + chunk_y + " AND WORLD_UUID = '"+world+"';")) {
+            return getWaystonesFromResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new Waystone[0];
+    }
+
+    public Waystone[] getWaystones(UUID world) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"';")) {
+            return getWaystonesFromResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new Waystone[0];
+    }
+
+    public Waystone[] getWaystones() {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES;")) {
+            return getWaystonesFromResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new Waystone[0];
+
+    }
+
+    @NotNull
+    private Waystone[] getWaystonesFromResultSet(ResultSet resultSet) throws SQLException {
+        Set<Waystone> waystones = new LinkedHashSet<>();
+        while (resultSet.next()) {
+            waystones.add(new Waystone(resultSet.getInt("ID"),
+                    resultSet.getString("NAME"),
+                    resultSet.getString("OWNER_UUID"),
+                    resultSet.getInt("CHUNK_X"),
+                    resultSet.getInt("CHUNK_Z"),
+                    resultSet.getInt("BLOCK_X"),
+                    resultSet.getInt("BLOCK_Y"),
+                    resultSet.getInt("BLOCK_Z"),
+                    resultSet.getString("WORLD_UUID"))
+            );
+        }
+        return waystones.toArray(new Waystone[0]);
+    }
+
+}

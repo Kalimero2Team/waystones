@@ -12,6 +12,7 @@ dependencyResolutionManagement{
             version("cloud", "1.8.0")
             version("customblockdata","2.1.0")
             version("morepersistentdatatypes","2.3.1")
+            version("protocollib","4.7.0")
 
             library("floodgate-api","org.geysermc.floodgate","api").versionRef("floodgate-api")
             library("geyser-base-api","org.geysermc","api").versionRef("geyser-baseApi")
@@ -20,14 +21,16 @@ dependencyResolutionManagement{
             library("sqlite","org.xerial","sqlite-jdbc").versionRef("sqlite")
             library("customblockdata","com.jeff_media","CustomBlockData").versionRef("customblockdata")
             library("morepersistentdatatypes","com.jeff_media","MorePersistentDataTypes").versionRef("morepersistentdatatypes")
+            library("protocollib","com.comphenix.protocol","ProtocolLib").versionRef("protocollib")
 
             // Paper
             plugin("paper-run","xyz.jpenilla.run-paper").version("2.0.1")
             plugin("paper-userdev","io.papermc.paperweight.userdev").version("1.4.0")
             plugin("plugin-yml","net.minecrell.plugin-yml.bukkit").version("0.5.2")
 
-            version("paper-api","1.19.3-R0.1-SNAPSHOT")
+            version("paper","1.19.3-R0.1-SNAPSHOT")
 
+            library("paper","io.papermc.paper","paper-api").versionRef("paper")
             library("cloud-paper","cloud.commandframework","cloud-paper").versionRef("cloud")
         }
     }
