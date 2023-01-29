@@ -6,7 +6,7 @@ dependencyResolutionManagement{
 
             version("floodgate-api","2.0-SNAPSHOT")
             version("geyser-baseApi","2.1.0-byquanton-SNAPSHOT")
-            version("geyser-geyserApi","2.1.0-byquanton-SNAPSHOT")
+            version("geyser-geyserApi","2.1.0-SNAPSHOT")
             version("geyser-geyserCore","2.1.0-byquanton-SNAPSHOT")
             version("cloud", "1.7.1")
             version("customblockdata","2.1.0")
