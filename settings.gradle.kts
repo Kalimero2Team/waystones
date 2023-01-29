@@ -11,7 +11,7 @@ dependencyResolutionManagement{
             version("cloud", "1.8.0")
             version("customblockdata","2.1.0")
             version("morepersistentdatatypes","2.3.1")
-            version("anvilgui","1.5.3-SNAPSHOT")
+            version("anvilgui","1.6.3-SNAPSHOT")
 
             library("floodgate-api","org.geysermc.floodgate","api").versionRef("floodgate-api")
             library("geyser-base-api","org.geysermc","api").versionRef("geyser-baseApi")
@@ -26,7 +26,7 @@ dependencyResolutionManagement{
             plugin("paper-userdev","io.papermc.paperweight.userdev").version("1.3.8")
             plugin("plugin-yml","net.minecrell.plugin-yml.bukkit").version("0.5.2")
 
-            version("paper-api","1.19.2-R0.1-SNAPSHOT")
+            version("paper-api","1.19.3-R0.1-SNAPSHOT")
 
             library("cloud-paper","cloud.commandframework","cloud-paper").versionRef("cloud")
         }

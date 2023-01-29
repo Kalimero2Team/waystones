@@ -6,6 +6,8 @@ import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.waystones.api.WayStonesApi;
 import com.kalimero2.waystones.api.WayStonesApiHolder;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -188,7 +190,7 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
     public ItemStack getItem(){
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.displayName(Component.translatable(""));
+        itemMeta.displayName(Component.text("WayStone").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);
         item.setItemMeta(itemMeta);
