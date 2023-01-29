@@ -5,7 +5,7 @@ dependencyResolutionManagement{
             plugin("shadow","com.github.johnrengelman.shadow").version("7.1.2")
 
             version("floodgate-api","2.0-SNAPSHOT")
-            version("geyser-baseApi","2.1.0-byquanton-SNAPSHOT")
+            version("geyser-baseApi","2.1.0-SNAPSHOT")
             version("geyser-geyserApi","2.1.0-byquanton-SNAPSHOT")
             version("geyser-geyserCore","2.1.0-byquanton-SNAPSHOT")
             version("cloud", "1.8.0")
