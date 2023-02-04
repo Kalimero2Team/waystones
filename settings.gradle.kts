@@ -12,6 +12,7 @@ dependencyResolutionManagement{
             version("cloud", "1.8.0")
             version("customblockdata","2.1.0")
             version("morepersistentdatatypes","2.3.1")
+            version("anvilgui","1.6.3-SNAPSHOT")
             version("protocollib","4.7.0")
 
             library("floodgate-api","org.geysermc.floodgate","api").versionRef("floodgate-api")
