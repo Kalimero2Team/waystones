@@ -1,9 +1,5 @@
 package com.kalimero2.team.waystones.paper.listener;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.Waystone;
@@ -205,7 +201,7 @@ public class WayStonesListener implements Listener {
                 Waystone waystone = plugin.getStorage().getWaystone(clickedBlock.getLocation().getBlockX(), clickedBlock.getLocation().getBlockY(), clickedBlock.getLocation().getBlockZ(), clickedBlock.getWorld().getUID());
                 if (waystone != null) {
                     event.setCancelled(true);
-                    if (plugin.floodgateIntegration) {
+                    if (plugin.floodgateIntegration != null) {
                         boolean bedrock = org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(event.getPlayer().getUniqueId());
                         if (bedrock) {
                             //FloodgateIntegration.showBedrockForm(event.getPlayer());

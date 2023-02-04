@@ -16,4 +16,9 @@ subprojects{
     apply{
         plugin("java-library")
     }
+    tasks{
+        compileJava{
+            options.encoding = "UTF-8"
+        }
+    }
 }

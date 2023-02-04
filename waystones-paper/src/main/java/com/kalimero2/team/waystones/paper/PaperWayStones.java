@@ -1,38 +1,40 @@
 package com.kalimero2.team.waystones.paper;
 
 import com.kalimero2.team.waystones.paper.command.CommandManager;
+import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
+import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
 import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
 import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
 public class PaperWayStones extends JavaPlugin {
-    public boolean floodgateIntegration = false;
-    public boolean claimsIntegration = false;
+    public @Nullable FloodgateIntegration floodgateIntegration;
+    public @Nullable ClaimsIntegration claimsIntegration;
 
     private Storage storage;
 
     @Override
     public void onEnable() {
-
         //WayStonesApiHolder.setApi(this);
         try {
             Class.forName("org.geysermc.floodgate.api.FloodgateApi");
-            floodgateIntegration = true;
+            floodgateIntegration = new FloodgateIntegration(this);
             getLogger().info("Floodgate integration enabled");
         } catch (ClassNotFoundException e) {
-            floodgateIntegration = false;
+            floodgateIntegration = null;
             getLogger().info("Floodgate not found, disabling Floodgate integration");
         }
         try {
             Class.forName("com.kalimero2.team.claims.api.ClaimsApi");
-            claimsIntegration = true;
+            claimsIntegration = new ClaimsIntegration(this);
             getLogger().info("Claims integration enabled");
         } catch (ClassNotFoundException e) {
-            claimsIntegration = false;
+            claimsIntegration = null;
             getLogger().info("Claims not found, disabling Claims integration");
         }
 

@@ -33,7 +33,6 @@ public class LegacyConverter {
 
     public LegacyConverter(PaperWayStones plugin) {
         this.plugin = plugin;
-        convert();
     }
 
     public void convert() {

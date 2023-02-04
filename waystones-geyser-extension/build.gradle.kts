@@ -4,9 +4,9 @@ repositories {
 }
 
 dependencies {
-    api(libs.geyser.base.api)
+    /*api(libs.geyser.base.api)
     api(libs.geyser.api)
     api(libs.geyser.core){
         isTransitive = false
-    }
+    }*/
 }

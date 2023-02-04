@@ -2,10 +2,15 @@ package com.kalimero2.team.waystones.paper.compat;
 
 import com.kalimero2.team.claims.api.ClaimsApi;
 import com.kalimero2.team.claims.api.ClaimsChunk;
+import com.kalimero2.team.waystones.paper.PaperWayStones;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 public class ClaimsIntegration {
+    public ClaimsIntegration(PaperWayStones paperWayStones) {
+
+    }
+
     public static boolean shouldCancel(Chunk chunk, Player player) {
         ClaimsChunk claimsChunk = ClaimsApi.getApi().getChunk(chunk.getX(), chunk.getZ(), chunk.getWorld().getUID());
         if(claimsChunk.isClaimed()){
