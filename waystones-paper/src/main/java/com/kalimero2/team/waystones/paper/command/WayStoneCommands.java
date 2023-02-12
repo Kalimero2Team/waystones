@@ -1,6 +1,12 @@
 package com.kalimero2.team.waystones.paper.command;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.util.FakeArmorStandBuilder;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class WayStoneCommands extends CommandHandler {
     public WayStoneCommands(PaperWayStones wayStones, CommandManager commandManager) {
@@ -9,6 +15,18 @@ public class WayStoneCommands extends CommandHandler {
 
     @Override
     public void register() {
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("fakeArmorstand")
+                .handler(context -> {
+                    if(context.getSender() instanceof Player player){
+                        Location location = player.getLocation();
+                        FakeArmorStandBuilder test = new FakeArmorStandBuilder().setName(Component.text("Test"));
+                        test.setLocation(location).setVisible(true).setSmall(true).setShowName(true);
+                        test.setChestItem(new ItemStack(Material.DIAMOND_CHESTPLATE));
+                        test.createFakeArmorStand().sendToPlayer(player);
+                    }
+                })
+        );
         /*
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("give")
