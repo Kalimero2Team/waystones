@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -77,7 +78,7 @@ public final class FakeArmorStand {
         return itemStack == null ? null : ItemStack.fromBukkitCopy(itemStack);
     }
 
-    public void sendToPlayer(Player player) {
+    public void showForPlayer(Player player) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = craftPlayer.getHandle().connection;
 
@@ -101,9 +102,13 @@ public final class FakeArmorStand {
         ClientboundSetEquipmentPacket setEquipmentPacket = new ClientboundSetEquipmentPacket(armorStand.getId(), equipmentList);
         connection.send(setEquipmentPacket);
 
+    }
 
-        // TODO: Add Option to Remove Armorstand when Player unloads Chunk
-        // ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(armorStand.getId());
+    public void hideForPlayer(Player player) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = craftPlayer.getHandle().connection;
+        ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(armorStand.getId());
+        connection.send(packet);
     }
 
     @NotNull

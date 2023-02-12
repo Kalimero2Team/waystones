@@ -128,15 +128,40 @@ public class FakeArmorStandBuilder {
         return this;
     }
 
-    public FakeArmorStand createFakeArmorStand() {
-        return new FakeArmorStand(name, world, x, y, z, yaw, pitch, small, visible, glowing, showArms, showBasePlate, showName, hasVisualFire, headItem, chestItem, legsItem, feetItem, mainHandItem, offHandItem);
-    }
-
     public FakeArmorStandBuilder setLocation(Location location) {
         setWorld(location.getWorld());
         setX(location.getX());
         setY(location.getY());
         setZ(location.getZ());
         return this;
+    }
+
+    public FakeArmorStand createFakeArmorStand() {
+        return new FakeArmorStand(name, world, x, y, z, yaw, pitch, small, visible, glowing, showArms, showBasePlate, showName, hasVisualFire, headItem, chestItem, legsItem, feetItem, mainHandItem, offHandItem);
+    }
+
+    public FakeArmorStandBuilder copy() {
+        FakeArmorStandBuilder builder = new FakeArmorStandBuilder();
+        builder.name = name;
+        builder.world = world;
+        builder.x = x;
+        builder.y = y;
+        builder.z = z;
+        builder.yaw = yaw;
+        builder.pitch = pitch;
+        builder.small = small;
+        builder.visible = visible;
+        builder.glowing = glowing;
+        builder.showArms = showArms;
+        builder.showBasePlate = showBasePlate;
+        builder.showName = showName;
+        builder.hasVisualFire = hasVisualFire;
+        builder.headItem = headItem;
+        builder.chestItem = chestItem;
+        builder.legsItem = legsItem;
+        builder.feetItem = feetItem;
+        builder.mainHandItem = mainHandItem;
+        builder.offHandItem = offHandItem;
+        return builder;
     }
 }

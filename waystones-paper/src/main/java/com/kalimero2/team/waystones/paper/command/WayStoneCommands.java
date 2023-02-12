@@ -23,7 +23,7 @@ public class WayStoneCommands extends CommandHandler {
                         FakeArmorStandBuilder test = new FakeArmorStandBuilder().setName(Component.text("Test"));
                         test.setLocation(location).setVisible(true).setSmall(true).setShowName(true);
                         test.setChestItem(new ItemStack(Material.DIAMOND_CHESTPLATE));
-                        test.createFakeArmorStand().sendToPlayer(player);
+                        test.createFakeArmorStand().showForPlayer(player);
                     }
                 })
         );

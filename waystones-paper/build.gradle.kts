@@ -10,9 +10,9 @@ plugins {
 repositories {
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
     maven("https://repo.byquanton.eu/releases")
     maven("https://repo.opencollab.dev/main")
-    maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
     maven("https://repo.dmulloy2.net/repository/public/")
 }

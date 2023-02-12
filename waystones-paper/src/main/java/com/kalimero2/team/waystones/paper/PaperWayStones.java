@@ -7,6 +7,11 @@ import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
 import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.Storage;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -171,15 +176,15 @@ public class PaperWayStones extends JavaPlugin {
         world.getPersistentDataContainer().set(PaperWayStones.WAYSTONE_LIST_KEY, WAY_STONES, wayStones);
     }
 
+ */
     public ItemStack getItem() {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.displayName(Component.translatable(""));
+        itemMeta.displayName(Component.translatable("Waystone"));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);
         item.setItemMeta(itemMeta);
         return item;
     }
 
- */
 }
