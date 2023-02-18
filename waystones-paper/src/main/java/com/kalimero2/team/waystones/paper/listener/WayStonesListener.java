@@ -208,7 +208,7 @@ public class WayStonesListener implements Listener {
                         }
                     }
 
-                    //showJavaBook(event.getPlayer());
+                    showJavaBook(event.getPlayer());
                 }
             }
         }

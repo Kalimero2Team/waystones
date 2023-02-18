@@ -84,6 +84,14 @@ public final class FakeArmorStand {
 
         ClientboundAddEntityPacket addEntityPacket = new ClientboundAddEntityPacket(armorStand);
         connection.send(addEntityPacket);
+
+        updateForPlayer(player);
+    }
+
+    public void updateForPlayer(Player player) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        ServerGamePacketListenerImpl connection = craftPlayer.getHandle().connection;
+        
         List<SynchedEntityData.DataValue<?>> defaultValues = armorStand.getEntityData().getNonDefaultValues();
         if (defaultValues != null) {
             ClientboundSetEntityDataPacket dataPacket = new ClientboundSetEntityDataPacket(armorStand.getId(), defaultValues);
@@ -101,7 +109,6 @@ public final class FakeArmorStand {
 
         ClientboundSetEquipmentPacket setEquipmentPacket = new ClientboundSetEquipmentPacket(armorStand.getId(), equipmentList);
         connection.send(setEquipmentPacket);
-
     }
 
     public void hideForPlayer(Player player) {

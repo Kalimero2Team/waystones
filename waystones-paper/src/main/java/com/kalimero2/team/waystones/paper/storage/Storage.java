@@ -118,8 +118,8 @@ public class Storage {
         return null;
     }
 
-    public Waystone[] getWaystones(int chunk_x, int chunk_y, UUID world) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE CHUNK_X = " + chunk_x + " AND CHUNK_Z = " + chunk_y + " AND WORLD_UUID = '"+world+"';")) {
+    public Waystone[] getWaystones(int chunk_x, int chunk_z, UUID world) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE CHUNK_X = " + chunk_x + " AND CHUNK_Z = " + chunk_z + " AND WORLD_UUID = '"+world+"';")) {
             return getWaystonesFromResultSet(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();

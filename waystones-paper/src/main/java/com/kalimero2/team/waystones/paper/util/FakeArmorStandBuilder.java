@@ -6,7 +6,7 @@ import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
-public class FakeArmorStandBuilder {
+public final class FakeArmorStandBuilder {
     private Component name;
     private World world;
     private double x;

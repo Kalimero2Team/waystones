@@ -5,13 +5,15 @@ import java.util.UUID;
 
 public abstract class BaseWaystone {
     private final int id;
+    private final String name;
     private final int block_x;
     private final int block_y;
     private final int block_z;
     private final UUID world;
 
-    protected BaseWaystone(int id, int block_x, int block_y, int block_z, UUID world) {
+    protected BaseWaystone(int id, String name, int block_x, int block_y, int block_z, UUID world) {
         this.id = id;
+        this.name = name;
         this.block_x = block_x;
         this.block_y = block_y;
         this.block_z = block_z;
@@ -20,6 +22,10 @@ public abstract class BaseWaystone {
 
     public int id() {
         return id;
+    }
+
+    public String name() {
+        return name;
     }
 
     public int block_x() {
