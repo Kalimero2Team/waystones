@@ -23,6 +23,7 @@ dependencyResolutionManagement{
             library("customblockdata","com.jeff_media","CustomBlockData").versionRef("customblockdata")
             library("morepersistentdatatypes","com.jeff_media","MorePersistentDataTypes").versionRef("morepersistentdatatypes")
             library("protocollib","com.comphenix.protocol","ProtocolLib").versionRef("protocollib")
+            library("anvilgui","net.wesjd","anvilgui").versionRef("anvilgui")
 
             // Paper
             plugin("paper-run","xyz.jpenilla.run-paper").version("2.0.1")

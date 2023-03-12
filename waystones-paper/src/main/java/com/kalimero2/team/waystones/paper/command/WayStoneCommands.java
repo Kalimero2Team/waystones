@@ -1,13 +1,13 @@
 package com.kalimero2.team.waystones.paper.command;
 
 import cloud.commandframework.arguments.standard.IntegerArgument;
-import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.Waystone;
+import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -41,6 +41,26 @@ public class WayStoneCommands extends CommandHandler {
                 .argument(IntegerArgument.of("id"))
                 .handler(this::removeWayStone)
         );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("openTestInv")
+                .handler(this::openTestInv)
+        );
+    }
+
+    private void openTestInv(CommandContext<CommandSender> context) {
+        if(context.getSender() instanceof Player player) {
+            Component title = MiniMessage.miniMessage().deserialize("<white><font:klm2:waystones>b</font>");
+            player.openInventory(plugin.getServer().createInventory(null, 9*2, Component.translatable("space.-8").append(title)));
+            /* Now with a book
+            Book book = Book.builder()
+                    .title(Component.text("Test Book"))
+                    .author(Component.text("Test Author"))
+                    .addPage(Component.translatable("offset.-20").append(title))
+                    .build();
+            player.openBook(book);
+
+             */
+        }
     }
 
     private void removeWayStone(CommandContext<CommandSender> context) {
@@ -52,7 +72,7 @@ public class WayStoneCommands extends CommandHandler {
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
-            Waystone waystone = plugin.getStorage().getWaystone(context.get("id"));
+            StoredWaystone waystone = plugin.getStorage().getWaystone(context.get("id"));
             if (waystone != null) {
                 player.teleport(waystone.location());
             }
@@ -65,8 +85,8 @@ public class WayStoneCommands extends CommandHandler {
 
             player.sendMessage("Waystones in " + world.getName() + ":");
 
-            Waystone[] waystones = plugin.getStorage().getWaystones(world.getUID());
-            for (Waystone waystone : waystones) {
+            StoredWaystone[] waystones = plugin.getStorage().getWaystones(world.getUID());
+            for (StoredWaystone waystone : waystones) {
                 player.sendMessage(Component.text("Waystone " + waystone.id() + ": " + waystone.name() + " (" + waystone.block_x() + ", " + waystone.block_y() + ", " + waystone.block_z() + ")" + " Owner: " + waystone.owner()).clickEvent(ClickEvent.runCommand("/tp " + waystone.block_x() + " " + waystone.block_y() + " " + waystone.block_z())));
             }
         }

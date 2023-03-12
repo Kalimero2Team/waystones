@@ -75,15 +75,15 @@ public class Storage {
         executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID) VALUES('" + name + "', '" + owner + "', " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "');");
     }
 
-    public void updateWaystone(Waystone waystone) {
+    public void updateWaystone(StoredWaystone waystone) {
         executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "' WHERE ID = " + waystone.id() + ";");
     }
 
 
-    public Waystone getWaystone(int id) {
+    public StoredWaystone getWaystone(int id) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE ID = " + id + ";")) {
             if (resultSet.next()) {
-                return new Waystone(resultSet.getInt("ID"),
+                return new StoredWaystone(resultSet.getInt("ID"),
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
                         resultSet.getInt("CHUNK_X"),
@@ -99,10 +99,10 @@ public class Storage {
         return null;
     }
 
-    public Waystone getWaystone(int block_x, int block_y, int block_z, UUID world) {
+    public StoredWaystone getWaystone(int block_x, int block_y, int block_z, UUID world) {
         try (ResultSet resultSet = executeQuery("SELECT  * FROM WAYSTONES WHERE BLOCK_X = " + block_x + " AND BLOCK_Y = " + block_y + " AND BLOCK_Z = " + block_z + " AND WORLD_UUID = '"+world+"';")) {
             if (resultSet.next()) {
-                return new Waystone(resultSet.getInt("ID"),
+                return new StoredWaystone(resultSet.getInt("ID"),
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
                         resultSet.getInt("CHUNK_X"),
@@ -118,39 +118,39 @@ public class Storage {
         return null;
     }
 
-    public Waystone[] getWaystones(int chunk_x, int chunk_z, UUID world) {
+    public StoredWaystone[] getWaystones(int chunk_x, int chunk_z, UUID world) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE CHUNK_X = " + chunk_x + " AND CHUNK_Z = " + chunk_z + " AND WORLD_UUID = '"+world+"';")) {
             return getWaystonesFromResultSet(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new Waystone[0];
+        return new StoredWaystone[0];
     }
 
-    public Waystone[] getWaystones(UUID world) {
+    public StoredWaystone[] getWaystones(UUID world) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"';")) {
             return getWaystonesFromResultSet(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new Waystone[0];
+        return new StoredWaystone[0];
     }
 
-    public Waystone[] getWaystones() {
+    public StoredWaystone[] getWaystones() {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES;")) {
             return getWaystonesFromResultSet(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new Waystone[0];
+        return new StoredWaystone[0];
 
     }
 
     @NotNull
-    private Waystone[] getWaystonesFromResultSet(ResultSet resultSet) throws SQLException {
-        Set<Waystone> waystones = new LinkedHashSet<>();
+    private StoredWaystone[] getWaystonesFromResultSet(ResultSet resultSet) throws SQLException {
+        Set<StoredWaystone> waystones = new LinkedHashSet<>();
         while (resultSet.next()) {
-            waystones.add(new Waystone(resultSet.getInt("ID"),
+            waystones.add(new StoredWaystone(resultSet.getInt("ID"),
                     resultSet.getString("NAME"),
                     resultSet.getString("OWNER_UUID"),
                     resultSet.getInt("CHUNK_X"),
@@ -161,7 +161,7 @@ public class Storage {
                     resultSet.getString("WORLD_UUID"))
             );
         }
-        return waystones.toArray(new Waystone[0]);
+        return waystones.toArray(new StoredWaystone[0]);
     }
 
 }

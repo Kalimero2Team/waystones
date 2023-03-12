@@ -5,16 +5,16 @@ import org.bukkit.Location;
 
 import java.util.UUID;
 
-public record Waystone(int id,
-                       String name,
-                       UUID owner,
-                       int chunk_x,
-                       int chunk_z,
-                       int block_x,
-                       int block_y,
-                       int block_z,
-                       UUID world) {
-    public Waystone {
+public record StoredWaystone(int id,
+                             String name,
+                             UUID owner,
+                             int chunk_x,
+                             int chunk_z,
+                             int block_x,
+                             int block_y,
+                             int block_z,
+                             UUID world) {
+    public StoredWaystone {
         if (name == null) {
             throw new IllegalArgumentException("name cannot be null");
         }
@@ -32,7 +32,7 @@ public record Waystone(int id,
         }
     }
 
-    protected Waystone(int id, String name, String owner_uuid, int chunkX, int chunkZ, int x, int y, int z, String world_uuid) {
+    protected StoredWaystone(int id, String name, String owner_uuid, int chunkX, int chunkZ, int x, int y, int z, String world_uuid) {
         this(id, name, UUID.fromString(owner_uuid), chunkX, chunkZ, x, y, z, UUID.fromString(world_uuid));
     }
 

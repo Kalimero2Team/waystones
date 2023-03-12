@@ -22,6 +22,7 @@ dependencies {
     bukkitLibrary(libs.cloud.paper)
     bukkitLibrary(libs.sqlite)
     compileOnly(libs.floodgate.api)
+    compileOnly(libs.anvilgui)
     compileOnly("com.kalimero2.team:claims-api:1.1.5")
     implementation(libs.customblockdata)
     implementation(libs.morepersistentdatatypes)

@@ -11,7 +11,7 @@ public class ClaimsIntegration {
 
     }
 
-    public static boolean shouldCancel(Chunk chunk, Player player) {
+    public boolean shouldCancel(Chunk chunk, Player player) {
         ClaimsChunk claimsChunk = ClaimsApi.getApi().getChunk(chunk.getX(), chunk.getZ(), chunk.getWorld().getUID());
         if(claimsChunk.isClaimed()){
             if(claimsChunk.hasOwner()){
