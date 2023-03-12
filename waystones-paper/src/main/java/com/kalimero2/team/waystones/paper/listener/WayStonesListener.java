@@ -48,6 +48,9 @@ import java.util.Map;
 
 public class WayStonesListener implements Listener {
 
+    private static SerializableWayStones lastWayStones = null;
+    private static Book lastBook = null;
+
     @EventHandler
     public void onCustomBlockDataMove(CustomBlockDataMoveEvent event){
         CustomBlockData customBlockData = event.getCustomBlockData();
@@ -89,11 +92,10 @@ public class WayStonesListener implements Listener {
 
 
             Location location = event.getBlock().getLocation();
+            event.setCancelled(true);
             if(!location.clone().add(0,1,0).getBlock().isEmpty()){
-                event.setCancelled(true);
                 return;
             }
-
             new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(new ItemStack(Material.STONE_BRICK_WALL)).onComplete((p, name) -> {
                 if(name.length() > 16){
                     return AnvilGUI.Response.text("Maximal 16 Zeichen!");
@@ -110,7 +112,6 @@ public class WayStonesListener implements Listener {
             if(!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)){
                 event.getItemInHand().setAmount(event.getItemInHand().getAmount()-1);
             }
-            event.setCancelled(true);
         }
     }
 
@@ -225,28 +226,33 @@ public class WayStonesListener implements Listener {
         int counter = 0;
 
         SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
-        for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
-            Integer integer = entry.getKey();
-            Location location = entry.getValue();
-            CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), PaperWayStones.plugin);
-            SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
-            if(wayStone == null){
-                PaperWayStones.plugin.getLogger().warning("Removed WayStone with ID "+integer+" it can't be serialized");
-                wayStones.removeWayStone(integer);
-                PaperWayStones.plugin.setSerializableWayStones(player.getWorld(), wayStones);
+        if(!wayStones.equals(lastWayStones) || lastBook == null){
+            for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
+                Integer integer = entry.getKey();
+                Location location = entry.getValue();
+                CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), PaperWayStones.plugin);
+                SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
+                if(wayStone == null){
+                    PaperWayStones.plugin.getLogger().warning("Removed WayStone with ID "+integer+" it can't be serialized");
+                    wayStones.removeWayStone(integer);
+                    PaperWayStones.plugin.setSerializableWayStones(player.getWorld(), wayStones);
+                }
+                counter++;
+                if(counter == 14){
+                    pages.add(current_page);
+                    current_page = Component.empty();
+                    counter = 0;
+                }
+                current_page = current_page.append(Component.text("• "+wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
+                current_page = current_page.append(Component.newline());
             }
-            counter++;
-            if(counter == 14){
-                pages.add(current_page);
-                current_page = Component.empty();
-                counter = 0;
-            }
-            current_page = current_page.append(Component.text("• "+wayStone.getName()).clickEvent(ClickEvent.runCommand("/waystone tp " + integer)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
-            current_page = current_page.append(Component.newline());
-        }
-        pages.add(current_page);
+            pages.add(current_page);
 
-        player.openBook(Book.book(Component.empty(),Component.empty(), pages));
+            lastBook = Book.book(Component.empty(), Component.empty(), pages);
+            lastWayStones = wayStones;
+        }
+
+        player.openBook(lastBook);
     }
 
 }

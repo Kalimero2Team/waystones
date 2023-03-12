@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @SerializableAs("com.kalimero2.waystones.paper.SerializableWayStones") // Backwards compatibility with old versions.
 public class SerializableWayStones implements ConfigurationSerializable {
@@ -69,4 +70,17 @@ public class SerializableWayStones implements ConfigurationSerializable {
         wayStones.put(id, location);
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SerializableWayStones that = (SerializableWayStones) o;
+        return Objects.equals(wayStones, that.wayStones) && Objects.equals(nextId, that.nextId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(wayStones, nextId);
+    }
 }
