@@ -1,5 +1,8 @@
 package com.kalimero2.team.waystones.paper.storage;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+
 import java.util.UUID;
 
 public record Waystone(int id,
@@ -31,5 +34,9 @@ public record Waystone(int id,
 
     protected Waystone(int id, String name, String owner_uuid, int chunkX, int chunkZ, int x, int y, int z, String world_uuid) {
         this(id, name, UUID.fromString(owner_uuid), chunkX, chunkZ, x, y, z, UUID.fromString(world_uuid));
+    }
+
+    public Location location() {
+        return new Location(Bukkit.getWorld(world), block_x, block_y, block_z);
     }
 }

@@ -25,7 +25,6 @@ dependencies {
     compileOnly("com.kalimero2.team:claims-api:1.1.5")
     implementation(libs.customblockdata)
     implementation(libs.morepersistentdatatypes)
-    implementation(project(":waystones-api"))
 }
 
 tasks {

@@ -3,15 +3,17 @@ package com.kalimero2.team.waystones.paper.listener;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.Waystone;
 import com.kalimero2.team.waystones.paper.util.FakeArmorStand;
-import com.kalimero2.team.waystones.paper.util.FakeArmorStandBuilder;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
 import io.papermc.paper.event.packet.PlayerChunkUnloadEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 
 public class ChunkListener implements Listener {
 
@@ -31,13 +33,13 @@ public class ChunkListener implements Listener {
         Waystone[] waystones = plugin.getStorage().getWaystones(chunk.getX(), chunk.getZ(), chunk.getWorld().getUID());
         for (Waystone waystone : waystones) {
             Location baseLocation = new Location(plugin.getServer().getWorld(waystone.world()), waystone.block_x(), waystone.block_y(), waystone.block_z()).toCenterLocation().add(0, -0.5, 0);
-            FakeArmorStandBuilder fakeArmorStandBuilder = new FakeArmorStandBuilder();
-            fakeArmorStandBuilder.setLocation(baseLocation);
-            fakeArmorStandBuilder.setName(Component.text(waystone.name()));
-            fakeArmorStandBuilder.setVisible(false);
-            fakeArmorStandBuilder.setShowName(true);
-            fakeArmorStandBuilder.setHeadItem(plugin.getItem());
-            FakeArmorStand fakeArmorStand = fakeArmorStandBuilder.createFakeArmorStand();
+            TextComponent name = Component.text(waystone.name());
+            ItemStack headItem = plugin.getItem();
+            FakeArmorStand fakeArmorStand = new FakeArmorStand(baseLocation);
+            fakeArmorStand.setHeadItem(headItem);
+            fakeArmorStand.setName(Component.text("⬤ ").color(NamedTextColor.YELLOW).append(name.color(NamedTextColor.WHITE)));
+            fakeArmorStand.setShowName(true);
+            fakeArmorStand.setVisible(false);
             fakeArmorStand.showForPlayer(player);
         }
     }

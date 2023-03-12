@@ -13,6 +13,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
@@ -21,61 +22,51 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public final class FakeArmorStand {
-    private final Component name;
+    private final ArmorStand armorStand;
+
     private final ServerLevel level;
     private final double x;
     private final double y;
     private final double z;
-    private final float yaw;
-    private final float pitch;
-    private final boolean small;
-    private final boolean visible;
-    private final boolean glowing;
-    private final boolean showArms;
-    private final boolean showBasePlate;
-    private final boolean showName;
-    private final boolean hasVisualFire;
-    private final ItemStack headItem;
-    private final ItemStack chestItem;
-    private final ItemStack legsItem;
-    private final ItemStack feetItem;
-    private final ItemStack mainHandItem;
-    private final ItemStack offHandItem;
+    private Component name = Component.empty();
+    private float yaw = 0.0F;
+    private float pitch = 0.0F;
+    private boolean small = false;
+    private boolean visible = true;
+    private boolean glowing = false;
+    private boolean showArms = false;
+    private boolean showBasePlate = true;
+    private boolean showName = false;
+    private boolean hasVisualFire = false;
+    private ItemStack headItem = ItemStack.EMPTY;
+    private ItemStack chestItem = ItemStack.EMPTY;
+    private ItemStack legsItem = ItemStack.EMPTY;
+    private ItemStack feetItem = ItemStack.EMPTY;
+    private ItemStack mainHandItem = ItemStack.EMPTY;
+    private ItemStack offHandItem = ItemStack.EMPTY;
 
-    private final ArmorStand armorStand;
 
-    FakeArmorStand(Component name, ServerLevel level, double x, double y, double z, float yaw, float pitch, boolean small, boolean visible, boolean glowing, boolean showArms, boolean showBasePlate, boolean showName, boolean hasVisualFire, net.minecraft.world.item.ItemStack headItem, net.minecraft.world.item.ItemStack chestItem, net.minecraft.world.item.ItemStack legsItem, net.minecraft.world.item.ItemStack feetItem, net.minecraft.world.item.ItemStack mainHandItem, net.minecraft.world.item.ItemStack offHandItem) {
-        this.name = name;
+    public FakeArmorStand(Location location) {
+        this(location.getWorld(), location.getX(), location.getY(), location.getZ());
+    }
+
+    public FakeArmorStand(World world, double x, double y, double z) {
+        this(((CraftWorld) world).getHandle(), x, y, z);
+    }
+
+    private FakeArmorStand(ServerLevel level, double x, double y, double z) {
         this.level = level;
         this.x = x;
         this.y = y;
         this.z = z;
-        this.yaw = yaw;
-        this.pitch = pitch;
-        this.small = small;
-        this.visible = visible;
-        this.glowing = glowing;
-        this.showArms = showArms;
-        this.showBasePlate = showBasePlate;
-        this.showName = showName;
-        this.hasVisualFire = hasVisualFire;
-        this.headItem = headItem;
-        this.chestItem = chestItem;
-        this.legsItem = legsItem;
-        this.feetItem = feetItem;
-        this.mainHandItem = mainHandItem;
-        this.offHandItem = offHandItem;
 
         this.armorStand = createArmorStand();
     }
 
-    FakeArmorStand(Component name, World world, double x, double y, double z, float yaw, float pitch, boolean small, boolean visible, boolean glowing, boolean showArms, boolean showBasePlate, boolean showName, boolean hasVisualFire, org.bukkit.inventory.ItemStack headItem, org.bukkit.inventory.ItemStack chestItem, org.bukkit.inventory.ItemStack legsItem, org.bukkit.inventory.ItemStack feetItem, org.bukkit.inventory.ItemStack mainHandItem, org.bukkit.inventory.ItemStack offHandItem) {
-        this(name, ((CraftWorld) world).getHandle(), x, y, z, yaw, pitch, small, visible, glowing, showArms, showBasePlate, showName, hasVisualFire, fromBukkit(headItem), fromBukkit(chestItem), fromBukkit(legsItem), fromBukkit(feetItem), fromBukkit(mainHandItem), fromBukkit(offHandItem));
-    }
-
     private static ItemStack fromBukkit(org.bukkit.inventory.ItemStack itemStack) {
-        return itemStack == null ? null : ItemStack.fromBukkitCopy(itemStack);
+        return itemStack == null ? ItemStack.EMPTY : ItemStack.fromBukkitCopy(itemStack);
     }
 
     public void showForPlayer(Player player) {
@@ -91,7 +82,18 @@ public final class FakeArmorStand {
     public void updateForPlayer(Player player) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         ServerGamePacketListenerImpl connection = craftPlayer.getHandle().connection;
-        
+
+        armorStand.getBukkitEntity().customName(name);
+        armorStand.setYRot(yaw);
+        armorStand.setXRot(pitch);
+        armorStand.setSmall(small);
+        armorStand.setInvisible(!visible);
+        armorStand.setGlowingTag(glowing);
+        armorStand.setShowArms(showArms);
+        armorStand.setNoBasePlate(!showBasePlate);
+        armorStand.setCustomNameVisible(showName);
+        armorStand.getBukkitEntity().setVisualFire(hasVisualFire);
+
         List<SynchedEntityData.DataValue<?>> defaultValues = armorStand.getEntityData().getNonDefaultValues();
         if (defaultValues != null) {
             ClientboundSetEntityDataPacket dataPacket = new ClientboundSetEntityDataPacket(armorStand.getId(), defaultValues);
@@ -118,19 +120,138 @@ public final class FakeArmorStand {
         connection.send(packet);
     }
 
+
+    public Component getName() {
+        return name;
+    }
+
+    public void setName(Component name) {
+        this.name = name;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
+
+    public boolean isSmall() {
+        return small;
+    }
+
+    public void setSmall(boolean small) {
+        this.small = small;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public boolean isGlowing() {
+        return glowing;
+    }
+
+    public void setGlowing(boolean glowing) {
+        this.glowing = glowing;
+    }
+
+    public boolean isShowArms() {
+        return showArms;
+    }
+
+    public void setShowArms(boolean showArms) {
+        this.showArms = showArms;
+    }
+
+    public boolean isShowBasePlate() {
+        return showBasePlate;
+    }
+
+    public void setShowBasePlate(boolean showBasePlate) {
+        this.showBasePlate = showBasePlate;
+    }
+
+    public boolean isShowName() {
+        return showName;
+    }
+
+    public void setShowName(boolean showName) {
+        this.showName = showName;
+    }
+
+    public boolean isHasVisualFire() {
+        return hasVisualFire;
+    }
+
+    public void setHasVisualFire(boolean hasVisualFire) {
+        this.hasVisualFire = hasVisualFire;
+    }
+
+    public org.bukkit.inventory.ItemStack getHeadItem() {
+        return headItem.asBukkitCopy();
+    }
+
+    public void setHeadItem(org.bukkit.inventory.ItemStack headItem) {
+        this.headItem = fromBukkit(headItem);
+    }
+
+    public org.bukkit.inventory.ItemStack getChestItem() {
+        return chestItem.asBukkitCopy();
+    }
+
+    public void setChestItem(org.bukkit.inventory.ItemStack chestItem) {
+        this.chestItem = fromBukkit(chestItem);
+    }
+
+    public org.bukkit.inventory.ItemStack getLegsItem() {
+        return legsItem.asBukkitCopy();
+    }
+
+    public void setLegsItem(org.bukkit.inventory.ItemStack legsItem) {
+        this.legsItem = fromBukkit(legsItem);
+    }
+
+    public org.bukkit.inventory.ItemStack getFeetItem() {
+        return feetItem.asBukkitCopy();
+    }
+
+    public void setFeetItem(org.bukkit.inventory.ItemStack feetItem) {
+        this.feetItem = fromBukkit(feetItem);
+    }
+
+    public org.bukkit.inventory.ItemStack getMainHandItem() {
+        return mainHandItem.asBukkitCopy();
+    }
+
+    public void setMainHandItem(org.bukkit.inventory.ItemStack mainHandItem) {
+        this.mainHandItem = fromBukkit(mainHandItem);
+    }
+
+    public org.bukkit.inventory.ItemStack getOffHandItem() {
+        return offHandItem.asBukkitCopy();
+    }
+
+    public void setOffHandItem(org.bukkit.inventory.ItemStack offHandItem) {
+        this.offHandItem = fromBukkit(offHandItem);
+    }
+
     @NotNull
     private ArmorStand createArmorStand() {
         ArmorStand armorStand = new ArmorStand(level, x, y, z);
-        armorStand.getBukkitEntity().customName(name);
-        armorStand.setYRot(yaw);
-        armorStand.setXRot(pitch);
-        armorStand.setSmall(small);
-        armorStand.setInvisible(!visible);
-        armorStand.setGlowingTag(glowing);
-        armorStand.setShowArms(showArms);
-        armorStand.setNoBasePlate(!showBasePlate);
-        armorStand.setCustomNameVisible(showName);
-        armorStand.getBukkitEntity().setVisualFire(hasVisualFire);
         return armorStand;
     }
 }

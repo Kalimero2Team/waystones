@@ -45,6 +45,5 @@ pluginManagement {
 }
 
 rootProject.name = "waystones"
-include("waystones-api")
 include("waystones-paper")
 include("waystones-geyser-extension")
