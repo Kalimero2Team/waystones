@@ -18,31 +18,39 @@ import java.util.Map;
 
 public class FloodgateIntegration {
     // TODO: https://github.com/GeyserMC/Cumulus/wiki/Updating-from-1.0-to-1.1-(and-2.0)#response-handling-changes
+    private static SerializableWayStones lastWayStones = null;
+    private static HashMap<String, Integer> lastHashMap = null;
 
     public static void showBedrockForm(Player player){
 
         SimpleForm.Builder builder = SimpleForm.builder().title("WayStones").content("Wähle einen Waystone aus!");
 
         SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
-        HashMap<String, Integer> hashMap = new HashMap<>();
 
-        for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
-            Integer integer = entry.getKey();
-            Location location = entry.getValue();
-            CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), PaperWayStones.plugin);
-            SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
-            if(wayStone != null){
-                hashMap.put(integer+" - "+wayStone.getName(), integer);
-                builder.button(integer + " - " + wayStone.getName());
+        if(!wayStones.equals(lastWayStones) || lastHashMap == null){
+            HashMap<String, Integer> hashMap = new HashMap<>();
+
+            for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
+                Integer integer = entry.getKey();
+                Location location = entry.getValue();
+                CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), PaperWayStones.plugin);
+                SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
+                if(wayStone != null){
+                    hashMap.put(integer+" - "+wayStone.getName(), integer);
+                    builder.button(integer + " - " + wayStone.getName());
+                }
             }
+
+            lastHashMap = hashMap;
+            lastWayStones = wayStones;
         }
 
         builder.responseHandler((form, responseData) -> {
             SimpleFormResponse response = form.parseResponse(responseData);
 
             ButtonComponent button = response.getClickedButton();
-            if(button != null && hashMap.containsKey(button.getText())){
-                player.chat("/waystone tp "+hashMap.get(button.getText()));
+            if(button != null && lastHashMap.containsKey(button.getText())){
+                player.chat("/waystone tp "+lastHashMap.get(button.getText()));
             }
         });
 
