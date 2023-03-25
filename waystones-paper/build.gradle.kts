@@ -33,7 +33,7 @@ tasks{
     }
 
     shadowJar{
-        fun reloc(pkg: String, name: String) = relocate(pkg, "com.kalimero2.team.claims.paper.shaded.$name")
+        fun reloc(pkg: String, name: String) = relocate(pkg, "com.kalimero2.team.waystones.paper.shaded.$name")
         reloc("com.jeff_media.customblockdata","customblockdata")
         reloc("com.jeff_media.morepersistentdatatypes","morepersistentdatatypes")
         reloc("net.wesjd.anvilgui","anvilgui")
