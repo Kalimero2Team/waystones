@@ -37,12 +37,15 @@ public class FloodgateIntegration {
                 SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
                 if(wayStone != null){
                     hashMap.put(integer+" - "+wayStone.getName(), integer);
-                    builder.button(integer + " - " + wayStone.getName());
                 }
             }
 
             lastHashMap = hashMap;
             lastWayStones = wayStones;
+        }
+
+        for (Map.Entry<String, Integer> entry : lastHashMap.entrySet()) {
+            builder.button(entry.getKey());
         }
 
         builder.responseHandler((form, responseData) -> {
