@@ -21,13 +21,13 @@ public class FloodgateIntegration {
     private static SerializableWayStones lastWayStones = null;
     private static HashMap<String, Integer> lastHashMap = null;
 
-    public static void showBedrockForm(Player player){
+    public static void showBedrockForm(Player player) {
 
         SimpleForm.Builder builder = SimpleForm.builder().title("WayStones").content("Wähle einen Waystone aus!");
 
         SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
 
-        if(!wayStones.equals(lastWayStones) || lastHashMap == null){
+        if (!wayStones.equals(lastWayStones) || lastHashMap == null) {
             HashMap<String, Integer> hashMap = new HashMap<>();
 
             for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
@@ -35,8 +35,8 @@ public class FloodgateIntegration {
                 Location location = entry.getValue();
                 CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), PaperWayStones.plugin);
                 SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WayStoneDataTypes.WAY_STONE);
-                if(wayStone != null){
-                    hashMap.put(integer+" - "+wayStone.getName(), integer);
+                if (wayStone != null) {
+                    hashMap.put(integer + " - " + wayStone.getName(), integer);
                 }
             }
 
@@ -44,16 +44,16 @@ public class FloodgateIntegration {
             lastWayStones = wayStones;
         }
 
-        for (Map.Entry<String, Integer> entry : lastHashMap.entrySet()) {
-            builder.button(entry.getKey());
+        for (String key : lastHashMap.keySet()) {
+            builder.button(key);
         }
 
         builder.responseHandler((form, responseData) -> {
             SimpleFormResponse response = form.parseResponse(responseData);
 
             ButtonComponent button = response.getClickedButton();
-            if(button != null && lastHashMap.containsKey(button.getText())){
-                player.chat("/waystone tp "+lastHashMap.get(button.getText()));
+            if (button != null && lastHashMap.containsKey(button.getText())) {
+                player.chat("/waystone tp " + lastHashMap.get(button.getText()));
             }
         });
 
