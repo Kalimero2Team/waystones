@@ -13,13 +13,13 @@ import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class FloodgateIntegration {
     // TODO: https://github.com/GeyserMC/Cumulus/wiki/Updating-from-1.0-to-1.1-(and-2.0)#response-handling-changes
     private static SerializableWayStones lastWayStones = null;
-    private static HashMap<String, Integer> lastHashMap = null;
+    private static TreeMap<String, Integer> lastHashMap = null;
 
     public static void showBedrockForm(Player player) {
 
@@ -28,7 +28,7 @@ public class FloodgateIntegration {
         SerializableWayStones wayStones = PaperWayStones.plugin.getSerializableWayStones(player.getWorld());
 
         if (!wayStones.equals(lastWayStones) || lastHashMap == null) {
-            HashMap<String, Integer> hashMap = new HashMap<>();
+            TreeMap<String, Integer> hashMap = new TreeMap<>();
 
             for (Map.Entry<Integer, Location> entry : wayStones.getWayStones().entrySet()) {
                 Integer integer = entry.getKey();
