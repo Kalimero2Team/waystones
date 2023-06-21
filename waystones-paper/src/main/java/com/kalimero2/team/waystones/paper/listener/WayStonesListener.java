@@ -1,12 +1,8 @@
 package com.kalimero2.team.waystones.paper.listener;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
-import net.kyori.adventure.inventory.Book;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
+import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,48 +18,20 @@ import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class WayStonesListener implements Listener {
 
 
     private final PaperWayStones plugin;
+    private final WaystonesScreen screen;
 
     public WayStonesListener(PaperWayStones plugin) {
         this.plugin = plugin;
+        this.screen = new WaystonesScreen(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
 
-    private void showJavaBook(Player player) {
-        List<Component> pages = new ArrayList<>();
-        Component current_page = Component.empty();
-        int counter = 0;
 
-        Storage storage = plugin.getStorage();
-
-        StoredWaystone[] waystones = storage.getWaystones(player.getWorld().getUID());
-
-        for (StoredWaystone waystone : waystones) {
-            if (waystone == null) continue;
-
-            counter++;
-            if (counter == 14) {
-                pages.add(current_page);
-                current_page = Component.empty();
-                counter = 0;
-            }
-            current_page = current_page.append(Component.text("• " + waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
-            current_page = current_page.append(Component.newline());
-
-            player.openBook(Book.book(Component.empty(), Component.empty(), pages));
-        }
-        pages.add(current_page);
-
-        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
-
-    }
 
     @EventHandler
     public void onAnvilRename(PrepareAnvilEvent event){
@@ -85,8 +53,6 @@ public class WayStonesListener implements Listener {
             }
         }
         if (event.getBlock().getType() == Material.STONE_BRICK_WALL && event.getItemInHand().isSimilar(plugin.getItem())) {
-            Player player = event.getPlayer();
-
 
             Location location = event.getBlock().getLocation();
             if (!location.clone().add(0, 1, 0).getBlock().isEmpty()) {
@@ -130,22 +96,13 @@ public class WayStonesListener implements Listener {
 
             if (clickedBlock != null) {
                 StoredWaystone waystone = plugin.getStorage().getWaystone(clickedBlock.getLocation().getBlockX(), clickedBlock.getLocation().getBlockY(), clickedBlock.getLocation().getBlockZ(), clickedBlock.getWorld().getUID());
-Fi                if (waystone == null) {
-                    System.out.println(clickedBlock.getY());
+                if (waystone == null) {
                     Block blockBelow = clickedBlock.getWorld().getBlockAt(clickedBlock.getLocation().add(0, -1, 0));
-                    System.out.println(blockBelow.getY());
                     waystone = plugin.getStorage().getWaystone(blockBelow.getLocation().getBlockX(), blockBelow.getLocation().getBlockY(), blockBelow.getLocation().getBlockZ(), blockBelow.getWorld().getUID());
                 }
                 if (waystone != null) {
                     event.setCancelled(true);
-                    if (plugin.floodgateIntegration != null) {
-                        boolean bedrock = org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(event.getPlayer().getUniqueId());
-                        if (bedrock) {
-                            //FloodgateIntegration.showBedrockForm(event.getPlayer());
-                        }
-                    }
-
-                    showJavaBook(event.getPlayer());
+                    screen.menu(event.getPlayer());
                 }
             }
         }
