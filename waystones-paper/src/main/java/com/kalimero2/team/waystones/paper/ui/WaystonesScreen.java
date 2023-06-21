@@ -11,6 +11,7 @@ public class WaystonesScreen {
 
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
+        this.java = new JavaScreen(plugin);
     }
 
     public boolean isBedrockPlayer(Player player) {

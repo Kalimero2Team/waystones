@@ -13,7 +13,8 @@ public record StoredWaystone(int id,
                              int block_x,
                              int block_y,
                              int block_z,
-                             UUID world) {
+                             UUID world,
+                             int uses) {
     public StoredWaystone {
         if (name == null) {
             throw new IllegalArgumentException("name cannot be null");
@@ -32,12 +33,12 @@ public record StoredWaystone(int id,
         }
     }
 
-    protected StoredWaystone(int id, String name, String owner_uuid, int x, int y, int z, String world_uuid) {
-        this(id, name, UUID.fromString(owner_uuid), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid));
+    protected StoredWaystone(int id, String name, String owner_uuid, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
-    protected StoredWaystone(int id, String name, String owner_uuid, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid) {
-        this(id, name, UUID.fromString(owner_uuid), chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid));
+    protected StoredWaystone(int id, String name, String owner_uuid, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
     public Location location() {

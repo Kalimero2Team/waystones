@@ -66,17 +66,19 @@ public class Storage {
                 "BLOCK_X INTEGER NOT NULL," +
                 "BLOCK_Y INTEGER NOT NULL," +
                 "BLOCK_Z INTEGER NOT NULL," +
-                "WORLD_UUID VARCHAR(36) NOT NULL" +
+                "WORLD_UUID VARCHAR(36) NOT NULL," +
+                "USES INTEGER NOT NULL" +
                 ");");
 
     }
 
+
     public void addWaystone(String name, UUID owner, int chunkX, int chunkZ, int x, int y, int z, UUID world) {
-        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID) VALUES('" + name + "', '" + owner + "', " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "');");
+        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
     }
 
     public void updateWaystone(StoredWaystone waystone) {
-        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "' WHERE ID = " + waystone.id() + ";");
+        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + ", USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
     }
 
 
@@ -91,7 +93,8 @@ public class Storage {
                         resultSet.getInt("BLOCK_X"),
                         resultSet.getInt("BLOCK_Y"),
                         resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"));
+                        resultSet.getString("WORLD_UUID"),
+                        resultSet.getInt("USES"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -110,7 +113,8 @@ public class Storage {
                         resultSet.getInt("BLOCK_X"),
                         resultSet.getInt("BLOCK_Y"),
                         resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"));
+                        resultSet.getString("WORLD_UUID"),
+                        resultSet.getInt("USES"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -158,7 +162,8 @@ public class Storage {
                     resultSet.getInt("BLOCK_X"),
                     resultSet.getInt("BLOCK_Y"),
                     resultSet.getInt("BLOCK_Z"),
-                    resultSet.getString("WORLD_UUID"))
+                    resultSet.getString("WORLD_UUID"),
+                    resultSet.getInt("USES"))
             );
         }
         return waystones.toArray(new StoredWaystone[0]);
