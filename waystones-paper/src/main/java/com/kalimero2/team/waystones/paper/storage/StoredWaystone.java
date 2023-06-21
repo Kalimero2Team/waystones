@@ -32,8 +32,12 @@ public record StoredWaystone(int id,
         }
     }
 
-    protected StoredWaystone(int id, String name, String owner_uuid, int chunkX, int chunkZ, int x, int y, int z, String world_uuid) {
-        this(id, name, UUID.fromString(owner_uuid), chunkX, chunkZ, x, y, z, UUID.fromString(world_uuid));
+    protected StoredWaystone(int id, String name, String owner_uuid, int x, int y, int z, String world_uuid) {
+        this(id, name, UUID.fromString(owner_uuid), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid));
+    }
+
+    protected StoredWaystone(int id, String name, String owner_uuid, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid) {
+        this(id, name, UUID.fromString(owner_uuid), chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid));
     }
 
     public Location location() {

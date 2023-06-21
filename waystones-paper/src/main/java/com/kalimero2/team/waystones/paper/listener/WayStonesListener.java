@@ -130,6 +130,12 @@ public class WayStonesListener implements Listener {
 
             if (clickedBlock != null) {
                 StoredWaystone waystone = plugin.getStorage().getWaystone(clickedBlock.getLocation().getBlockX(), clickedBlock.getLocation().getBlockY(), clickedBlock.getLocation().getBlockZ(), clickedBlock.getWorld().getUID());
+Fi                if (waystone == null) {
+                    System.out.println(clickedBlock.getY());
+                    Block blockBelow = clickedBlock.getWorld().getBlockAt(clickedBlock.getLocation().add(0, -1, 0));
+                    System.out.println(blockBelow.getY());
+                    waystone = plugin.getStorage().getWaystone(blockBelow.getLocation().getBlockX(), blockBelow.getLocation().getBlockY(), blockBelow.getLocation().getBlockZ(), blockBelow.getWorld().getUID());
+                }
                 if (waystone != null) {
                     event.setCancelled(true);
                     if (plugin.floodgateIntegration != null) {
