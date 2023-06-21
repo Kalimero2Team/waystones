@@ -102,7 +102,7 @@ public class WayStonesListener implements Listener {
                 }
                 if (waystone != null) {
                     event.setCancelled(true);
-                    screen.menu(event.getPlayer());
+                    screen.menu(event.getPlayer(), waystone);
                 }
             }
         }

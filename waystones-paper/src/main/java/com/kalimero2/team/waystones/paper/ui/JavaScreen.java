@@ -13,6 +13,8 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,12 +52,17 @@ public class JavaScreen {
     }
 
 
-    public void menu(Player player) {
+    public void menu(Player player, @Nullable StoredWaystone clickedwaystone) {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.empty();
         int counter = 1;
 
-        current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ]     [ \uD83D\uDD0D Suchen ]").color(TextColor.color(0, 10, 200)));
+        boolean owned = false;
+        if (clickedwaystone!= null) {
+            owned = clickedwaystone.owner().equals(player.getUniqueId());
+        }
+        if (owned) current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ] ").hoverEvent(HoverEvent.showText(Component.text("Waystone bearbeiten"))).clickEvent(ClickEvent.runCommand("/waystone edit " + clickedwaystone.id())).append(Component.text("    [ \uD83D\uDD0D Suchen ]").hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search"))).color(TextColor.color(0, 10, 200)));
+        else current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  Suchen  ]   ").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search")));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
 
@@ -120,14 +127,14 @@ public class JavaScreen {
 
     }
 
-    public void list(Player player) {
+    public void list(Player player, String search) {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.empty();
         int counter = 0;
 
         Storage storage = plugin.getStorage();
 
-        StoredWaystone[] waystones = storage.getWaystones(player.getWorld().getUID());
+        StoredWaystone[] waystones = storage.getWaystones(player.getWorld().getUID(), search);
 
         for (StoredWaystone waystone : waystones) {
             if (waystone == null) continue;

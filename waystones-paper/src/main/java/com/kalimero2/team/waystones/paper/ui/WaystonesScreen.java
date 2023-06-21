@@ -1,7 +1,10 @@
 package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nullable;
 
 public class WaystonesScreen {
 
@@ -21,21 +24,21 @@ public class WaystonesScreen {
         return false;
     }
 
-    public void list(Player player) {
+    public void list(Player player, String search) {
         if (isBedrockPlayer(player)) {
             //FloodgateIntegration.showBedrockForm(event.getPlayer());
         }
         else {
-            java.list(player);
+            java.list(player, search);
         }
     }
 
-    public void menu(Player player) {
+    public void menu(Player player, @Nullable StoredWaystone waystone) {
         if (isBedrockPlayer(player)) {
             //FloodgateIntegration.showBedrockForm(event.getPlayer());
         }
         else {
-            java.menu(player);
+            java.menu(player, waystone);
         }
     }
 }
