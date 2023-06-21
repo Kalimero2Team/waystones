@@ -30,7 +30,7 @@ dependencyResolutionManagement{
             plugin("paper-userdev","io.papermc.paperweight.userdev").version("1.4.0")
             plugin("plugin-yml","net.minecrell.plugin-yml.bukkit").version("0.5.2")
 
-            version("paper","1.19.3-R0.1-SNAPSHOT")
+            version("paper","1.20-R0.1-SNAPSHOT")
 
             library("paper","io.papermc.paper","paper-api").versionRef("paper")
             library("cloud-paper","cloud.commandframework","cloud-paper").versionRef("cloud")
