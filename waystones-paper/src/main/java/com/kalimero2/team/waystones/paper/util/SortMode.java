@@ -11,7 +11,7 @@ public enum SortMode {
     NUMERIC_DESCENDING,
 
     POPULARITY,
-    POPULARITY_DESCENDING;
+    POPULARITY_ASCENDING;
 
     private static final Map<Integer, SortMode> MAP = new HashMap<>();
 

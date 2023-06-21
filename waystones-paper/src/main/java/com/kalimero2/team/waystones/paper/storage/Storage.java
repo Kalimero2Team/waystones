@@ -1,6 +1,7 @@
 package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.util.SortMode;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
@@ -133,6 +134,34 @@ public class Storage {
 
     public StoredWaystone[] getWaystones(UUID world) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"';")) {
+            return getWaystonesFromResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new StoredWaystone[0];
+    }
+
+    public StoredWaystone[] getWaystones(UUID world, String searchTerm) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' AND NAME LIKE '%" + searchTerm + "%' ORDER BY NAME COLLATE NOCASE ASC;")) {
+            return getWaystonesFromResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new StoredWaystone[0];
+    }
+
+    public StoredWaystone[] getWaystones(UUID world, SortMode sortMode) {
+        try  {
+            ResultSet resultSet = null;
+            switch (sortMode) {
+                case ALPHABETICAL -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY NAME COLLATE NOCASE ASC;");
+                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY NAME COLLATE NOCASE DESC;");
+                case NUMERIC -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY ID ASC;");
+                case NUMERIC_DESCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY ID DESC;");
+                case POPULARITY -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY USES DESC;");
+                case POPULARITY_ASCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY USES ASC;");
+            }
+            assert resultSet != null;
             return getWaystonesFromResultSet(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
