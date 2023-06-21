@@ -5,6 +5,8 @@ import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.util.PlayerData;
+import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -34,6 +36,26 @@ public class WayStoneCommands extends CommandHandler {
                 .literal("tp")
                 .argument(IntegerArgument.of("id"))
                 .handler(this::teleportToWayStone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("favorite")
+                .literal("add")
+                .senderType(Player.class)
+                .argument(IntegerArgument.of("id"))
+                .handler(this::addFavorite)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("favorite")
+                .literal("remove")
+                .senderType(Player.class)
+                .argument(IntegerArgument.of("id"))
+                .handler(this::removeFavorite)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("sortingmode")
+                .senderType(Player.class)
+                .argument(IntegerArgument.of("mode"))
+                .handler(this::sortingMode)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("remove")
@@ -77,6 +99,24 @@ public class WayStoneCommands extends CommandHandler {
                 player.teleport(waystone.location());
             }
         }
+    }
+
+    private void addFavorite(CommandContext<CommandSender> context) {
+        try {
+            new PlayerData((Player) context.getSender()).addFavorite(plugin.getStorage().getWaystone(context.get("id")).id());
+        }
+        catch (NullPointerException ignored) {}
+    }
+
+    private void removeFavorite(CommandContext<CommandSender> context) {
+        try {
+            new PlayerData((Player) context.getSender()).removeFavorite(plugin.getStorage().getWaystone(context.get("id")).id());
+        }
+        catch (NullPointerException ignored) {}
+    }
+
+    private void sortingMode(CommandContext<CommandSender> context) {
+        new PlayerData((Player) context.getSender()).sortMode(SortMode.valueByNumber(context.get("mode")));
     }
 
     private void listWaystones(CommandContext<CommandSender> context) {

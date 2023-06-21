@@ -52,13 +52,14 @@ public class PlayerData {
 
     public void removeFavorite(int id) {
         int[] favorites = favorites();
-        for (int i = 0; i < favorites.length; i++) {
+        int[] newFavorites = new int[favorites.length-1];
+        for (int i = 0, k = 0; i < favorites.length; i++) {
             if (favorites[i] == id) {
-                favorites = Arrays.copyOf(favorites, i);
-                break;
+                continue;
             }
+            newFavorites[k++] = favorites[i];
         }
-        favorites(favorites);
+        favorites(newFavorites);
     }
 
 
