@@ -5,6 +5,7 @@ import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,6 +20,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.Collections;
+import java.util.List;
 
 public class WayStonesListener implements Listener {
 
@@ -46,6 +51,7 @@ public class WayStonesListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
+
         if (event.isCancelled()) {
             return;
         }
@@ -54,6 +60,7 @@ public class WayStonesListener implements Listener {
                 return;
             }
         }
+
         if (event.getBlock().getType() == Material.STONE_BRICK_WALL && event.getItemInHand().isSimilar(plugin.getItem())) {
 
             Location location = event.getBlock().getLocation();
@@ -61,25 +68,27 @@ public class WayStonesListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
-/*
-            new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(new ItemStack(Material.STONE_BRICK_WALL)).onComplete((p, name) -> {
-                if (name.length() > 16) {
-                    return AnvilGUI.Response.text("Maximal 16 Zeichen!");
+
+            /*
+            new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
+                if (state.getText().length() > 16) {
+                    return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
                 }
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        PaperWayStones.plugin.createWayStone(player, location, name);
+                        plugin.getStorage().addWaystone(state.getText(), event.getPlayer().getUniqueId(), location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
                     }
-                }.runTask(PaperWayStones.plugin);
-                return AnvilGUI.Response.close();
-            }).preventClose().plugin(PaperWayStones.plugin).open(player);
-            */
+                }.runTask(plugin);
+                return Collections.singletonList(AnvilGUI.ResponseAction.close());
+            }).preventClose().plugin(plugin).open(event.getPlayer());
 
             if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
                 event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
             }
             event.setCancelled(true);
+
+             */
         }
     }
 
@@ -89,15 +98,15 @@ public class WayStonesListener implements Listener {
         StoredWaystone waystone = plugin.getStorage().getWaystone(block.getLocation().getBlockX(), block.getLocation().getBlockY(), block.getLocation().getBlockZ(), block.getWorld().getUID());
         boolean bottom = false;
         if (waystone == null) {
-            Block blockBelow = block.getWorld().getBlockAt(block.getLocation().add(0, -1, 0));
+            Block blockBelow = block.getWorld().getBlockAt(block.getLocation().clone().add(0, -1, 0));
             waystone = plugin.getStorage().getWaystone(blockBelow.getLocation().getBlockX(), blockBelow.getLocation().getBlockY(), blockBelow.getLocation().getBlockZ(), blockBelow.getWorld().getUID());
             bottom = true;
         }
         if (waystone != null) {
             int waystoneID = waystone.id();
             plugin.getStorage().removeWaystone(waystoneID);
-            if (bottom) block.getWorld().setType(block.getLocation().add(0, 1, 0), Material.AIR);
-            else block.getWorld().setType(block.getLocation().add(0, -1, 0), Material.AIR);
+            if (bottom) block.getWorld().setType(block.getLocation().clone().add(0, 1, 0), Material.AIR);
+            else block.getWorld().setType(block.getLocation().clone().add(0, -1, 0), Material.AIR);
             event.getPlayer().sendMessage(Component.text("Waystone with ID " + waystoneID + " was removed!").color(TextColor.color(180, 0, 0)));
         }
     }
