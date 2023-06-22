@@ -3,6 +3,8 @@ package com.kalimero2.team.waystones.paper.listener;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -83,10 +85,21 @@ public class WayStonesListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.isCancelled()) {
-            return;
+        Block block = event.getBlock();
+        StoredWaystone waystone = plugin.getStorage().getWaystone(block.getLocation().getBlockX(), block.getLocation().getBlockY(), block.getLocation().getBlockZ(), block.getWorld().getUID());
+        boolean bottom = false;
+        if (waystone == null) {
+            Block blockBelow = block.getWorld().getBlockAt(block.getLocation().add(0, -1, 0));
+            waystone = plugin.getStorage().getWaystone(blockBelow.getLocation().getBlockX(), blockBelow.getLocation().getBlockY(), blockBelow.getLocation().getBlockZ(), blockBelow.getWorld().getUID());
+            bottom = true;
         }
-
+        if (waystone != null) {
+            int waystoneID = waystone.id();
+            plugin.getStorage().removeWaystone(waystoneID);
+            if (bottom) block.getWorld().setType(block.getLocation().add(0, 1, 0), Material.AIR);
+            else block.getWorld().setType(block.getLocation().add(0, -1, 0), Material.AIR);
+            event.getPlayer().sendMessage(Component.text("Waystone with ID " + waystoneID + " was removed!").color(TextColor.color(180, 0, 0)));
+        }
     }
 
     @EventHandler
