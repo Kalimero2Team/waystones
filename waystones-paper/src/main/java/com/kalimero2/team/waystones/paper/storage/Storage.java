@@ -78,6 +78,10 @@ public class Storage {
         executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
     }
 
+    public void removeWaystone(int id) {
+        executeUpdate("DELETE FROM WAYSTONES WHERE ID = " + id + ";");
+    }
+
     public void updateWaystone(StoredWaystone waystone) {
         executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + ", USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
     }
