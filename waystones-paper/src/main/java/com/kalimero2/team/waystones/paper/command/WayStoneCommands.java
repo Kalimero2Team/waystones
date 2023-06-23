@@ -5,7 +5,6 @@ import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
-import com.kalimero2.team.waystones.paper.util.PlayerData;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -102,21 +101,16 @@ public class WayStoneCommands extends CommandHandler {
     }
 
     private void addFavorite(CommandContext<CommandSender> context) {
-        try {
-            new PlayerData((Player) context.getSender()).addFavorite(plugin.getStorage().getWaystone(context.get("id")).id());
-        }
-        catch (NullPointerException ignored) {}
+        plugin.getStorage().addFavorite((Player) context.getSender(), context.get("id"));
     }
 
     private void removeFavorite(CommandContext<CommandSender> context) {
-        try {
-            new PlayerData((Player) context.getSender()).removeFavorite(plugin.getStorage().getWaystone(context.get("id")).id());
-        }
-        catch (NullPointerException ignored) {}
+        plugin.getStorage().removeFavorite((Player) context.getSender(), context.get("id"));
+
     }
 
     private void sortingMode(CommandContext<CommandSender> context) {
-        new PlayerData((Player) context.getSender()).sortMode(SortMode.valueByNumber(context.get("mode")));
+        plugin.getStorage().setSortMode((Player) context.getSender(), SortMode.valueByNumber(context.get("mode")));
     }
 
     private void listWaystones(CommandContext<CommandSender> context) {

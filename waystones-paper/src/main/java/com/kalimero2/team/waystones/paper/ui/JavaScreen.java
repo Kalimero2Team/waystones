@@ -3,7 +3,6 @@ package com.kalimero2.team.waystones.paper.ui;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
-import com.kalimero2.team.waystones.paper.util.PlayerData;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -11,9 +10,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -66,32 +63,16 @@ public class JavaScreen {
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
 
-
-        PlayerData playerData = new PlayerData(player);
-
-
         Storage storage = plugin.getStorage();
 
-        StoredWaystone[] allWaystones = storage.getWaystones(player.getWorld().getUID(), playerData.sortMode());
-        List<StoredWaystone> nonFavorites = new ArrayList<>(Arrays.stream(allWaystones).toList());
-
-        List<StoredWaystone> waystones = new ArrayList<>();
-
-        for (StoredWaystone waystone : allWaystones) {
-            if (Arrays.stream(playerData.favorites()).boxed().toList().contains(waystone.id())) {
-                waystones.add(waystone);
-                nonFavorites.remove(waystone);
-            }
-        }
-
-        waystones.addAll(nonFavorites);
+        StoredWaystone[] waystones = storage.getWaystones(player.getWorld().getUID(), player);
 
         for (StoredWaystone waystone : waystones) {
             if (waystone == null) continue;
 
             counter++;
             if (counter == 12) {
-                current_page = current_page.append(sortBar(playerData.sortMode()));
+                current_page = current_page.append(sortBar(plugin.getStorage().getSortMode(player)));
                 pages.add(current_page);
                 current_page = Component.empty();
                 counter = 0;
@@ -100,7 +81,7 @@ public class JavaScreen {
 
             String action = "add";
             TextColor color = TextColor.color(0, 0, 0);
-            if (Arrays.stream(playerData.favorites()).boxed().toList().contains(waystone.id())) {
+            if (Arrays.stream(plugin.getStorage().getFavorites(player)).toList().contains(waystone.id())) {
                 action = "remove";
                 color = TextColor.color(255, 220, 0);
             }
@@ -117,7 +98,7 @@ public class JavaScreen {
                 current_page = current_page.append(Component.newline());
             }
 
-            current_page = current_page.append(sortBar(playerData.sortMode()));
+            current_page = current_page.append(sortBar(plugin.getStorage().getSortMode(player)));
         }
 
 

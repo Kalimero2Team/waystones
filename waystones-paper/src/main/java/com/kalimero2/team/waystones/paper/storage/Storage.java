@@ -2,17 +2,19 @@ package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.util.SortMode;
+import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.sqlite.SQLiteException;
 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Storage {
 
@@ -53,6 +55,8 @@ public class Storage {
 
     private void createTablesIfNotExists() {
         createWaystonesTableIfNotExists();
+        createFavoriteTableIfNotExists();
+        createSortModeTableIfNotExists();
     }
 
     private void createWaystonesTableIfNotExists() {
@@ -74,7 +78,35 @@ public class Storage {
     }
 
 
-    public void addWaystone(String name, UUID owner, int chunkX, int chunkZ, int x, int y, int z, UUID world) {
+    private void createFavoriteTableIfNotExists() {
+        // WAYSTONE, PLAYER
+
+        executeUpdate("CREATE TABLE IF NOT EXISTS FAVORITES(" +
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "WAYSTONE INTEGER NOT NULL REFERENCES WAYSTONES(ID)," +
+                "PLAYER VARCHAR(36) NOT NULL" +
+                ");");
+
+    }
+
+    private void createSortModeTableIfNotExists() {
+        // PLAYER, MODE
+
+        executeUpdate("CREATE TABLE IF NOT EXISTS SORTMODE(" +
+                "PLAYER VARCHAR(36) PRIMARY KEY," +
+                "MODE TINYINT NOT NULL" +
+                ");");
+
+    }
+
+
+
+
+    //
+    //  WAYSTONES
+    //
+
+    public void addWaystone(@NotNull String name, @NotNull UUID owner, @NotNull int chunkX, @NotNull int chunkZ, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
         executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
     }
 
@@ -154,7 +186,8 @@ public class Storage {
         return new StoredWaystone[0];
     }
 
-    public StoredWaystone[] getWaystones(UUID world, SortMode sortMode) {
+    public StoredWaystone[] getWaystones(UUID world, Player player) {
+        SortMode sortMode = getSortMode(player);
         try  {
             ResultSet resultSet = null;
             switch (sortMode) {
@@ -166,10 +199,41 @@ public class Storage {
                 case POPULARITY_ASCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY USES ASC;");
             }
             assert resultSet != null;
-            return getWaystonesFromResultSet(resultSet);
+            StoredWaystone[] all = getWaystonesFromResultSet(resultSet);
+            StoredWaystone[] favs = getFavoriteWaystones(world, player);
+            List<StoredWaystone> result = new ArrayList<StoredWaystone>(Arrays.stream(all).toList());
+            result.removeAll(Arrays.stream(favs).toList());
+            result.addAll(0, Arrays.stream(favs).toList());
+            return result.toArray(new StoredWaystone[0]);
+//            return all;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return new StoredWaystone[0];
+    }
+
+
+    public StoredWaystone[] getFavoriteWaystones(UUID world, Player player) {
+        SortMode sortMode = getSortMode(player);
+        try  {
+            ResultSet resultSet = null;
+            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
+                            "FROM WAYSTONES, FAVORITES " +
+                            "WHERE FAVORITES.WAYSTONE = WAYSTONES.ID " +
+                            "AND WORLD_UUID = '"+world+"' " +
+                            "AND PLAYER = '"+player.getUniqueId()+"' ";
+            switch (sortMode) {
+                case ALPHABETICAL -> resultSet = executeQuery(sql + "ORDER BY NAME COLLATE NOCASE ASC;");
+                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery(sql + "ORDER BY NAME COLLATE NOCASE DESC;");
+                case NUMERIC -> resultSet = executeQuery(sql + "ORDER BY WAYSTONES.ID ASC;");
+                case NUMERIC_DESCENDING -> resultSet = executeQuery(sql + "ORDER BY WAYSTONES.ID DESC;");
+                case POPULARITY -> resultSet = executeQuery(sql + "ORDER BY USES DESC;");
+                case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + "ORDER BY USES ASC;");
+            }
+            return getWaystonesFromResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (NullPointerException ignored) {}
         return new StoredWaystone[0];
     }
 
@@ -186,20 +250,78 @@ public class Storage {
     @NotNull
     private StoredWaystone[] getWaystonesFromResultSet(ResultSet resultSet) throws SQLException {
         Set<StoredWaystone> waystones = new LinkedHashSet<>();
-        while (resultSet.next()) {
-            waystones.add(new StoredWaystone(resultSet.getInt("ID"),
-                    resultSet.getString("NAME"),
-                    resultSet.getString("OWNER_UUID"),
-                    resultSet.getInt("CHUNK_X"),
-                    resultSet.getInt("CHUNK_Z"),
-                    resultSet.getInt("BLOCK_X"),
-                    resultSet.getInt("BLOCK_Y"),
-                    resultSet.getInt("BLOCK_Z"),
-                    resultSet.getString("WORLD_UUID"),
-                    resultSet.getInt("USES"))
-            );
+        try {
+            while (resultSet.next()) {
+                waystones.add(new StoredWaystone(resultSet.getInt("ID"),
+                        resultSet.getString("NAME"),
+                        resultSet.getString("OWNER_UUID"),
+                        resultSet.getInt("CHUNK_X"),
+                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("BLOCK_X"),
+                        resultSet.getInt("BLOCK_Y"),
+                        resultSet.getInt("BLOCK_Z"),
+                        resultSet.getString("WORLD_UUID"),
+                        resultSet.getInt("USES"))
+                );
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
         }
         return waystones.toArray(new StoredWaystone[0]);
     }
 
+
+
+
+
+
+
+
+
+    //
+    // Favorites
+    //
+    public Integer[] getFavorites(Player player) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM FAVORITES WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+            Set<Integer> favorites = new LinkedHashSet<>();
+            while (resultSet.next()) {
+                favorites.add(resultSet.getInt("WAYSTONE"));
+            }
+            return favorites.toArray(new Integer[0]);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new Integer[0];
+    }
+
+    public void addFavorite(Player player, int id) {
+        executeUpdate("INSERT INTO FAVORITES(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
+    }
+
+    public void removeFavorite(Player player, int id) {
+        executeUpdate("DELETE FROM FAVORITES WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
+    }
+
+
+
+
+
+
+    //
+    // SortMode
+    //
+
+    public SortMode getSortMode(Player player) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM SORTMODE WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+            return SortMode.valueByNumber(resultSet.getInt("MODE"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return SortMode.ALPHABETICAL;
+    }
+
+    public void setSortMode(Player player, SortMode sortMode) {
+        executeUpdate("REPLACE INTO SORTMODE(PLAYER, MODE) VALUES('" + player.getUniqueId() + "', " + sortMode.ordinal() + ");");
+    }
 }
