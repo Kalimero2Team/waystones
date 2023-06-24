@@ -136,4 +136,40 @@ public class JavaScreen {
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
 
     }
+
+
+    public void settings(Player player, StoredWaystone waystone) {
+        List<Component> pages = new ArrayList<>();
+        Component current_page = Component.empty();
+
+        Storage storage = plugin.getStorage();
+        int id = waystone.id();
+
+        current_page = current_page.append(Component.text(waystone.name()).decorate(TextDecoration.BOLD).color(TextColor.color(0, 100, 180)));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.runCommand("/waystones rename " + id)));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.text("Entfernen").clickEvent(ClickEvent.runCommand("/waystones remove " + id)));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.runCommand("/waystones setowner " + id)));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.newline());
+        if (waystone.whitelisted()) {
+            current_page = current_page.append(Component.text("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystones whitelist " + id + " enable")));
+            current_page = current_page.append(Component.newline());
+            current_page = current_page.append(Component.newline());
+            current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.runCommand("/waystones whitelist " + id + " edit")));
+        }
+        else {
+            current_page = current_page.append(Component.text("Privat stellen").clickEvent(ClickEvent.runCommand("/waystones whitelist " + id + " disable")));
+        }
+
+        pages.add(current_page);
+
+        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+
+    }
 }

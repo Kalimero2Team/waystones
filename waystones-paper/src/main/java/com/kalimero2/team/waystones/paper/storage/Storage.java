@@ -3,11 +3,8 @@ package com.kalimero2.team.waystones.paper.storage;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import org.bukkit.entity.Player;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
-import org.sqlite.SQLiteException;
 
 import java.io.File;
 import java.sql.Connection;
@@ -66,6 +63,7 @@ public class Storage {
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "NAME TEXT NOT NULL," +
                 "OWNER_UUID VARCHAR(36) NOT NULL," +
+                "WHITELISTED BOOLEAN NOT NULL," +
                 "CHUNK_X INTEGER NOT NULL," +
                 "CHUNK_Z INTEGER NOT NULL," +
                 "BLOCK_X INTEGER NOT NULL," +
@@ -79,7 +77,7 @@ public class Storage {
 
 
     private void createFavoriteTableIfNotExists() {
-        // WAYSTONE, PLAYER
+        // ID, WAYSTONE, PLAYER
 
         executeUpdate("CREATE TABLE IF NOT EXISTS FAVORITES(" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -106,8 +104,8 @@ public class Storage {
     //  WAYSTONES
     //
 
-    public void addWaystone(@NotNull String name, @NotNull UUID owner, @NotNull int chunkX, @NotNull int chunkZ, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
-        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
+    public void addWaystone(@NotNull String name, @NotNull UUID owner, boolean whitelisted, @NotNull int chunkX, @NotNull int chunkZ, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
+        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, WHITELISTED, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + whitelisted + ", " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
     }
 
     public void removeWaystone(int id) {
@@ -115,7 +113,7 @@ public class Storage {
     }
 
     public void updateWaystone(StoredWaystone waystone) {
-        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + ", USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
+        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', WHITELISTED = " + waystone.whitelisted() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + ", USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
     }
 
 
@@ -125,6 +123,7 @@ public class Storage {
                 return new StoredWaystone(resultSet.getInt("ID"),
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
+                        resultSet.getBoolean("WHITELISTED"),
                         resultSet.getInt("CHUNK_X"),
                         resultSet.getInt("CHUNK_Z"),
                         resultSet.getInt("BLOCK_X"),
@@ -145,6 +144,7 @@ public class Storage {
                 return new StoredWaystone(resultSet.getInt("ID"),
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
+                        resultSet.getBoolean("WHITELISTED"),
                         resultSet.getInt("CHUNK_X"),
                         resultSet.getInt("CHUNK_Z"),
                         resultSet.getInt("BLOCK_X"),
@@ -217,7 +217,7 @@ public class Storage {
         SortMode sortMode = getSortMode(player);
         try  {
             ResultSet resultSet = null;
-            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
+            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.WHITELISTED, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
                             "FROM WAYSTONES, FAVORITES " +
                             "WHERE FAVORITES.WAYSTONE = WAYSTONES.ID " +
                             "AND WORLD_UUID = '"+world+"' " +
@@ -255,6 +255,7 @@ public class Storage {
                 waystones.add(new StoredWaystone(resultSet.getInt("ID"),
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
+                        resultSet.getBoolean("WHITELISTED"),
                         resultSet.getInt("CHUNK_X"),
                         resultSet.getInt("CHUNK_Z"),
                         resultSet.getInt("BLOCK_X"),

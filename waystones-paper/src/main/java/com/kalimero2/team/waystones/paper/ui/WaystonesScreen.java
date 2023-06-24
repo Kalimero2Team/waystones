@@ -3,6 +3,7 @@ package com.kalimero2.team.waystones.paper.ui;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
@@ -40,5 +41,18 @@ public class WaystonesScreen {
         else {
             java.menu(player, waystone);
         }
+    }
+
+    public void settings(Player player, @NotNull StoredWaystone waystone) {
+        if (isBedrockPlayer(player)) {
+            //FloodgateIntegration.showBedrockForm(event.getPlayer());
+        }
+        else {
+            java.settings(player, waystone);
+        }
+    }
+
+    public void search(Player player) {
+        //TODO: Anvil GUI, in dem man einen suchbegriff eingeben kann
     }
 }

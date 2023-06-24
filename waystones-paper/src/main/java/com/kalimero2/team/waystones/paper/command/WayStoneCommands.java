@@ -1,10 +1,12 @@
 package com.kalimero2.team.waystones.paper.command;
 
 import cloud.commandframework.arguments.standard.IntegerArgument;
+import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -14,8 +16,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class WayStoneCommands extends CommandHandler {
+
+    private WaystonesScreen screen;
     public WayStoneCommands(PaperWayStones plugin, CommandManager commandManager) {
         super(plugin, commandManager);
+        screen = new WaystonesScreen(plugin);
     }
 
     @Override
@@ -55,6 +60,22 @@ public class WayStoneCommands extends CommandHandler {
                 .senderType(Player.class)
                 .argument(IntegerArgument.of("mode"))
                 .handler(this::sortingMode)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("search")
+                .senderType(Player.class)
+                .handler(this::searchMenu)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("search")
+                .senderType(Player.class)
+                .argument(StringArgument.of("term"))
+                .handler(this::searchWayStone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("edit")
+                .argument(IntegerArgument.of("id"))
+                .handler(this::editWayStone)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("remove")
@@ -97,6 +118,27 @@ public class WayStoneCommands extends CommandHandler {
             if (waystone != null) {
                 player.teleport(waystone.location());
             }
+        }
+    }
+
+    private void editWayStone(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            StoredWaystone waystone = plugin.getStorage().getWaystone(context.get("id"));
+            if (waystone != null) {
+                screen.settings(player, waystone);
+            }
+        }
+    }
+
+    private void searchMenu(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            screen.search(player);
+        }
+    }
+
+    private void searchWayStone(CommandContext<CommandSender> context) {
+        if (context.getSender() instanceof Player player) {
+            screen.list(player, context.get("term"));
         }
     }
 

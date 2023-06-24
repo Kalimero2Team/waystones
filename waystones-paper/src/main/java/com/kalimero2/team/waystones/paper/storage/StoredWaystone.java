@@ -8,6 +8,7 @@ import java.util.UUID;
 public record StoredWaystone(int id,
                              String name,
                              UUID owner,
+                             boolean whitelisted,
                              int chunk_x,
                              int chunk_z,
                              int block_x,
@@ -33,12 +34,12 @@ public record StoredWaystone(int id,
         }
     }
 
-    protected StoredWaystone(int id, String name, String owner_uuid, int x, int y, int z, String world_uuid, int uses) {
-        this(id, name, UUID.fromString(owner_uuid), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
+    protected StoredWaystone(int id, String name, String owner_uuid, boolean whitelisted, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), whitelisted, x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
-    protected StoredWaystone(int id, String name, String owner_uuid, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid, int uses) {
-        this(id, name, UUID.fromString(owner_uuid), chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid), uses);
+    protected StoredWaystone(int id, String name, String owner_uuid, boolean whitelisted, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), whitelisted, chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
     public Location location() {
