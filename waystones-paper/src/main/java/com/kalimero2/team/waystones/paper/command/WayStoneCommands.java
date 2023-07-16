@@ -3,6 +3,7 @@ package com.kalimero2.team.waystones.paper.command;
 import cloud.commandframework.arguments.standard.IntegerArgument;
 import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.bukkit.parsers.WorldArgument;
+import cloud.commandframework.bukkit.parsers.location.LocationArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
@@ -11,9 +12,18 @@ import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.metadata.FixedMetadataValue;
+
+import java.util.UUID;
 
 public class WayStoneCommands extends CommandHandler {
 
@@ -86,6 +96,12 @@ public class WayStoneCommands extends CommandHandler {
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("openTestInv")
                 .handler(this::openTestInv)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("create")
+                .argument(LocationArgument.of("location"))
+                .argument(StringArgument.of("name"))
+                .handler(this::createWaystone)
         );
     }
 
@@ -173,5 +189,37 @@ public class WayStoneCommands extends CommandHandler {
         if (sender instanceof Player player) {
             player.getInventory().addItem(plugin.getItem());
         }
+    }
+
+    private void createWaystone(CommandContext<CommandSender> context) {
+        Location location = context.get("location");
+        String name = context.get("name");
+        World world = location.getWorld();
+
+        Location centerLocation = location.toCenterLocation();
+        Location topLocation = centerLocation.clone().add(0, 1, 0);
+        Block centerLocationBlock = centerLocation.getBlock();
+        centerLocationBlock.setType(Material.BARRIER);
+        Block topLocationBlock = topLocation.getBlock();
+        topLocationBlock.setType(Material.BARRIER);
+
+        // IMPORTANT: METADATA IS NOT PERSISTENT
+        centerLocationBlock.setMetadata("waystoneID", new FixedMetadataValue(plugin, 0));
+        topLocationBlock.setMetadata("waystoneID", new FixedMetadataValue(plugin, 0));
+
+        ItemDisplay itemDisplay = world.spawn(centerLocation, ItemDisplay.class);
+        itemDisplay.setItemStack(plugin.getItem());
+
+        UUID itemDisplayUniqueId = itemDisplay.getUniqueId();
+
+        Location textDisplayLocation = topLocation.clone().add(0, 0.75, 0);
+        TextDisplay textDisplay = world.spawn(textDisplayLocation, TextDisplay.class);
+        textDisplay.text(Component.text(name));
+        textDisplay.setBillboard(Display.Billboard.VERTICAL);
+        textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
+
+        UUID textDisplayUniqueId = textDisplay.getUniqueId();
+
+        context.getSender().sendMessage("Waystone created at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " named " + name);
     }
 }
