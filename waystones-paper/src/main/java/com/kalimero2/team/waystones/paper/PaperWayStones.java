@@ -144,6 +144,8 @@ public class PaperWayStones extends JavaPlugin implements WayStonesApi {
             }
         });
 
+        customBlockData.remove(PaperWayStones.WAYSTONE_KEY);
+
         boolean secondBlockIsUpperBlock = false;
 
         Block second_block = location.clone().add(0, 1, 0).getBlock();
