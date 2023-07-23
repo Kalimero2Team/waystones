@@ -12,6 +12,7 @@ import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -89,7 +90,7 @@ public class WayStoneCommands extends CommandHandler {
         );
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("edit")
-                .argument(IntegerArgument.of("id"))
+                .argument(WaystoneArgument.of("waystone"))
                 .handler(this::editWayStone)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
@@ -200,6 +201,11 @@ public class WayStoneCommands extends CommandHandler {
         Location location = context.get("location");
         String name = context.get("name");
         World world = location.getWorld();
+
+        if (!storage.nameFree(name)) {
+            context.getSender().sendMessage(Component.translatable("waystones.create.name.taken").fallback("Dieser Name ist bereits vergeben!").asComponent().color(TextColor.color(255, 73, 0)));
+            return;
+        }
 
         Location centerLocation = location.toCenterLocation();
         Location topLocation = centerLocation.clone().add(0, 1, 0);

@@ -353,6 +353,14 @@ public class Storage {
         return waystones.toArray(new StoredWaystone[0]);
     }
 
+    /**
+     * @param name the requested name
+     * @return true if the name is not used by any other waystone – false if used by at least one waystone
+     */
+    public boolean nameFree(String name) {
+        return getWaystone(name) == null;
+    }
+
 
 
 
