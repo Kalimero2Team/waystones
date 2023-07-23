@@ -22,7 +22,6 @@ public enum SortMode {
     }
 
 
-
     public static SortMode valueByNumber(int id) {
         try {
             return MAP.get(id);
