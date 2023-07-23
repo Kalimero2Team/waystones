@@ -1,14 +1,16 @@
 package com.kalimero2.team.waystones.paper.storage;
 
+import com.kalimero2.team.waystones.paper.PaperWayStones;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
 public record StoredWaystone(int id,
                              String name,
                              UUID owner,
-                             boolean whitelisted,
+                             int visibility,
                              int chunk_x,
                              int chunk_z,
                              int block_x,
@@ -34,15 +36,31 @@ public record StoredWaystone(int id,
         }
     }
 
-    protected StoredWaystone(int id, String name, String owner_uuid, boolean whitelisted, int x, int y, int z, String world_uuid, int uses) {
-        this(id, name, UUID.fromString(owner_uuid), whitelisted, x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
+    protected StoredWaystone(int id, String name, String owner_uuid, int visibility, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), visibility, x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
-    protected StoredWaystone(int id, String name, String owner_uuid, boolean whitelisted, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid, int uses) {
-        this(id, name, UUID.fromString(owner_uuid), whitelisted, chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid), uses);
+    protected StoredWaystone(int id, String name, String owner_uuid, int visibility, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), visibility, chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
     public Location location() {
         return new Location(Bukkit.getWorld(world), block_x, block_y, block_z);
     }
+
+    public boolean checkPlayer(Player player) {
+        if (visibility != 2) return true;
+        if (owner.equals(player.getUniqueId())) return true;
+        return true; //TODO: Implement whitelist
+        //Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
+        //if (storage.getWhitelist(id)).contains(player.getUniqueId);
+    }
+
+    /**
+        Visibility modes
+
+        PUBLIC      =  0
+        NOT_LISTED  =  1
+        PRIVATE     =  2
+    */
 }

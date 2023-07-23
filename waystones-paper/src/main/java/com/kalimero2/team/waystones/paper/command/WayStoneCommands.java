@@ -6,6 +6,7 @@ import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.bukkit.parsers.location.LocationArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.SortMode;
@@ -28,9 +29,13 @@ import java.util.UUID;
 public class WayStoneCommands extends CommandHandler {
 
     private WaystonesScreen screen;
+    private Storage storage;
+
+
     public WayStoneCommands(PaperWayStones plugin, CommandManager commandManager) {
         super(plugin, commandManager);
         screen = new WaystonesScreen(plugin);
+        storage = plugin.getStorage();
     }
 
     @Override
@@ -48,7 +53,7 @@ public class WayStoneCommands extends CommandHandler {
         );
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("tp")
-                .argument(IntegerArgument.of("id"))
+                .argument(WaystoneArgument.of("waystone"))
                 .handler(this::teleportToWayStone)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
@@ -124,14 +129,14 @@ public class WayStoneCommands extends CommandHandler {
     private void removeWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             Integer id = context.get("id");
-            // TODO: Remove Waystone
+            storage.removeWaystone(context.get("id"));
         }
     }
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
-            StoredWaystone waystone = plugin.getStorage().getWaystone(context.get("id"));
-            if (waystone != null) {
+            StoredWaystone waystone = context.get("waystone");
+            if (waystone.checkPlayer(player)) {
                 player.teleport(waystone.location());
             }
         }
@@ -139,8 +144,8 @@ public class WayStoneCommands extends CommandHandler {
 
     private void editWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
-            StoredWaystone waystone = plugin.getStorage().getWaystone(context.get("id"));
-            if (waystone != null) {
+            StoredWaystone waystone = context.get("waystone");
+            if (waystone.owner().equals(player.getUniqueId())) {
                 screen.settings(player, waystone);
             }
         }
