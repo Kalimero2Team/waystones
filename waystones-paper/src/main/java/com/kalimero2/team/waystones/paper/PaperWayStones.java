@@ -8,14 +8,19 @@ import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.List;
 
 public class PaperWayStones extends JavaPlugin {
     public @Nullable FloodgateIntegration floodgateIntegration;
@@ -181,8 +186,11 @@ public class PaperWayStones extends JavaPlugin {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.displayName(Component.translatable("Waystone"));
+        itemMeta.lore(List.of(Component.translatable("waystones.lore.1").fallback("Platziere diesen Waystone"), Component.translatable("waystones.lore.2").fallback("Er muss nicht im vorhinein umbenannt werden!")));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);
+        PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
+        dataContainer.set(new NamespacedKey(this, "item"), PersistentDataType.BOOLEAN, true);
         item.setItemMeta(itemMeta);
         return item;
     }

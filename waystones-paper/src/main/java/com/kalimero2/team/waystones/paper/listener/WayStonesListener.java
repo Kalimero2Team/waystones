@@ -9,6 +9,7 @@ import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,6 +21,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collections;
@@ -61,7 +65,12 @@ public class WayStonesListener implements Listener {
             }
         }
 
-        if (event.getBlock().getType() == Material.STONE_BRICK_WALL && event.getItemInHand().isSimilar(plugin.getItem())) {
+        ItemStack stack = event.getItemInHand();
+        ItemMeta meta = stack.getItemMeta();
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+
+
+        if (event.getItemInHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "item"), PersistentDataType.BOOLEAN) || (event.getBlock().getType() == Material.STONE_BRICK_WALL &&  event.getItemInHand().getItemMeta().getCustomModelData() == 22022)) {
 
             Location location = event.getBlock().getLocation();
             if (!location.clone().add(0, 1, 0).getBlock().isEmpty()) {
