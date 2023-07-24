@@ -54,4 +54,6 @@ public record StoredWaystone(int id,
         //Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
         //if (storage.getWhitelist(id)).contains(player.getUniqueId);
     }
+
+
 }

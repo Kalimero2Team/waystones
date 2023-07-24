@@ -2,6 +2,7 @@ package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.util.SortMode;
+import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +53,7 @@ public class Storage {
 
     private void createTablesIfNotExists() {
         createWaystonesTableIfNotExists();
+        createWhitelistTableIfNotExists();
         createFavoriteTableIfNotExists();
         createSortModeTableIfNotExists();
     }
@@ -87,6 +89,18 @@ public class Storage {
 
     }
 
+
+    private void createWhitelistTableIfNotExists() {
+        // ID, WAYSTONE, PLAYER
+
+        executeUpdate("CREATE TABLE IF NOT EXISTS WHITELISTS(" +
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "WAYSTONE INTEGER NOT NULL REFERENCES WAYSTONES(ID)," +
+                "PLAYER VARCHAR(36) NOT NULL" +
+                ");");
+
+    }
+
     private void createSortModeTableIfNotExists() {
         // PLAYER, MODE
 
@@ -113,7 +127,7 @@ public class Storage {
     }
 
     public void updateWaystone(StoredWaystone waystone) {
-        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', VISIBILITY = " + waystone.visibility() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + ", USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
+        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', VISIBILITY = " + waystone.visibility() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "', USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
     }
 
 
@@ -368,8 +382,9 @@ public class Storage {
     // Whitelist
     //
 
-    //TODO: Implement whitelist
+    public void setVisibility(int waystoneID, Visibility visibility) {
 
+    }
 
 
 
@@ -419,5 +434,20 @@ public class Storage {
 
     public void setSortMode(Player player, SortMode sortMode) {
         executeUpdate("REPLACE INTO SORTMODE(PLAYER, MODE) VALUES('" + player.getUniqueId() + "', " + sortMode.ordinal() + ");");
+    }
+
+    public boolean onWhitelist(Player player, int id) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+            return resultSet.next();
+        } catch (SQLException ignored) {}
+        return false;
+    }
+
+    public void addWhitelist(Player player, int id) {
+        executeUpdate("INSERT INTO WHITELISTS(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
+    }
+
+    public void removeWhitelist(Player player, int id) {
+        executeUpdate("DELETE FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
     }
 }

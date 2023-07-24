@@ -2,6 +2,7 @@ package com.kalimero2.team.waystones.paper.command;
 
 import cloud.commandframework.arguments.standard.IntegerArgument;
 import cloud.commandframework.arguments.standard.StringArgument;
+import cloud.commandframework.bukkit.parsers.PlayerArgument;
 import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.bukkit.parsers.location.LocationArgument;
 import cloud.commandframework.context.CommandContext;
@@ -10,6 +11,7 @@ import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.SortMode;
+import com.kalimero2.team.waystones.paper.util.Visibility;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
@@ -94,12 +96,6 @@ public class WayStoneCommands extends CommandHandler {
                 .handler(this::editWayStone)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
-                .literal("remove")
-                .permission("waystones.remove")
-                .argument(IntegerArgument.of("id"))
-                .handler(this::removeWayStone)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("openTestInv")
                 .handler(this::openTestInv)
         );
@@ -108,6 +104,43 @@ public class WayStoneCommands extends CommandHandler {
                 .argument(LocationArgument.of("location"))
                 .argument(StringArgument.of("name"))
                 .handler(this::createWaystone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("remove")
+                .argument(WaystoneArgument.of("waystone"))
+                .handler(this::removeWaystone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("whitelist")
+                .argument(WaystoneArgument.of("waystone"))
+                .literal("public")
+                .handler(this::changeVisibilityToPublic)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("whitelist")
+                .argument(WaystoneArgument.of("waystone"))
+                .literal("unlisted")
+                .handler(this::changeVisibilityToUnlisted)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("whitelist")
+                .argument(WaystoneArgument.of("waystone"))
+                .literal("private")
+                .handler(this::changeVisibilityToPrivate)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("whitelist")
+                .argument(WaystoneArgument.of("waystone"))
+                .literal("add")
+                .argument(PlayerArgument.of("player"))
+                .handler(this::addPlayerToWhitelist)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("whitelist")
+                .argument(WaystoneArgument.of("waystone"))
+                .literal("remove")
+                .argument(PlayerArgument.of("player"))
+                .handler(this::removePlayerFromWhitelist)
         );
     }
 
@@ -127,12 +160,6 @@ public class WayStoneCommands extends CommandHandler {
         }
     }
 
-    private void removeWayStone(CommandContext<CommandSender> context) {
-        if (context.getSender() instanceof Player player) {
-            Integer id = context.get("id");
-            storage.removeWaystone(context.get("id"));
-        }
-    }
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
@@ -232,5 +259,65 @@ public class WayStoneCommands extends CommandHandler {
         UUID textDisplayUniqueId = textDisplay.getUniqueId();
 
         context.getSender().sendMessage("Waystone created at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " named " + name);
+    }
+
+
+    private void removeWaystone(CommandContext<CommandSender> context) {
+        CommandSender sender = context.getSender();
+
+        StoredWaystone waystone = context.get("waystone");
+
+        if (sender instanceof Player player) {
+            if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.remove")) return;
+            player.getInventory().addItem(plugin.getItem());
+        }
+
+        storage.removeWaystone(waystone.id());
+        sender.sendMessage(Component.text("Waystone mit ID " + waystone.id() + " wurde entfernt.").color(TextColor.color(255, 73, 0)));
+    }
+
+    private void changeVisibility(CommandContext<CommandSender> context, Visibility visibility) {
+        CommandSender sender = context.getSender();
+
+        StoredWaystone waystone = context.get("waystone");
+
+        if (sender instanceof Player player) {
+            if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.remove")) return;
+        }
+
+        storage.setVisibility(waystone.id(), visibility);
+        sender.sendMessage(Component.text("Waystone mit ID " + waystone.id() + " ist jetzt " + visibility.text()).color(TextColor.color(255, 73, 0)));
+    }
+
+    private void changeVisibilityToPublic(CommandContext<CommandSender> context) {changeVisibility(context, Visibility.PUBLIC);}
+    private void changeVisibilityToUnlisted(CommandContext<CommandSender> context) {changeVisibility(context, Visibility.UNLISTED);}
+    private void changeVisibilityToPrivate(CommandContext<CommandSender> context) {changeVisibility(context, Visibility.PRIVATE);}
+
+    private void addPlayerToWhitelist(CommandContext<CommandSender> context) {
+        CommandSender sender = context.getSender();
+
+        StoredWaystone waystone = context.get("waystone");
+        Player player = context.get("player");
+
+        if (sender instanceof Player player2) {
+            if (!waystone.owner().equals(player2.getUniqueId()) && !player2.hasPermission("waystones.admin")) return;
+        }
+
+        storage.addWhitelist(player, waystone.id());
+        sender.sendMessage(Component.text("Spieler " + player.displayName() + " wurde auf die Whitelist vom Waystone " + waystone.id() + " gesetzt.").color(TextColor.color(18, 255, 36)));
+    }
+
+    private void removePlayerFromWhitelist(CommandContext<CommandSender> context) {
+        CommandSender sender = context.getSender();
+
+        StoredWaystone waystone = context.get("waystone");
+        Player player = context.get("player");
+
+        if (sender instanceof Player player2) {
+            if (!waystone.owner().equals(player2.getUniqueId()) && !player2.hasPermission("waystones.admin")) return;
+        }
+
+        storage.removeWhitelist(player, waystone.id());
+        sender.sendMessage(Component.text("Spieler " + player.displayName() + " wurde von der Whitelist vom Waystone " + waystone.id() + " entfernt.").color(TextColor.color(18, 255, 36)));
     }
 }
