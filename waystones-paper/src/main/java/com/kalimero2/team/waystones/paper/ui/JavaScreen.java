@@ -148,13 +148,13 @@ public class JavaScreen {
         current_page = current_page.append(Component.text(waystone.name()).decorate(TextDecoration.BOLD).color(TextColor.color(0, 100, 180)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.runCommand("/waystone rename " + id)));
+        current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.suggestCommand("/waystone rename " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Entfernen").clickEvent(ClickEvent.runCommand("/waystone remove " + id)));
+        current_page = current_page.append(Component.text("Entfernen").clickEvent(ClickEvent.suggestCommand("/waystone remove " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.runCommand("/waystone setowner " + id)));
+        current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.suggestCommand("/waystone setowner " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
         switch (waystone.visibility()) {
@@ -177,7 +177,7 @@ public class JavaScreen {
                 current_page = current_page.append(Component.text("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " unlisted")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " edit")));
+                current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.suggestCommand("/waystone whitelist " + id + " ")));
                 break;
 
             default:

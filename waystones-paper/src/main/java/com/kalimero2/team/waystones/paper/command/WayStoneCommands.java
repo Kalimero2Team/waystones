@@ -96,6 +96,12 @@ public class WayStoneCommands extends CommandHandler {
                 .handler(this::editWayStone)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("rename")
+                .argument(WaystoneArgument.of("waystone"))
+                .argument(StringArgument.of("newname"))
+                .handler(this::renameWayStone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("openTestInv")
                 .handler(this::openTestInv)
         );
@@ -176,6 +182,27 @@ public class WayStoneCommands extends CommandHandler {
             if (waystone.owner().equals(player.getUniqueId())) {
                 screen.settings(player, waystone);
             }
+        }
+    }
+
+    private void renameWayStone(CommandContext<CommandSender> context) {
+        CommandSender sender = context.getSender();
+
+        StoredWaystone waystone = context.get("waystone");
+        Player player = context.get("player");
+        String newName = context.get("newname");
+
+        if (sender instanceof Player player2) {
+            if (!waystone.owner().equals(player2.getUniqueId()) && !player2.hasPermission("waystones.admin")) return;
+        }
+
+        if (storage.nameFree(newName)) {
+            storage.renameWaystone(waystone.id(), newName);
+            sender.sendMessage(Component.text("Waystone " + waystone.name() + " mit der ID " + waystone.id() + " wurde in " + newName + " umbenannt").color(TextColor.color(18, 255, 36)));
+        }
+
+        else {
+            context.getSender().sendMessage(Component.translatable("waystones.create.name.taken").fallback("Dieser Name ist bereits vergeben!").asComponent().color(TextColor.color(255, 73, 0)));
         }
     }
 

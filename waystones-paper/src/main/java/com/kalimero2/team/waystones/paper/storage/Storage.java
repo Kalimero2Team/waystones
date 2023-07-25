@@ -126,6 +126,10 @@ public class Storage {
         executeUpdate("DELETE FROM WAYSTONES WHERE ID = " + id + ";");
     }
 
+    public void renameWaystone(int id, String newName) {
+        executeUpdate("UPDATE WAYSTONES SET NAME = '" + newName + "' WHERE ID = " + id + ";");
+    }
+
     public void updateWaystone(StoredWaystone waystone) {
         executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', VISIBILITY = " + waystone.visibility() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "', USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
     }
