@@ -261,6 +261,10 @@ public class WayStoneCommands extends CommandHandler {
             return;
         }
 
+        Player player = (Player) context.getSender();
+
+        storage.addWaystone(name, player.getUniqueId(), 0, location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+
         Location centerLocation = location.toCenterLocation();
         Location topLocation = centerLocation.clone().add(0, 1, 0);
         Block centerLocationBlock = centerLocation.getBlock();
@@ -285,7 +289,7 @@ public class WayStoneCommands extends CommandHandler {
 
         UUID textDisplayUniqueId = textDisplay.getUniqueId();
 
-        context.getSender().sendMessage("Waystone created at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " named " + name);
+        context.getSender().sendMessage(Component.text("Waystone created at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " named " + name));
     }
 
 
