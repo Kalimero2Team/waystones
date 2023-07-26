@@ -46,6 +46,11 @@ public class WayStoneCommands extends CommandHandler {
     @Override
     public void register() {
         commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("menu")
+                .senderType(Player.class)
+                .handler(this::menu)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("give")
                 .permission("waystones.give")
                 .handler(this::giveWaystone)
@@ -201,6 +206,10 @@ public class WayStoneCommands extends CommandHandler {
         }
     }
 
+    private void menu(CommandContext<CommandSender> context) {
+        screen.menu((Player) context.getSender(), null);
+    }
+
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
@@ -271,15 +280,17 @@ public class WayStoneCommands extends CommandHandler {
 
     private void addFavorite(CommandContext<CommandSender> context) {
         plugin.getStorage().addFavorite((Player) context.getSender(), context.get("id"));
+        screen.menu((Player) context.getSender(), null);
     }
 
     private void removeFavorite(CommandContext<CommandSender> context) {
         plugin.getStorage().removeFavorite((Player) context.getSender(), context.get("id"));
-
+        screen.menu((Player) context.getSender(), null);
     }
 
     private void sortingMode(CommandContext<CommandSender> context) {
         plugin.getStorage().setSortMode((Player) context.getSender(), SortMode.valueByNumber(context.get("mode")));
+        screen.menu((Player) context.getSender(), null);
     }
 
     private void listWaystones(CommandContext<CommandSender> context) {
