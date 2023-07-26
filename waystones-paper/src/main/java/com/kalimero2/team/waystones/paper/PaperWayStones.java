@@ -185,12 +185,25 @@ public class PaperWayStones extends JavaPlugin {
     public ItemStack getItem() {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.displayName(Component.translatable("waystone").fallback("Waystone").decoration(TextDecoration.ITALIC, false));
-        itemMeta.lore(List.of(Component.translatable("waystones.lore.1").fallback("Platziere diesen Waystone"), Component.translatable("waystones.lore.2").fallback("Er muss nicht im vorhinein umbenannt werden!")));
+        itemMeta.displayName(Component.translatable("waystones.waystone").fallback("Waystone").decoration(TextDecoration.ITALIC, false));
+        itemMeta.lore(List.of(Component.translatable("waystones.waystone.lore").fallback("Platziere diesen Waystone").decoration(TextDecoration.ITALIC, false)));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
         dataContainer.set(new NamespacedKey(this, "item"), PersistentDataType.BOOLEAN, true);
+        item.setItemMeta(itemMeta);
+        return item;
+    }
+
+    public ItemStack getPortable() {
+        ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.displayName(Component.translatable("waystones.portable").fallback("Portable Waystone").decoration(TextDecoration.ITALIC, false));
+        itemMeta.lore(List.of(Component.translatable("waystones.portable.lore").fallback("Rechts klicke, um dich zu teleportieren").decoration(TextDecoration.ITALIC, false)));
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemMeta.setCustomModelData(22023);
+        PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
+        dataContainer.set(new NamespacedKey(this, "portable"), PersistentDataType.BOOLEAN, true);
         item.setItemMeta(itemMeta);
         return item;
     }

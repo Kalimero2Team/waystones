@@ -73,7 +73,9 @@ public class WayStonesListener implements Listener {
             name = meta.getDisplayName();
         }
 
-        if (meta.getPersistentDataContainer().has(new NamespacedKey(plugin, "item"), PersistentDataType.BOOLEAN) || (event.getBlock().getType() == Material.STONE_BRICK_WALL &&  event.getItemInHand().getItemMeta().getCustomModelData() == 22022)) {
+        if (meta.getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) event.setCancelled(true);
+
+        if (meta.getPersistentDataContainer().has(new NamespacedKey(plugin, "static"))) {
 
             event.setCancelled(true);
 
@@ -138,7 +140,13 @@ public class WayStonesListener implements Listener {
     }
 
     @EventHandler
-    public void onBlockInteract(PlayerInteractEvent event) {
+    public void onInteract(PlayerInteractEvent event) {
+        try {
+            if (event.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
+                screen.menu(event.getPlayer(), null);
+            }
+        } catch (NullPointerException ignored) {}
+
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             Block clickedBlock = event.getClickedBlock();
 

@@ -51,6 +51,18 @@ public class WayStoneCommands extends CommandHandler {
                 .handler(this::giveWaystone)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("give")
+                .literal("static")
+                .permission("waystones.give")
+                .handler(this::giveWaystone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("give")
+                .literal("portable")
+                .permission("waystones.give")
+                .handler(this::givePortableWaystone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("list")
                 .permission("waystones.list")
                 .argument(WorldArgument.optional("world"))
@@ -200,7 +212,6 @@ public class WayStoneCommands extends CommandHandler {
                 if (w.location().distance(player.getLocation()) <= 5) teleportAllowed = true;
             }
 
-            //TODO: Implement portable waystone
             for (ItemStack stack : player.getInventory()) {
                 teleportAllowed = teleportAllowed || stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"));
             }
@@ -288,6 +299,13 @@ public class WayStoneCommands extends CommandHandler {
         CommandSender sender = context.getSender();
         if (sender instanceof Player player) {
             player.getInventory().addItem(plugin.getItem());
+        }
+    }
+
+    private void givePortableWaystone(CommandContext<CommandSender> context) {
+        CommandSender sender = context.getSender();
+        if (sender instanceof Player player) {
+            player.getInventory().addItem(plugin.getPortable());
         }
     }
 
