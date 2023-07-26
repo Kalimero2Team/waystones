@@ -17,16 +17,14 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.UUID;
@@ -195,6 +193,23 @@ public class WayStoneCommands extends CommandHandler {
     private void teleportToWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             StoredWaystone waystone = context.get("waystone");
+
+            boolean teleportAllowed = false;
+
+            for (StoredWaystone w : storage.getWaystones(player.getWorld().getUID())) {
+                if (w.location().distance(player.getLocation()) <= 5) teleportAllowed = true;
+            }
+
+            //TODO: Implement portable waystone
+            for (ItemStack stack : player.getInventory()) {
+                teleportAllowed = teleportAllowed || stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"));
+            }
+
+            if (!teleportAllowed) {
+                player.sendMessage(Component.text("Du musst dich zum teleportieren in der Nähe eines Waystones befinden!").color(TextColor.color(255, 73, 0)));
+                return;
+            }
+
             if (waystone.checkPlayer(player)) {
                 player.teleport(waystone.location());
             }
