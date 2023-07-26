@@ -221,8 +221,20 @@ public class WayStoneCommands extends CommandHandler {
                 if (w.location().distance(player.getLocation()) <= 5) teleportAllowed = true;
             }
 
-            for (ItemStack stack : player.getInventory()) {
-                if (stack != null) teleportAllowed = teleportAllowed || stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"));
+            if (!teleportAllowed) {
+                for (ItemStack stack : player.getInventory()) {
+                    if (stack != null) {
+                        if (stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
+                            if (player.getLevel() >= 1) {
+                                player.setLevel(player.getLevel() - 1);
+                                teleportAllowed = true;
+                            }
+                            else {
+                                player.sendMessage(Component.text("Du benötigst mindestens ein Level, um dich zu teleportieren!").color(TextColor.color(255, 73, 0)));
+                            }
+                        }
+                    }
+                }
             }
 
             if (!teleportAllowed) {
