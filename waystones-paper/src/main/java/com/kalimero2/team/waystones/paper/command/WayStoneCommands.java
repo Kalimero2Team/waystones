@@ -213,7 +213,7 @@ public class WayStoneCommands extends CommandHandler {
             }
 
             for (ItemStack stack : player.getInventory()) {
-                teleportAllowed = teleportAllowed || stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"));
+                if (stack != null) teleportAllowed = teleportAllowed || stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"));
             }
 
             if (!teleportAllowed) {
