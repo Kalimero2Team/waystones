@@ -25,6 +25,9 @@ public class WaystonesScreen {
         return false;
     }
 
+
+    
+
     public void list(Player player, String search) {
         if (isBedrockPlayer(player)) {
             //FloodgateIntegration.showBedrockForm(event.getPlayer());

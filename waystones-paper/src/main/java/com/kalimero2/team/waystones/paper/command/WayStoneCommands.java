@@ -7,6 +7,7 @@ import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.bukkit.parsers.location.LocationArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
@@ -32,12 +33,14 @@ import java.util.UUID;
 public class WayStoneCommands extends CommandHandler {
 
     private WaystonesScreen screen;
+    private DisplayManager display;
     private Storage storage;
 
 
     public WayStoneCommands(PaperWayStones plugin, CommandManager commandManager) {
         super(plugin, commandManager);
         screen = new WaystonesScreen(plugin);
+        display = new DisplayManager(plugin);
         storage = plugin.getStorage();
     }
 
@@ -189,15 +192,15 @@ public class WayStoneCommands extends CommandHandler {
         CommandSender sender = context.getSender();
 
         StoredWaystone waystone = context.get("waystone");
-        Player player = context.get("player");
         String newName = context.get("newname");
 
-        if (sender instanceof Player player2) {
-            if (!waystone.owner().equals(player2.getUniqueId()) && !player2.hasPermission("waystones.admin")) return;
+        if (sender instanceof Player player) {
+            if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.admin")) return;
         }
 
         if (storage.nameFree(newName)) {
             storage.renameWaystone(waystone.id(), newName);
+            display.updateDisplay(waystone);
             sender.sendMessage(Component.text("Waystone " + waystone.name() + " mit der ID " + waystone.id() + " wurde in " + newName + " umbenannt").color(TextColor.color(18, 255, 36)));
         }
 
@@ -264,30 +267,9 @@ public class WayStoneCommands extends CommandHandler {
         Player player = (Player) context.getSender();
 
         storage.addWaystone(name, player.getUniqueId(), 0, location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+        StoredWaystone waystone = storage.getWaystone(location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
 
-        Location centerLocation = location.toCenterLocation();
-        Location topLocation = centerLocation.clone().add(0, 1, 0);
-        Block centerLocationBlock = centerLocation.getBlock();
-        centerLocationBlock.setType(Material.BARRIER);
-        Block topLocationBlock = topLocation.getBlock();
-        topLocationBlock.setType(Material.BARRIER);
-
-        // IMPORTANT: METADATA IS NOT PERSISTENT
-        centerLocationBlock.setMetadata("waystoneID", new FixedMetadataValue(plugin, 0));
-        topLocationBlock.setMetadata("waystoneID", new FixedMetadataValue(plugin, 0));
-
-        ItemDisplay itemDisplay = world.spawn(centerLocation, ItemDisplay.class);
-        itemDisplay.setItemStack(plugin.getItem());
-
-        UUID itemDisplayUniqueId = itemDisplay.getUniqueId();
-
-        Location textDisplayLocation = topLocation.clone().add(0, 0.75, 0);
-        TextDisplay textDisplay = world.spawn(textDisplayLocation, TextDisplay.class);
-        textDisplay.text(Component.text(name));
-        textDisplay.setBillboard(Display.Billboard.VERTICAL);
-        textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
-
-        UUID textDisplayUniqueId = textDisplay.getUniqueId();
+        display.updateDisplay(waystone);
 
         context.getSender().sendMessage(Component.text("Waystone created at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " named " + name));
     }
@@ -303,6 +285,7 @@ public class WayStoneCommands extends CommandHandler {
             player.getInventory().addItem(plugin.getItem());
         }
 
+        display.clearDisplay(waystone);
         storage.removeWaystone(waystone.id());
         sender.sendMessage(Component.text("Waystone mit ID " + waystone.id() + " wurde entfernt.").color(TextColor.color(255, 73, 0)));
     }
