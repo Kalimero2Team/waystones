@@ -17,6 +17,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -308,6 +309,13 @@ public class WayStoneCommands extends CommandHandler {
 
         display.clearDisplay(waystone);
         storage.removeWaystone(waystone.id());
+
+        if (context.getSender() instanceof Player player) {
+            if (!(player.getGameMode().equals(GameMode.CREATIVE) || player.getGameMode().equals(GameMode.SPECTATOR))) {
+                player.getInventory().addItem(plugin.getItem());
+            }
+        }
+
         sender.sendMessage(Component.text("Waystone mit ID " + waystone.id() + " wurde entfernt.").color(TextColor.color(255, 73, 0)));
     }
 
