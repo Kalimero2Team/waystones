@@ -142,7 +142,6 @@ public class JavaScreen {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.empty();
 
-        Storage storage = plugin.getStorage();
         int id = waystone.id();
 
         current_page = current_page.append(Component.text(waystone.name()).decorate(TextDecoration.BOLD).color(TextColor.color(0, 100, 180)));
