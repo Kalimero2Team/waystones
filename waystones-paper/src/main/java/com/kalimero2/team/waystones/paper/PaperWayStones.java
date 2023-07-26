@@ -190,7 +190,7 @@ public class PaperWayStones extends JavaPlugin {
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-        dataContainer.set(new NamespacedKey(this, "item"), PersistentDataType.BOOLEAN, true);
+        dataContainer.set(new NamespacedKey(this, "static"), PersistentDataType.BOOLEAN, true);
         item.setItemMeta(itemMeta);
         return item;
     }
