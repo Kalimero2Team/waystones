@@ -19,7 +19,7 @@ import java.util.List;
 
 public class JavaScreen {
 
-    private PaperWayStones plugin;
+    private final PaperWayStones plugin;
 
     public JavaScreen(PaperWayStones plugin) {
         this.plugin = plugin;
@@ -156,32 +156,31 @@ public class JavaScreen {
         current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.suggestCommand("/waystone setowner " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
+
         switch (waystone.visibility()) {
-            case PUBLIC:
+            case PUBLIC -> {
                 current_page = current_page.append(Component.text("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " private")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.text("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " unlisted")));
-                break;
-            case UNLISTED:
+            }
+            case UNLISTED -> {
                 current_page = current_page.append(Component.text("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " public")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.text("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " private")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " edit")));
-                break;
-            case PRIVATE:
+            }
+            case PRIVATE -> {
                 current_page = current_page.append(Component.text("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " public")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.text("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " unlisted")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.suggestCommand("/waystone whitelist " + id + " ")));
-                break;
-
-            default:
+            }
+            default ->
                 current_page = current_page.append(Component.text("ERROR: Cannot resolve visibility code " + waystone.visibility()));
-                break;
         }
 
         pages.add(current_page);

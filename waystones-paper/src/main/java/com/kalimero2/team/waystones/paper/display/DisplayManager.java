@@ -14,6 +14,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.sql.Time;
+import java.time.Instant;
+import java.util.TimeZone;
+import java.util.Timer;
 import java.util.UUID;
 
 public class DisplayManager {
@@ -99,6 +103,45 @@ public class DisplayManager {
                     display.remove();
                 }
             }
+        }
+    }
+
+
+    public void updateAll() {
+
+        int batchSize = 5;
+
+        removeAll();
+
+        StoredWaystone[] waystones = storage.getWaystones();
+
+        plugin.getLogger().info("Updating " + waystones.length + " waystones with a batch size of " + batchSize + ".. This will take " + Math.ceil(waystones.length / batchSize) + " ticks");
+
+        for (int i = 0; i <= waystones.length; i++) {
+
+            if (i == waystones.length) {
+                BukkitRunnable runnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        plugin.getLogger().info("Finished updating all Waystone displays.");
+                    }
+                };
+
+                runnable.runTaskLater(plugin, Math.floorDiv(i, batchSize)+1);
+            }
+
+            else {
+                StoredWaystone waystone = waystones[i];
+                BukkitRunnable runnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        updateDisplay(waystone);
+                    }
+                };
+
+                runnable.runTaskLater(plugin, Math.floorDiv(i, batchSize));
+            }
+
         }
     }
 

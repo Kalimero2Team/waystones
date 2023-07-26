@@ -151,6 +151,27 @@ public class WayStoneCommands extends CommandHandler {
                 .argument(PlayerArgument.of("player"))
                 .handler(this::removePlayerFromWhitelist)
         );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("display")
+                .literal("update")
+                .literal("all")
+                .permission("waystones.display")
+                .handler(this::reloadAllDisplays)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("display")
+                .literal("update")
+                .literal("waystone")
+                .argument(WaystoneArgument.of("waystone"))
+                .permission("waystones.display")
+                .handler(this::reloadDisplay)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("display")
+                .literal("clear")
+                .permission("waystones.display")
+                .handler(this::clearDisplays)
+        );
     }
 
     private void openTestInv(CommandContext<CommandSender> context) {
@@ -333,5 +354,21 @@ public class WayStoneCommands extends CommandHandler {
 
         storage.removeWhitelist(player, waystone.id());
         sender.sendMessage(Component.text("Spieler " + player.displayName() + " wurde von der Whitelist vom Waystone " + waystone.id() + " entfernt.").color(TextColor.color(18, 255, 36)));
+    }
+
+    private void reloadDisplay(CommandContext<CommandSender> context) {
+        StoredWaystone waystone = context.get("waystone");
+        display.updateDisplay(waystone);
+        context.getSender().sendMessage(Component.text("Updating display of waystone " + waystone.id()).color(TextColor.color(18, 255, 36)));
+    }
+
+    private void reloadAllDisplays(CommandContext<CommandSender> context) {
+        display.updateAll();
+        context.getSender().sendMessage(Component.text("Updating display of all waystones...").color(TextColor.color(18, 255, 36)));
+    }
+
+    private void clearDisplays(CommandContext<CommandSender> context) {
+        display.removeAll();
+        context.getSender().sendMessage(Component.text("Removing displays in all loaded chunks...").color(TextColor.color(18, 255, 36)));
     }
 }
