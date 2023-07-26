@@ -185,7 +185,7 @@ public class PaperWayStones extends JavaPlugin {
     public ItemStack getItem() {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.displayName(Component.translatable("Waystone"));
+        itemMeta.displayName(Component.translatable("waystone").fallback("Waystone").decoration(TextDecoration.ITALIC, false));
         itemMeta.lore(List.of(Component.translatable("waystones.lore.1").fallback("Platziere diesen Waystone"), Component.translatable("waystones.lore.2").fallback("Er muss nicht im vorhinein umbenannt werden!")));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);

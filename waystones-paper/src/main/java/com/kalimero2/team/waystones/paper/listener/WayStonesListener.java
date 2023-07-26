@@ -1,9 +1,12 @@
 package com.kalimero2.team.waystones.paper.listener;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.display.DisplayManager;
+import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.GameMode;
@@ -33,71 +36,89 @@ public class WayStonesListener implements Listener {
 
 
     private final PaperWayStones plugin;
+    private final Storage storage;
+    private final DisplayManager display;
     private final WaystonesScreen screen;
 
     public WayStonesListener(PaperWayStones plugin) {
         this.plugin = plugin;
+        this.storage = plugin.getStorage();
+        this.display = new DisplayManager(plugin);
         this.screen = new WaystonesScreen(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
 
 
-
-    @EventHandler
-    public void onAnvilRename(PrepareAnvilEvent event){
-        ItemStack waystone = plugin.getItem();
-        if (waystone.isSimilar(event.getInventory().getFirstItem())) {
-            event.getInventory().close();
-            event.setResult(waystone);
-        }
-    }
-
-    @EventHandler
+    @EventHandler()
     public void onBlockPlace(BlockPlaceEvent event) {
+
+        Player player = event.getPlayer();
 
         if (event.isCancelled()) {
             return;
         }
+
         if (plugin.claimsIntegration != null) {
             if (plugin.claimsIntegration.shouldCancel(event.getBlock().getChunk(), event.getPlayer())) {
                 return;
             }
         }
 
+        String name = null;
+
         ItemStack stack = event.getItemInHand();
         ItemMeta meta = stack.getItemMeta();
-        PersistentDataContainer data = meta.getPersistentDataContainer();
+        if (!meta.getDisplayName().equals(plugin.getItem().getItemMeta().getDisplayName())) {
+            name = meta.getDisplayName();
+        }
 
+        if (meta.getPersistentDataContainer().has(new NamespacedKey(plugin, "item"), PersistentDataType.BOOLEAN) || (event.getBlock().getType() == Material.STONE_BRICK_WALL &&  event.getItemInHand().getItemMeta().getCustomModelData() == 22022)) {
 
-        if (event.getItemInHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "item"), PersistentDataType.BOOLEAN) || (event.getBlock().getType() == Material.STONE_BRICK_WALL &&  event.getItemInHand().getItemMeta().getCustomModelData() == 22022)) {
+            event.setCancelled(true);
 
             Location location = event.getBlock().getLocation();
             if (!location.clone().add(0, 1, 0).getBlock().isEmpty()) {
-                event.setCancelled(true);
                 return;
             }
 
-            /*
-            new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
-                if (state.getText().length() > 16) {
-                    return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
-                }
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        plugin.getStorage().addWaystone(state.getText(), event.getPlayer().getUniqueId(), location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+            if (name == null) {
+                player.sendMessage(Component.text("Das Anvil GUI ist aktuell noch nicht implementiert"));
+                return;
+                /*
+                new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
+                    if (state.getText().length() > 16) {
+                        return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
                     }
-                }.runTask(plugin);
-                return Collections.singletonList(AnvilGUI.ResponseAction.close());
-            }).preventClose().plugin(plugin).open(event.getPlayer());
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            plugin.getStorage().addWaystone(state.getText(), event.getPlayer().getUniqueId(), location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+                        }
+                    }.runTask(plugin);
+                    return Collections.singletonList(AnvilGUI.ResponseAction.close());
+                }).preventClose().plugin(plugin).open(event.getPlayer());
 
-            if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
-                event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+                if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
+                    event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+                }
+                 */
             }
-            event.setCancelled(true);
 
-             */
+            if (!storage.nameFree(name)) {
+                player.sendMessage(Component.text("Dieser Name ist bereits vergeben!").color(TextColor.color(255, 73, 0)));
+                return;
+            }
+
+            storage.addWaystone(name, player.getUniqueId(), 0, location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+            StoredWaystone waystone = storage.getWaystone(location.getBlockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+            stack.setAmount(stack.getAmount() - 1);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    display.updateDisplay(waystone);
+                }
+            }.runTaskLater(plugin, 1);
         }
     }
 
@@ -105,18 +126,14 @@ public class WayStonesListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         StoredWaystone waystone = plugin.getStorage().getWaystone(block.getLocation().getBlockX(), block.getLocation().getBlockY(), block.getLocation().getBlockZ(), block.getWorld().getUID());
-        boolean bottom = false;
         if (waystone == null) {
             Block blockBelow = block.getWorld().getBlockAt(block.getLocation().clone().add(0, -1, 0));
             waystone = plugin.getStorage().getWaystone(blockBelow.getLocation().getBlockX(), blockBelow.getLocation().getBlockY(), blockBelow.getLocation().getBlockZ(), blockBelow.getWorld().getUID());
-            bottom = true;
         }
         if (waystone != null) {
             int waystoneID = waystone.id();
-            plugin.getStorage().removeWaystone(waystoneID);
-            if (bottom) block.getWorld().setType(block.getLocation().clone().add(0, 1, 0), Material.AIR);
-            else block.getWorld().setType(block.getLocation().clone().add(0, -1, 0), Material.AIR);
-            event.getPlayer().sendMessage(Component.text("Waystone with ID " + waystoneID + " was removed!").color(TextColor.color(180, 0, 0)));
+            event.getPlayer().sendMessage(Component.text("Click here to remove the waystone!").clickEvent(ClickEvent.suggestCommand("/waystone remove " + waystoneID)));
+            event.setCancelled(true);
         }
     }
 
