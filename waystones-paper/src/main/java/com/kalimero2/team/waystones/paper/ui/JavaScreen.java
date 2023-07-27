@@ -88,7 +88,11 @@ public class JavaScreen {
                 color = TextColor.color(255, 220, 0);
             }
             current_page = current_page.append(Component.text("[★] ").color(color).clickEvent(ClickEvent.runCommand("/waystone " + "favorite " + action + " " + waystone.id())));
-            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren").append(Component.newline()).append(Component.text("Waystone ID: " + waystone.id()).decorate(TextDecoration.BOLD)))));
+
+            color = TextColor.color(0, 0, 0);
+            if (clickedwaystone != null) if(waystone.id() == clickedwaystone.id()) color = TextColor.color(0, 180, 50);
+
+            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(color).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren").append(Component.newline()).append(Component.text("Waystone ID: " + waystone.id()).decorate(TextDecoration.BOLD)))));
             current_page = current_page.append(Component.newline());
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));
@@ -147,6 +151,8 @@ public class JavaScreen {
         int id = waystone.id();
 
         current_page = current_page.append(Component.text(waystone.name()).decorate(TextDecoration.BOLD).color(TextColor.color(0, 100, 180)));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.text("ID: " + waystone.id()).color(TextColor.color(0, 100, 130)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.suggestCommand("/waystone rename " + id)));
