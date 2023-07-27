@@ -1,5 +1,6 @@
 package com.kalimero2.team.waystones.paper.storage;
 
+import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -50,9 +51,15 @@ public record StoredWaystone(int id,
     public boolean checkPlayer(Player player) {
         if (!visibility.equals(Visibility.PRIVATE)) return true;
         if (owner.equals(player.getUniqueId())) return true;
-        return true; //TODO: Implement whitelist
-        //Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
-        //if (storage.getWhitelist(id)).contains(player.getUniqueId);
+        Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
+        return storage.onWhitelist(player, id);
+    }
+
+    public boolean visibleTo(Player player) {
+        if (visibility.equals(Visibility.PUBLIC)) return true;
+        if (owner.equals(player.getUniqueId())) return true;
+        Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
+        return storage.onWhitelist(player, id);
     }
 
 

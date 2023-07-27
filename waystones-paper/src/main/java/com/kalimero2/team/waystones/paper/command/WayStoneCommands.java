@@ -15,6 +15,7 @@ import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
@@ -168,6 +169,12 @@ public class WayStoneCommands extends CommandHandler {
                 .handler(this::removePlayerFromWhitelist)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("whitelist")
+                .argument(WaystoneArgument.of("waystone"))
+                .literal("list")
+                .handler(this::listWhitelist)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("display")
                 .literal("update")
                 .literal("all")
@@ -251,7 +258,7 @@ public class WayStoneCommands extends CommandHandler {
     private void editWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             StoredWaystone waystone = context.get("waystone");
-            if (waystone.owner().equals(player.getUniqueId())) {
+            if (waystone.owner().equals(player.getUniqueId()) || player.hasPermission("waystones.admin")) {
                 screen.settings(player, waystone);
             }
         }
@@ -385,6 +392,7 @@ public class WayStoneCommands extends CommandHandler {
         }
 
         storage.setVisibility(waystone.id(), visibility);
+
         sender.sendMessage(Component.text("Waystone mit ID " + waystone.id() + " ist jetzt " + visibility.text()).color(TextColor.color(255, 73, 0)));
     }
 
@@ -403,7 +411,7 @@ public class WayStoneCommands extends CommandHandler {
         }
 
         storage.addWhitelist(player, waystone.id());
-        sender.sendMessage(Component.text("Spieler " + player.displayName() + " wurde auf die Whitelist vom Waystone " + waystone.id() + " gesetzt.").color(TextColor.color(18, 255, 36)));
+        sender.sendMessage(Component.text("Spieler " + player.getName() + " wurde auf die Whitelist vom Waystone " + waystone.id() + " gesetzt.").color(TextColor.color(18, 255, 36)));
     }
 
     private void removePlayerFromWhitelist(CommandContext<CommandSender> context) {
@@ -417,7 +425,24 @@ public class WayStoneCommands extends CommandHandler {
         }
 
         storage.removeWhitelist(player, waystone.id());
-        sender.sendMessage(Component.text("Spieler " + player.displayName() + " wurde von der Whitelist vom Waystone " + waystone.id() + " entfernt.").color(TextColor.color(18, 255, 36)));
+        sender.sendMessage(Component.text("Spieler " + player.getName() + " wurde von der Whitelist vom Waystone " + waystone.id() + " entfernt.").color(TextColor.color(18, 255, 36)));
+    }
+
+    private void listWhitelist(CommandContext<CommandSender> context) {
+        CommandSender sender = context.getSender();
+
+        StoredWaystone waystone = context.get("waystone");
+
+        if (sender instanceof Player player) {
+            if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.admin")) return;
+        }
+
+        sender.sendMessage(Component.text("Folgende Spieler sind auf der Whitelist von Waystone " + waystone.id() + ":").color(TextColor.color(18, 255, 36)));
+
+        for (Player p : storage.whitelist(waystone.id())) {
+            sender.sendMessage(Component.text(p.getName()).hoverEvent(HoverEvent.showText(Component.text(p.getUniqueId().toString()))));
+        }
+
     }
 
     private void reloadDisplay(CommandContext<CommandSender> context) {

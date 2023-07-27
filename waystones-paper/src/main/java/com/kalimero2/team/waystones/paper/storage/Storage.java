@@ -3,6 +3,7 @@ package com.kalimero2.team.waystones.paper.storage;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -220,18 +221,19 @@ public class Storage {
 
     public StoredWaystone[] getWaystones(Player player) {
         SortMode sortMode = getSortMode(player);
+        String sql = "SELECT * FROM WAYSTONES";
         try  {
             ResultSet resultSet = null;
             switch (sortMode) {
-                case ALPHABETICAL -> resultSet = executeQuery("SELECT * FROM WAYSTONES  ORDER BY NAME COLLATE NOCASE ASC;");
-                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES  ORDER BY NAME COLLATE NOCASE DESC;");
-                case NUMERIC -> resultSet = executeQuery("SELECT * FROM WAYSTONES  ORDER BY ID ASC;");
-                case NUMERIC_DESCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES  ORDER BY ID DESC;");
-                case POPULARITY -> resultSet = executeQuery("SELECT * FROM WAYSTONES  ORDER BY USES DESC;");
-                case POPULARITY_ASCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES  ORDER BY USES ASC;");
+                case ALPHABETICAL -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE ASC;");
+                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE DESC;");
+                case NUMERIC -> resultSet = executeQuery(sql + " ORDER BY ID ASC;");
+                case NUMERIC_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY ID DESC;");
+                case POPULARITY -> resultSet = executeQuery(sql + " ORDER BY USES DESC;");
+                case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + " ORDER BY USES ASC;");
             }
             assert resultSet != null;
-            StoredWaystone[] all = getWaystonesFromResultSet(resultSet);
+            StoredWaystone[] all = getWaystonesFromResultSet(resultSet, player);
             StoredWaystone[] favs = getFavoriteWaystones(player);
             List<StoredWaystone> result = new ArrayList<StoredWaystone>(Arrays.stream(all).toList());
             result.removeAll(Arrays.stream(favs).toList());
@@ -275,7 +277,7 @@ public class Storage {
                 case POPULARITY_ASCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY USES ASC;");
             }
             assert resultSet != null;
-            StoredWaystone[] all = getWaystonesFromResultSet(resultSet);
+            StoredWaystone[] all = getWaystonesFromResultSet(resultSet, player);
             StoredWaystone[] favs = getFavoriteWaystones(world, player);
             List<StoredWaystone> result = new ArrayList<StoredWaystone>(Arrays.stream(all).toList());
             result.removeAll(Arrays.stream(favs).toList());
@@ -305,7 +307,7 @@ public class Storage {
                 case POPULARITY -> resultSet = executeQuery(sql + "ORDER BY USES DESC;");
                 case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + "ORDER BY USES ASC;");
             }
-            return getWaystonesFromResultSet(resultSet);
+            return getWaystonesFromResultSet(resultSet, player);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (NullPointerException ignored) {}
@@ -329,7 +331,7 @@ public class Storage {
                 case POPULARITY -> resultSet = executeQuery(sql + "ORDER BY USES DESC;");
                 case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + "ORDER BY USES ASC;");
             }
-            return getWaystonesFromResultSet(resultSet);
+            return getWaystonesFromResultSet(resultSet, player);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (NullPointerException ignored) {}
@@ -371,6 +373,31 @@ public class Storage {
         return waystones.toArray(new StoredWaystone[0]);
     }
 
+    @NotNull
+    private StoredWaystone[] getWaystonesFromResultSet(ResultSet resultSet, Player player) throws SQLException {
+        Set<StoredWaystone> waystones = new LinkedHashSet<>();
+        try {
+            while (resultSet.next()) {
+                StoredWaystone waystone = new StoredWaystone(resultSet.getInt("ID"),
+                        resultSet.getString("NAME"),
+                        resultSet.getString("OWNER_UUID"),
+                        resultSet.getInt("VISIBILITY"),
+                        resultSet.getInt("CHUNK_X"),
+                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("BLOCK_X"),
+                        resultSet.getInt("BLOCK_Y"),
+                        resultSet.getInt("BLOCK_Z"),
+                        resultSet.getString("WORLD_UUID"),
+                        resultSet.getInt("USES"));
+                if (waystone.visibleTo(player)) waystones.add(waystone);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return waystones.toArray(new StoredWaystone[0]);
+    }
+
     /**
      * @param name the requested name
      * @return true if the name is not used by any other waystone – false if used by at least one waystone
@@ -386,8 +413,35 @@ public class Storage {
     // Whitelist
     //
 
-    public void setVisibility(int waystoneID, Visibility visibility) {
+    public void setVisibility(int id, Visibility visibility) {
+        executeUpdate("UPDATE WAYSTONES SET VISIBILITY = " + visibility.ordinal() + " WHERE ID = " + id + ";");
+    }
 
+    public boolean onWhitelist(Player player, int id) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+            return resultSet.next();
+        } catch (SQLException ignored) {}
+        return false;
+    }
+
+    public void addWhitelist(Player player, int id) {
+        executeUpdate("INSERT INTO WHITELISTS(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
+    }
+
+    public void removeWhitelist(Player player, int id) {
+        executeUpdate("DELETE FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
+    }
+
+    public List<Player> whitelist(int id) {
+        List<Player> result = new ArrayList<>();
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WHITELISTS WHERE WAYSTONE = "+id+";")) {
+            while (resultSet.next()) {
+                result.add(Bukkit.getPlayer(UUID.fromString(resultSet.getString("PLAYER"))));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
 
@@ -438,20 +492,5 @@ public class Storage {
 
     public void setSortMode(Player player, SortMode sortMode) {
         executeUpdate("REPLACE INTO SORTMODE(PLAYER, MODE) VALUES('" + player.getUniqueId() + "', " + sortMode.ordinal() + ");");
-    }
-
-    public boolean onWhitelist(Player player, int id) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"';")) {
-            return resultSet.next();
-        } catch (SQLException ignored) {}
-        return false;
-    }
-
-    public void addWhitelist(Player player, int id) {
-        executeUpdate("INSERT INTO WHITELISTS(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
-    }
-
-    public void removeWhitelist(Player player, int id) {
-        executeUpdate("DELETE FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
     }
 }
