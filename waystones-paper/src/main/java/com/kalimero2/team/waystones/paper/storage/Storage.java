@@ -19,6 +19,7 @@ public class Storage {
 
     private final PaperWayStones plugin;
     private Connection connection;
+    private List<Player> forceMode = new ArrayList<>();
 
     public Storage(PaperWayStones plugin, File dataBase) {
         this.plugin = plugin;
@@ -389,7 +390,7 @@ public class Storage {
                         resultSet.getInt("BLOCK_Z"),
                         resultSet.getString("WORLD_UUID"),
                         resultSet.getInt("USES"));
-                if (waystone.visibleTo(player)) waystones.add(waystone);
+                if (waystone.visibleTo(player) || forceMode(player)) waystones.add(waystone);
             }
         }
         catch (SQLException e) {
@@ -493,4 +494,24 @@ public class Storage {
     public void setSortMode(Player player, SortMode sortMode) {
         executeUpdate("REPLACE INTO SORTMODE(PLAYER, MODE) VALUES('" + player.getUniqueId() + "', " + sortMode.ordinal() + ");");
     }
+
+
+
+    //
+    // Force Mode Users
+    //
+
+    public boolean forceMode(Player player) {
+        return forceMode.contains(player);
+    }
+
+    public boolean forceMode(Player player, boolean active) {
+        if (active && !forceMode.contains(player)) {
+            forceMode.add(player);
+            return true;
+        }
+        else forceMode.remove(player);
+        return false;
+    }
+
 }

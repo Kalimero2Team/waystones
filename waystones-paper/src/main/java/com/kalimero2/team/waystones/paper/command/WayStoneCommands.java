@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
 
@@ -50,6 +51,12 @@ public class WayStoneCommands extends CommandHandler {
                 .literal("menu")
                 .senderType(Player.class)
                 .handler(this::menu)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone")
+                .literal("force")
+                .senderType(Player.class)
+                .permission("waystones.admin")
+                .handler(this::forceMode)
         );
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("give")
@@ -197,6 +204,15 @@ public class WayStoneCommands extends CommandHandler {
         );
     }
 
+    private void forceMode(CommandContext<CommandSender> context) {
+        Player player = (Player) context.getSender();
+        if (storage.forceMode(player, !storage.forceMode(player))) {
+            player.sendMessage(Component.text("Force Modus aktiviert").color(TextColor.color(0, 255, 50)));
+        }
+        else player.sendMessage(Component.text("Force Modus deaktiviert").color(TextColor.color(0, 255, 50)));
+
+    }
+
     private void openTestInv(CommandContext<CommandSender> context) {
         if(context.getSender() instanceof Player player) {
             Component title = MiniMessage.miniMessage().deserialize("<white><font:klm2:waystones>b</font>");
@@ -222,7 +238,7 @@ public class WayStoneCommands extends CommandHandler {
         if (context.getSender() instanceof Player player) {
             StoredWaystone waystone = context.get("waystone");
 
-            boolean teleportAllowed = false;
+            boolean teleportAllowed = storage.forceMode(player);
 
             for (StoredWaystone w : storage.getWaystones(player.getWorld().getUID())) {
                 if (w.location().distance(player.getLocation()) <= 5) teleportAllowed = true;
@@ -249,7 +265,7 @@ public class WayStoneCommands extends CommandHandler {
                 return;
             }
 
-            if (waystone.checkPlayer(player)) {
+            if (waystone.checkPlayer(player) || storage.forceMode(player)) {
                 player.teleport(waystone.location());
             }
         }
@@ -258,7 +274,7 @@ public class WayStoneCommands extends CommandHandler {
     private void editWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             StoredWaystone waystone = context.get("waystone");
-            if (waystone.owner().equals(player.getUniqueId()) || player.hasPermission("waystones.admin")) {
+            if (waystone.owner().equals(player.getUniqueId()) || storage.forceMode(player)) {
                 screen.settings(player, waystone);
             }
         }
@@ -271,7 +287,7 @@ public class WayStoneCommands extends CommandHandler {
         String newName = context.get("newname");
 
         if (sender instanceof Player player) {
-            if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.admin")) return;
+            if (!waystone.owner().equals(player.getUniqueId()) && !storage.forceMode(player)) return;
         }
 
         if (storage.nameFree(newName)) {
@@ -434,7 +450,7 @@ public class WayStoneCommands extends CommandHandler {
         StoredWaystone waystone = context.get("waystone");
 
         if (sender instanceof Player player) {
-            if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.admin")) return;
+            if (!waystone.owner().equals(player.getUniqueId()) && !storage.forceMode(player)) return;
         }
 
         sender.sendMessage(Component.text("Folgende Spieler sind auf der Whitelist von Waystone " + waystone.id() + ":").color(TextColor.color(18, 255, 36)));
