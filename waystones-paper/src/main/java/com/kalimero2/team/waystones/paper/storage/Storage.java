@@ -247,6 +247,32 @@ public class Storage {
         return new StoredWaystone[0];
     }
 
+    public StoredWaystone[] getWaystones(Player player, String search) {
+        SortMode sortMode = getSortMode(player);
+        String sql = "SELECT * FROM WAYSTONES WHERE NAME LIKE '%" + search + "%'";
+        try  {
+            ResultSet resultSet = null;
+            switch (sortMode) {
+                case ALPHABETICAL -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE ASC;");
+                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE DESC;");
+                case NUMERIC -> resultSet = executeQuery(sql + " ORDER BY ID ASC;");
+                case NUMERIC_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY ID DESC;");
+                case POPULARITY -> resultSet = executeQuery(sql + " ORDER BY USES DESC;");
+                case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + " ORDER BY USES ASC;");
+            }
+            assert resultSet != null;
+            StoredWaystone[] all = getWaystonesFromResultSet(resultSet, player);
+            StoredWaystone[] favs = getFavoriteWaystones(player);
+            List<StoredWaystone> result = new ArrayList<StoredWaystone>(Arrays.stream(all).toList());
+            result.removeAll(Arrays.stream(favs).toList());
+            result.addAll(0, Arrays.stream(favs).toList());
+            return result.toArray(new StoredWaystone[0]);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new StoredWaystone[0];
+    }
+
     public StoredWaystone[] getWaystones(UUID world) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"';")) {
             return getWaystonesFromResultSet(resultSet);

@@ -109,11 +109,6 @@ public class WayStoneCommands extends CommandHandler {
         commandManager.command(commandManager.commandBuilder("waystone")
                 .literal("search")
                 .senderType(Player.class)
-                .handler(this::searchMenu)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone")
-                .literal("search")
-                .senderType(Player.class)
                 .argument(StringArgument.of("term"))
                 .handler(this::searchWayStone)
         );
@@ -301,11 +296,6 @@ public class WayStoneCommands extends CommandHandler {
         }
     }
 
-    private void searchMenu(CommandContext<CommandSender> context) {
-        if (context.getSender() instanceof Player player) {
-            screen.search(player);
-        }
-    }
 
     private void searchWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {

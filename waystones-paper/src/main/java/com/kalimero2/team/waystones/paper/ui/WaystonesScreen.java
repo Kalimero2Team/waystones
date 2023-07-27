@@ -1,8 +1,11 @@
 package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -10,12 +13,14 @@ import javax.annotation.Nullable;
 public class WaystonesScreen {
 
     private PaperWayStones plugin;
+    private FloodgateIntegration floodgateIntegration;
 
     private JavaScreen java;
 
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
         this.java = new JavaScreen(plugin);
+        floodgateIntegration = plugin.floodgateIntegration;
     }
 
     public boolean isBedrockPlayer(Player player) {
@@ -30,7 +35,7 @@ public class WaystonesScreen {
 
     public void list(Player player, String search) {
         if (isBedrockPlayer(player)) {
-            //FloodgateIntegration.showBedrockForm(event.getPlayer());
+            floodgateIntegration.list(player, search);
         }
         else {
             java.list(player, search);
@@ -39,7 +44,7 @@ public class WaystonesScreen {
 
     public void menu(Player player, @Nullable StoredWaystone waystone) {
         if (isBedrockPlayer(player)) {
-            //FloodgateIntegration.showBedrockForm(event.getPlayer());
+            floodgateIntegration.menu(player);
         }
         else {
             java.menu(player, waystone);
@@ -55,7 +60,12 @@ public class WaystonesScreen {
         }
     }
 
-    public void search(Player player) {
-        //TODO: Anvil GUI, in dem man einen suchbegriff eingeben kann
+    public void create(Player player, Location location, ItemStack stack) {
+        if (isBedrockPlayer(player)) {
+            floodgateIntegration.create(player, location, stack, false);
+        }
+        else {
+            java.create(player, location, stack);
+        }
     }
 }

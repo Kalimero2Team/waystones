@@ -31,14 +31,9 @@ public class PaperWayStones extends JavaPlugin {
     @Override
     public void onEnable() {
         //WayStonesApiHolder.setApi(this);
-        try {
-            Class.forName("org.geysermc.floodgate.api.FloodgateApi");
-            floodgateIntegration = new FloodgateIntegration(this);
-            getLogger().info("Floodgate integration enabled");
-        } catch (ClassNotFoundException e) {
-            floodgateIntegration = null;
-            getLogger().info("Floodgate not found, disabling Floodgate integration");
-        }
+
+        // Claims Compat
+
         try {
             Class.forName("com.kalimero2.team.claims.api.ClaimsApi");
             claimsIntegration = new ClaimsIntegration(this);
@@ -48,6 +43,9 @@ public class PaperWayStones extends JavaPlugin {
             getLogger().info("Claims not found, disabling Claims integration");
         }
 
+
+        // Storage
+
         getDataFolder().mkdirs();
         this.storage = new Storage(this, new File(getDataFolder(), "waystones.db"));
 
@@ -56,11 +54,28 @@ public class PaperWayStones extends JavaPlugin {
         }
 
 
+        // Floodgate Compat
+
+        try {
+            Class.forName("org.geysermc.floodgate.api.FloodgateApi");
+            floodgateIntegration = new FloodgateIntegration(this);
+            getLogger().info("Floodgate integration enabled");
+        } catch (ClassNotFoundException e) {
+            floodgateIntegration = null;
+            getLogger().info("Floodgate not found, disabling Floodgate integration");
+        }
+
+
+        // Commands
+
         try {
             new CommandManager(this);
         } catch (Exception e) {
             getLogger().warning("Failed to register commands");
         }
+
+
+        // Event Listeners
 
         new WayStonesListener( this);
         new ChunkListener(this);

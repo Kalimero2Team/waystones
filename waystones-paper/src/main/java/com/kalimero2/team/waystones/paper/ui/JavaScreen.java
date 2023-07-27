@@ -10,7 +10,9 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -195,5 +197,27 @@ public class JavaScreen {
 
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
 
+    }
+
+    public void create(Player player, Location location, ItemStack stack) {
+        player.sendMessage(Component.text("Das Anvil GUI ist aktuell noch nicht implementiert"));
+        /*
+        new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
+            if (state.getText().length() > 16) {
+                return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
+            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    plugin.getStorage().addWaystone(state.getText(), event.getPlayer().getUniqueId(), location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+                }
+            }.runTask(plugin);
+            return Collections.singletonList(AnvilGUI.ResponseAction.close());
+        }).preventClose().plugin(plugin).open(event.getPlayer());
+
+        if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
+            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+        }
+         */
     }
 }

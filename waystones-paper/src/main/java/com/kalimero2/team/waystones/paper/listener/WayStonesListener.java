@@ -84,27 +84,9 @@ public class WayStonesListener implements Listener {
                 return;
             }
 
-            if (name == null) {
-                player.sendMessage(Component.text("Das Anvil GUI ist aktuell noch nicht implementiert"));
+            if (name == null || name == "") {
+                screen.create(player, location, stack);
                 return;
-                /*
-                new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
-                    if (state.getText().length() > 16) {
-                        return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
-                    }
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            plugin.getStorage().addWaystone(state.getText(), event.getPlayer().getUniqueId(), location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
-                        }
-                    }.runTask(plugin);
-                    return Collections.singletonList(AnvilGUI.ResponseAction.close());
-                }).preventClose().plugin(plugin).open(event.getPlayer());
-
-                if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
-                    event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
-                }
-                 */
             }
 
             if (!storage.nameFree(name)) {
