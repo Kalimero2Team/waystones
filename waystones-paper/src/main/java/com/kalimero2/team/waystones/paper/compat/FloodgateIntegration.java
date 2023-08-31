@@ -3,9 +3,13 @@ package com.kalimero2.team.waystones.paper.compat;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.util.Category;
+import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import com.kalimero2.team.waystones.paper.util.SortMode;
+import com.kalimero2.team.waystones.paper.util.Visibility;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,9 +21,6 @@ import org.geysermc.cumulus.form.Form;
 import org.geysermc.cumulus.form.SimpleForm;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
-
-import java.util.List;
-import java.util.Locale;
 
 
 public class FloodgateIntegration {
@@ -37,23 +38,6 @@ public class FloodgateIntegration {
 
 
         StoredWaystone[] waystones = plugin.getStorage().getWaystones(player);
-
-        /*
-        DropdownComponent.Builder dropdownBuilder = DropdownComponent.builder();
-        for (StoredWaystone waystone : waystones) {
-            //builder.component((Component) ButtonComponent.of(waystone.name()));
-            dropdownBuilder.option(waystone.name());
-        }
-        builder.dropdown(dropdownBuilder);
-
-        builder.validResultHandler(customFormResponse -> {
-            int clickedButtonId = customFormResponse.asDropdown();
-            System.out.println(clickedButtonId);
-            StoredWaystone waystone = waystones[clickedButtonId];
-            player.chat("/waystone tp " + waystone.id());
-        });
-
-         */
 
         builder.input("Suchen", "Waystone Namen hier eingeben", "");
 
@@ -111,35 +95,66 @@ public class FloodgateIntegration {
      * @param player The player that placed the waystone
      * @param location The location where the player placed the waystone
      * @param stack The waystone item
-     * @param nameTaken Whether the screen was called the first time by placing the waystone or because the name was already taken
+     * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
-    public void create(Player player, Location location, ItemStack stack, boolean nameTaken) {
-        CustomForm.Builder builder = CustomForm.builder().title("Waystones").label("Wähle einen Waystone aus!");
+    public void create(Player player, Location location, ItemStack stack, LastCreationResult lcr) {
 
-        if (nameTaken) builder.label("Dieser Name ist bereits vergeben! Bitte wähle einen anderen Namen.");
+        CustomForm.Builder builder = CustomForm.builder().title("Waystones");
 
-        builder.input("Suchen", "Waystone Namen hier eingeben", "");
+        switch (lcr) {
+            case NAME_TAKEN -> {
+                builder.label("Dieser Name ist bereits vergeben! Bitte wähle einen anderen Namen.");
+            }
+            case CATEGORY_PRIVATE -> {
+                builder.label("Diese Kategorie ist nur für Teammitglieder verfügbar! Bitte wähle eine andere Kategorie.");
+            }
+            case CATEGORY_INVALID -> {
+                builder.label("Diese Kategorie existiert nicht! Bitte wähle eine andere Kategorie.");
+            }
+            default -> {
+                builder.label("Erstelle einen Waystone");
+            }
+        }
+
+        builder.input("Waystone Name", "Waystone Namen hier eingeben", "");
 
         DropdownComponent.Builder dropdownBuilder = DropdownComponent.builder();
-        dropdownBuilder.option("Alphabetisch");
-        dropdownBuilder.option("Alphabetisch invertiert");
-        dropdownBuilder.option("Numerisch");
-        dropdownBuilder.option("Numerisch invertiert");
-        dropdownBuilder.option("Beliebtheit");
-        dropdownBuilder.option("Beliebtheit invertiert");
-        dropdownBuilder.defaultOption(storage.getSortMode(player).ordinal());
+        dropdownBuilder.text("Sichtbarkeit");
+        dropdownBuilder.option("Öffentlich");
+        dropdownBuilder.option("Ungelistet");
+        dropdownBuilder.option("Privat");
+        dropdownBuilder.defaultOption(0);
         builder.dropdown(dropdownBuilder);
 
+        DropdownComponent.Builder dropdownBuilder2 = DropdownComponent.builder();
+        dropdownBuilder2.text("Kategorie");
+        for (Category c : storage.getCategories()) {
+            dropdownBuilder2.option(c.name());
+        }
+        dropdownBuilder2.defaultOption(0);
+        builder.dropdown(dropdownBuilder2);
+
         builder.validResultHandler(customFormResponse -> {
-            String input = customFormResponse.asInput();
-            if (storage.nameFree(input)) {
-                storage.addWaystone(input, player.getUniqueId(), 0, location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
-                stack.setAmount(stack.getAmount() - 1);
-                player.sendMessage(Component.text(""));
+            String input = customFormResponse.asInput(1);
+            if (!storage.nameFree(input)) {
+                create(player, location, stack, LastCreationResult.NAME_TAKEN);
+                return;
             }
-            else {
-                create(player, location, stack, true);
+            int visibility = customFormResponse.asDropdown(2);
+            int category = customFormResponse.asDropdown(3);
+            Category storedCategory = storage.getCategory(category);
+            if (storedCategory == null) {
+                create(player, location, stack, LastCreationResult.CATEGORY_INVALID);
+                return;
             }
+            if (!storedCategory.isPublic() && !storage.forceMode(player) && !player.hasPermission("waystones.category")) {
+                create(player, location, stack, LastCreationResult.CATEGORY_PRIVATE);
+                return;
+            }
+
+            storage.addWaystone(input, player.getUniqueId(), visibility, category, location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+            stack.setAmount(stack.getAmount() - 1);
+            player.sendMessage(Component.text(""));
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());

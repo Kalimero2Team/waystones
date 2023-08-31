@@ -1,13 +1,16 @@
 package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -54,20 +57,34 @@ public class Storage {
 
 
     private void createTablesIfNotExists() {
+        createCategoriesTableIfNotExists();
         createWaystonesTableIfNotExists();
-        createWhitelistTableIfNotExists();
+        createAccesslistTableIfNotExists();
         createFavoriteTableIfNotExists();
         createSortModeTableIfNotExists();
     }
 
+
+    private void createCategoriesTableIfNotExists() {
+        // ID, NAME, PUBLIC(BOOLEAN)
+
+        executeUpdate("CREATE TABLE IF NOT EXISTS CATEGORIES(" +
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "NAME TEXT NOT NULL," +
+                "PUBLIC BOOLEAN NOT NULL" +
+                ");");
+
+    }
+
     private void createWaystonesTableIfNotExists() {
-        // ID, NAME, Owner(UUID), CHUNK_X, CHUNK_Z , X, Y, Z, WORLD(UUID)
+        // ID, NAME, Owner(UUID), VISIBILITY, CATEGORY, CHUNK_X, CHUNK_Z , X, Y, Z, WORLD(UUID), USES
 
         executeUpdate("CREATE TABLE IF NOT EXISTS WAYSTONES(" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "NAME TEXT NOT NULL," +
                 "OWNER_UUID VARCHAR(36) NOT NULL," +
                 "VISIBILITY TINYINT NOT NULL," +
+                "CATEGORY INTEGER REFERENCES CATEGORIES(ID) NULL," +
                 "CHUNK_X INTEGER NOT NULL," +
                 "CHUNK_Z INTEGER NOT NULL," +
                 "BLOCK_X INTEGER NOT NULL," +
@@ -92,10 +109,10 @@ public class Storage {
     }
 
 
-    private void createWhitelistTableIfNotExists() {
+    private void createAccesslistTableIfNotExists() {
         // ID, WAYSTONE, PLAYER
 
-        executeUpdate("CREATE TABLE IF NOT EXISTS WHITELISTS(" +
+        executeUpdate("CREATE TABLE IF NOT EXISTS ACCESSLISTS(" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "WAYSTONE INTEGER NOT NULL REFERENCES WAYSTONES(ID)," +
                 "PLAYER VARCHAR(36) NOT NULL" +
@@ -120,8 +137,8 @@ public class Storage {
     //  WAYSTONES
     //
 
-    public void addWaystone(@NotNull String name, @NotNull UUID owner, int visibility, @NotNull int chunkX, @NotNull int chunkZ, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
-        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, VISIBILITY, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + visibility + ", " + chunkX + ", " + chunkZ + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
+    public void addWaystone(@NotNull String name, @NotNull UUID owner, int visibility, int category, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
+        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, VISIBILITY, CATEGORY, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + visibility + ", " + category + ", " + (x >> 4) + ", " + (z >> 4) + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
     }
 
     public void removeWaystone(int id) {
@@ -149,8 +166,7 @@ public class Storage {
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
                         resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CHUNK_X"),
-                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("CATEGORY"),
                         resultSet.getInt("BLOCK_X"),
                         resultSet.getInt("BLOCK_Y"),
                         resultSet.getInt("BLOCK_Z"),
@@ -176,8 +192,7 @@ public class Storage {
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
                         resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CHUNK_X"),
-                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("CATEGORY"),
                         resultSet.getInt("BLOCK_X"),
                         resultSet.getInt("BLOCK_Y"),
                         resultSet.getInt("BLOCK_Z"),
@@ -197,8 +212,7 @@ public class Storage {
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
                         resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CHUNK_X"),
-                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("CATEGORY"),
                         resultSet.getInt("BLOCK_X"),
                         resultSet.getInt("BLOCK_Y"),
                         resultSet.getInt("BLOCK_Z"),
@@ -240,7 +254,6 @@ public class Storage {
             result.removeAll(Arrays.stream(favs).toList());
             result.addAll(0, Arrays.stream(favs).toList());
             return result.toArray(new StoredWaystone[0]);
-//            return all;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -310,7 +323,6 @@ public class Storage {
             result.removeAll(Arrays.stream(favs).toList());
             result.addAll(0, Arrays.stream(favs).toList());
             return result.toArray(new StoredWaystone[0]);
-//            return all;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -322,7 +334,7 @@ public class Storage {
         SortMode sortMode = getSortMode(player);
         try  {
             ResultSet resultSet = null;
-            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.VISIBILITY, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
+            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.VISIBILITY, WAYSTONES.CATEGORY, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
                     "FROM WAYSTONES, FAVORITES " +
                     "WHERE FAVORITES.WAYSTONE = WAYSTONES.ID " +
                     "AND PLAYER = '"+player.getUniqueId()+"' ";
@@ -345,7 +357,7 @@ public class Storage {
         SortMode sortMode = getSortMode(player);
         try  {
             ResultSet resultSet = null;
-            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.VISIBILITY, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
+            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.VISIBILITY, WAYSTONES.CATEGORY, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
                     "FROM WAYSTONES, FAVORITES " +
                     "WHERE FAVORITES.WAYSTONE = WAYSTONES.ID " +
                     "AND WORLD_UUID = '"+world+"' " +
@@ -384,8 +396,7 @@ public class Storage {
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
                         resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CHUNK_X"),
-                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("CATEGORY"),
                         resultSet.getInt("BLOCK_X"),
                         resultSet.getInt("BLOCK_Y"),
                         resultSet.getInt("BLOCK_Z"),
@@ -409,8 +420,7 @@ public class Storage {
                         resultSet.getString("NAME"),
                         resultSet.getString("OWNER_UUID"),
                         resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CHUNK_X"),
-                        resultSet.getInt("CHUNK_Z"),
+                        resultSet.getInt("CATEGORY"),
                         resultSet.getInt("BLOCK_X"),
                         resultSet.getInt("BLOCK_Y"),
                         resultSet.getInt("BLOCK_Z"),
@@ -437,31 +447,31 @@ public class Storage {
 
 
     //
-    // Whitelist
+    // Accesslist
     //
 
     public void setVisibility(int id, Visibility visibility) {
         executeUpdate("UPDATE WAYSTONES SET VISIBILITY = " + visibility.ordinal() + " WHERE ID = " + id + ";");
     }
 
-    public boolean onWhitelist(Player player, int id) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+    public boolean onAccesslist(Player player, int id) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE PLAYER = '"+player.getUniqueId()+"';")) {
             return resultSet.next();
         } catch (SQLException ignored) {}
         return false;
     }
 
-    public void addWhitelist(Player player, int id) {
-        executeUpdate("INSERT INTO WHITELISTS(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
+    public void addAccess(Player player, int id) {
+        executeUpdate("INSERT INTO ACCESSLISTS(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
     }
 
-    public void removeWhitelist(Player player, int id) {
-        executeUpdate("DELETE FROM WHITELISTS WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
+    public void removeAccess(Player player, int id) {
+        executeUpdate("DELETE FROM ACCESSLISTS WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
     }
 
-    public List<Player> whitelist(int id) {
+    public List<Player> accesslist(int id) {
         List<Player> result = new ArrayList<>();
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WHITELISTS WHERE WAYSTONE = "+id+";")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE WAYSTONE = "+id+";")) {
             while (resultSet.next()) {
                 result.add(Bukkit.getPlayer(UUID.fromString(resultSet.getString("PLAYER"))));
             }
@@ -539,5 +549,53 @@ public class Storage {
         else forceMode.remove(player);
         return false;
     }
+
+
+
+    //
+    // Categories
+    //
+
+    public List<Category> getCategories() {
+        List<Category> result = new ArrayList<>();
+        try (ResultSet resultSet = executeQuery("SELECT * FROM CATEGORIES;")) {
+            while (resultSet.next()) {
+                result.add(new Category(resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC")));
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (result.size() == 0) {
+            result.add(new Category("NULL", true));
+        }
+        return result;
+    }
+
+    public @Nullable Category getCategory(int id) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM CATEGORIES WHERE ID = " + id + ";")) {
+            if (resultSet.next()) {
+                return new Category(resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC"));
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean addCategory(String name, boolean isPublic) {
+        return executeUpdate("INSERT INTO CATEGORIES(NAME, PUBLIC) VALUES('"+ name + "', " + isPublic + ");") == 1;
+    }
+
+    public void removeCategory(String name) {
+        executeUpdate("DELETE FROM CATEGORIES WHERE NAME ='"+ name + "';");
+    }
+
+    public void removeCategory(int id) {
+        executeUpdate("DELETE FROM CATEGORIES WHERE ID ='"+ id + "';");
+    }
+
+
 
 }

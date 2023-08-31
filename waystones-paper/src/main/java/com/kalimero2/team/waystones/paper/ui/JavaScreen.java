@@ -62,8 +62,8 @@ public class JavaScreen {
         if (clickedwaystone!= null) {
             owned = clickedwaystone.owner().equals(player.getUniqueId()) || storage.forceMode(player);
         }
-        if (owned) current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ] ").hoverEvent(HoverEvent.showText(Component.text("Waystone bearbeiten"))).clickEvent(ClickEvent.runCommand("/waystone edit " + clickedwaystone.id())).append(Component.text("    [ \uD83D\uDD0D Suchen ]").hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.suggestCommand("/waystone search "))).color(TextColor.color(0, 10, 200)));
-        else current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  Suchen  ]   ").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.suggestCommand("/waystone search ")));
+        if (owned) current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ] ").hoverEvent(HoverEvent.showText(Component.text("Waystone bearbeiten"))).clickEvent(ClickEvent.runCommand("/waystone edit " + clickedwaystone.id())).append(Component.text("    [ \uD83D\uDD0D Suchen ]").hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search"))).color(TextColor.color(0, 10, 200)));
+        else current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  Suchen  ]   ").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search")));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
 
@@ -157,37 +157,37 @@ public class JavaScreen {
         current_page = current_page.append(Component.text("ID: " + waystone.id()).color(TextColor.color(0, 100, 130)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.suggestCommand("/waystone rename " + id)));
+        current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.runCommand("/waystone button rename " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Entfernen").clickEvent(ClickEvent.suggestCommand("/waystone remove " + id)));
+        current_page = current_page.append(Component.text("Entfernen").clickEvent(ClickEvent.runCommand("/waystone button remove " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.suggestCommand("/waystone setowner " + id)));
+        current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.runCommand("/waystone button transferownership " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
 
         switch (waystone.visibility()) {
             case PUBLIC -> {
-                current_page = current_page.append(Component.text("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " private")));
+                current_page = current_page.append(Component.text("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone visibility " + id + " private")));
                 current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " unlisted")));
+                current_page = current_page.append(Component.text("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone visibility " + id + " unlisted")));
             }
             case UNLISTED -> {
-                current_page = current_page.append(Component.text("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " public")));
+                current_page = current_page.append(Component.text("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone visibility " + id + " public")));
                 current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " private")));
+                current_page = current_page.append(Component.text("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone visibility " + id + " private")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " edit")));
+                current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.runCommand("/waystone visibility " + id + " edit")));
             }
             case PRIVATE -> {
-                current_page = current_page.append(Component.text("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " public")));
+                current_page = current_page.append(Component.text("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone visibility " + id + " public")));
                 current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone whitelist " + id + " unlisted")));
+                current_page = current_page.append(Component.text("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone visibility " + id + " unlisted")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.suggestCommand("/waystone whitelist " + id + " ")));
+                current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.runCommand("/waystone access " + id + " edit")));
             }
             default ->
                 current_page = current_page.append(Component.text("ERROR: Cannot resolve visibility code " + waystone.visibility()));

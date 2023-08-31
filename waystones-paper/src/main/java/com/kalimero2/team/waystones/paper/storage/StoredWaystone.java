@@ -1,6 +1,7 @@
 package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,6 +13,7 @@ public record StoredWaystone(int id,
                              String name,
                              UUID owner,
                              Visibility visibility,
+                             Category category,
                              int chunk_x,
                              int chunk_z,
                              int block_x,
@@ -38,10 +40,13 @@ public record StoredWaystone(int id,
         if (visibility == null) {
             visibility = Visibility.PUBLIC;
         }
+        if (category == null) {
+            category = Category.NONE;
+        }
     }
 
-    public StoredWaystone(int id, String name, String owner_uuid, int visibility, int chunk_x, int chunk_z, int x, int y, int z, String world_uuid, int uses) {
-        this(id, name, UUID.fromString(owner_uuid), Visibility.valueByNumber(visibility), chunk_x, chunk_z, x, y, z, UUID.fromString(world_uuid), uses);
+    public StoredWaystone(int id, String name, String owner_uuid, int visibility, int category, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), Visibility.valueByNumber(visibility), PaperWayStones.storage.getCategory(category), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
     public Location location() {
@@ -52,14 +57,14 @@ public record StoredWaystone(int id,
         if (!visibility.equals(Visibility.PRIVATE)) return true;
         if (owner.equals(player.getUniqueId())) return true;
         Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
-        return storage.onWhitelist(player, id);
+        return storage.onAccesslist(player, id);
     }
 
     public boolean visibleTo(Player player) {
         if (visibility.equals(Visibility.PUBLIC)) return true;
         if (owner.equals(player.getUniqueId())) return true;
         Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
-        return storage.onWhitelist(player, id);
+        return storage.onAccesslist(player, id);
     }
 
 

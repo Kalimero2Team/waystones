@@ -5,6 +5,7 @@ import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
+import com.kalimero2.team.waystones.paper.util.Category;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
@@ -50,8 +51,10 @@ public class WayStonesListener implements Listener {
 
 
 
-    @EventHandler()
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
+
+        System.out.println("place event");
 
         Player player = event.getPlayer();
 
@@ -65,13 +68,8 @@ public class WayStonesListener implements Listener {
             }
         }
 
-        String name = null;
-
         ItemStack stack = event.getItemInHand();
         ItemMeta meta = stack.getItemMeta();
-        if (!meta.getDisplayName().equals(plugin.getItem().getItemMeta().getDisplayName())) {
-            name = meta.getDisplayName();
-        }
 
         if (meta.getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) event.setCancelled(true);
 
@@ -84,25 +82,7 @@ public class WayStonesListener implements Listener {
                 return;
             }
 
-            if (name == null || name == "") {
-                screen.create(player, location, stack);
-                return;
-            }
-
-            if (!storage.nameFree(name)) {
-                player.sendMessage(Component.text("Dieser Name ist bereits vergeben!").color(TextColor.color(255, 73, 0)));
-                return;
-            }
-
-            storage.addWaystone(name, player.getUniqueId(), 0, location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
-            StoredWaystone waystone = storage.getWaystone(location.getBlockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
-            stack.setAmount(stack.getAmount() - 1);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    display.updateDisplay(waystone);
-                }
-            }.runTaskLater(plugin, 1);
+            screen.create(player, location, stack);
         }
     }
 

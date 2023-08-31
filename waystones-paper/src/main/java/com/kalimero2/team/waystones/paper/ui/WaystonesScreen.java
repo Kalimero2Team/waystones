@@ -2,7 +2,11 @@ package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
+import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.util.Category;
+import com.kalimero2.team.waystones.paper.util.LastCreationResult;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -12,13 +16,17 @@ import javax.annotation.Nullable;
 
 public class WaystonesScreen {
 
-    private PaperWayStones plugin;
-    private FloodgateIntegration floodgateIntegration;
+    private final PaperWayStones plugin;
+    private final Storage storage;
 
-    private JavaScreen java;
+
+    private final JavaScreen java;
+    private final FloodgateIntegration floodgateIntegration;
+
 
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
+        this.storage = plugin.getStorage();
         this.java = new JavaScreen(plugin);
         floodgateIntegration = plugin.floodgateIntegration;
     }
@@ -62,7 +70,7 @@ public class WaystonesScreen {
 
     public void create(Player player, Location location, ItemStack stack) {
         if (isBedrockPlayer(player)) {
-            floodgateIntegration.create(player, location, stack, false);
+            floodgateIntegration.create(player, location, stack, LastCreationResult.FIRST_CALL);
         }
         else {
             java.create(player, location, stack);

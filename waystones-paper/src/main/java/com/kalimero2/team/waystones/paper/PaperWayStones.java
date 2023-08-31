@@ -26,7 +26,7 @@ public class PaperWayStones extends JavaPlugin {
     public @Nullable FloodgateIntegration floodgateIntegration;
     public @Nullable ClaimsIntegration claimsIntegration;
 
-    private Storage storage;
+    public static Storage storage;
 
     @Override
     public void onEnable() {
@@ -47,7 +47,7 @@ public class PaperWayStones extends JavaPlugin {
         // Storage
 
         getDataFolder().mkdirs();
-        this.storage = new Storage(this, new File(getDataFolder(), "waystones.db"));
+        storage = new Storage(this, new File(getDataFolder(), "waystones.db"));
 
         if (!getConfig().getBoolean("did-legacy-conversion", false)) {
             new LegacyConverter(this).convert();
