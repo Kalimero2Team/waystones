@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    paperDevBundle(libs.versions.paper.get())
+    paperweight.paperDevBundle(libs.versions.paper.get())
     bukkitLibrary(libs.cloud.paper)
     bukkitLibrary(libs.sqlite)
     compileOnly(libs.floodgate.api)
@@ -31,6 +31,10 @@ dependencies {
 tasks {
     runServer {
         minecraftVersion("1.20.1")
+
+        downloadPlugins {
+            url("https://mitochondrium.kalimero2.com/plugins/resource-pack-loader-1.0.0.jar")
+        }
     }
 
     shadowJar {
