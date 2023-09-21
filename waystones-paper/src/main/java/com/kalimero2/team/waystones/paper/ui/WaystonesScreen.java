@@ -77,4 +77,13 @@ public class WaystonesScreen {
             java.create(player, location, stack);
         }
     }
+
+    public void category(Player player, @NotNull StoredWaystone waystone) {
+        if (isBedrockPlayer(player)) {
+            floodgateIntegration.setCategory(player, waystone, LastCreationResult.FIRST_CALL);
+        }
+        else {
+            java.categorySelection(player, waystone);
+        }
+    }
 }

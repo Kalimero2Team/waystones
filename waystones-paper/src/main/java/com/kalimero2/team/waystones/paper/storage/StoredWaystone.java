@@ -5,6 +5,7 @@ import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -53,17 +54,28 @@ public record StoredWaystone(int id,
         return new Location(Bukkit.getWorld(world), block_x, block_y, block_z);
     }
 
-    public boolean checkPlayer(Player player) {
+    public boolean checkTeleport(Player player) {
         if (!visibility.equals(Visibility.PRIVATE)) return true;
         if (owner.equals(player.getUniqueId())) return true;
         Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
+        if (storage.forceMode(player)) return true;
         return storage.onAccesslist(player, id);
+    }
+
+    public boolean checkPermission(CommandSender sender) {
+        if (sender instanceof Player player) {
+            if (owner.equals(player.getUniqueId())) return true;
+            Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
+            if (storage.forceMode(player)) return true;
+            return storage.onAccesslist(player, id);
+        } return true;
     }
 
     public boolean visibleTo(Player player) {
         if (visibility.equals(Visibility.PUBLIC)) return true;
         if (owner.equals(player.getUniqueId())) return true;
         Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
+        if (storage.forceMode(player)) return true;
         return storage.onAccesslist(player, id);
     }
 

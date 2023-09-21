@@ -200,7 +200,7 @@ public class FloodgateIntegration {
      */
     public void settingsFull(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
-        if (!waystone.checkPlayer(player)) {
+        if (!waystone.checkTeleport(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -288,7 +288,7 @@ public class FloodgateIntegration {
      */
     public void rename(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
-        if (!waystone.checkPlayer(player)) {
+        if (!waystone.checkTeleport(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -328,7 +328,7 @@ public class FloodgateIntegration {
      */
     public void setVisibility(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
-        if (!waystone.checkPlayer(player)) {
+        if (!waystone.checkTeleport(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -366,7 +366,7 @@ public class FloodgateIntegration {
      */
     public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
-        if (!waystone.checkPlayer(player)) {
+        if (!waystone.checkTeleport(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -478,7 +478,7 @@ public class FloodgateIntegration {
      */
     public void accessAdd(@NotNull Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
-        if (!waystone.checkPlayer(player)) {
+        if (!waystone.checkTeleport(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -524,7 +524,7 @@ public class FloodgateIntegration {
      */
     public void accessRemove(@NotNull Player player, @NotNull StoredWaystone waystone) {
 
-        if (!waystone.checkPlayer(player)) {
+        if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }

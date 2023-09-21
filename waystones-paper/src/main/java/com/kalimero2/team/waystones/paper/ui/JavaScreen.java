@@ -4,6 +4,7 @@ import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -14,9 +15,11 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -164,13 +167,13 @@ public class JavaScreen {
         current_page = current_page.append(Component.text("ID: " + waystone.id()).color(TextColor.color(0, 100, 130)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.runCommand("/waystone button rename " + id)));
+        current_page = current_page.append(Component.text("Umbenennen").clickEvent(ClickEvent.runCommand("/waystone internal button rename " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Entfernen").clickEvent(ClickEvent.runCommand("/waystone button remove " + id)));
+        current_page = current_page.append(Component.text("Entfernen").clickEvent(ClickEvent.runCommand("/waystone internal button remove " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.runCommand("/waystone button transferownership " + id)));
+        current_page = current_page.append(Component.text("Eigentum übertragen").clickEvent(ClickEvent.runCommand("/waystone internal button transferownership " + id)));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
 
@@ -237,23 +240,52 @@ public class JavaScreen {
 
         int id = waystone.id();
 
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.title").fallback("Sollen andere Spieler deinen Waystone nutzen können?").decorate(TextDecoration.BOLD));
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.title").decorate(TextDecoration.BOLD));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
 
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.public").fallback("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone button visibility " + id + " public")));
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.public").clickEvent(ClickEvent.runCommand("/waystone internal creation visibility " + id + " public")));
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.unlisted").fallback("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone button visibility " + id + " unlisted")));
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.unlisted").clickEvent(ClickEvent.runCommand("/waystone internal creation visibility " + id + " unlisted")));
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.private").fallback("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone button visibility " + id + " private")));
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.private").clickEvent(ClickEvent.runCommand("/waystone internal creation visibility " + id + " private")));
 
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.info").fallback("Die Zugriffsliste kannst du in den Einstellungen bearbeiten.").decorate(TextDecoration.BOLD));
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.info").decorate(TextDecoration.BOLD));
 
         pages.add(current_page);
 
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
 
+    }
+
+    public void categorySelection(Player player, @NotNull StoredWaystone waystone) {
+        List<Component> pages = new ArrayList<>();
+        Component current_page = Component.translatable("waystones.ui.category.description").decorate(TextDecoration.BOLD);
+        current_page = current_page.append(Component.newline().decoration(TextDecoration.BOLD, false));
+        current_page = current_page.append(Component.newline());
+        int counter = 3;
+
+        Storage storage = plugin.getStorage();
+
+        for (Category category : storage.getCategories()) {
+
+            if (!category.usableBy(player)) continue;
+
+            counter++;
+            if (counter == 14) {
+                pages.add(current_page);
+                current_page = Component.empty();
+                counter = 0;
+            }
+            current_page = current_page.append(Component.text(category.name()).clickEvent(ClickEvent.runCommand("/waystone category set " + waystone.id() + " " + category.id())));
+            current_page = current_page.append(Component.newline());
+
+            player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+        }
+        pages.add(current_page);
+
+        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
     }
 }
