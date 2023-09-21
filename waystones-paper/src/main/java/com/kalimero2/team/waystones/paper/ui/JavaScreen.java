@@ -216,16 +216,44 @@ public class JavaScreen {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    if (stack.getAmount() < 1) return;
                     plugin.getStorage().addWaystone(state.getText(), player.getUniqueId(), 0, 1, location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
-                    displayManager.updateDisplay(plugin.getStorage().getWaystone(location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID()));
+                    StoredWaystone waystone = plugin.getStorage().getWaystone(location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID());
+                    displayManager.updateDisplay(waystone);
                     if (player.getGameMode().equals(GameMode.CREATIVE)) {
                         stack.setAmount(stack.getAmount() - 1);
                     }
+                    visibilitySelection(player, waystone);
                 }
             }.runTask(plugin);
             return Collections.singletonList(AnvilGUI.ResponseAction.close());
         }).preventClose().plugin(plugin).open(player);
 
+    }
+
+    public void visibilitySelection(Player player, StoredWaystone waystone) {
+        List<Component> pages = new ArrayList<>();
+        Component current_page = Component.empty();
+
+        int id = waystone.id();
+
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.title").fallback("Sollen andere Spieler deinen Waystone nutzen können?").decorate(TextDecoration.BOLD));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.newline());
+
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.public").fallback("Öffentlich stellen").clickEvent(ClickEvent.runCommand("/waystone button visibility " + id + " public")));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.unlisted").fallback("Ungelistet stellen").clickEvent(ClickEvent.runCommand("/waystone button visibility " + id + " unlisted")));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.private").fallback("Privat stellen").clickEvent(ClickEvent.runCommand("/waystone button visibility " + id + " private")));
+
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.translatable("waystones.ui.visibility.info").fallback("Die Zugriffsliste kannst du in den Einstellungen bearbeiten.").decorate(TextDecoration.BOLD));
+
+        pages.add(current_page);
+
+        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
 
     }
 }
