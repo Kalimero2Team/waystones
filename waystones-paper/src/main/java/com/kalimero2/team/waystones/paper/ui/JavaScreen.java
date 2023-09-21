@@ -209,8 +209,6 @@ public class JavaScreen {
     public void create(Player player, Location location, ItemStack stack) {
         player.sendMessage(Component.text("Das Anvil GUI ist aktuell noch nicht implementiert"));
 
-        AnvilGUI ui = null;
-
         new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
             if (state.getText().length() > 16) {
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
