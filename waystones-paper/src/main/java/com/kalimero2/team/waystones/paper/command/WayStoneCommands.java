@@ -106,8 +106,13 @@ public class WayStoneCommands extends CommandHandler {
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("search")
                 .senderType(Player.class)
-                .argument(StringArgument.of("term"))
                 .handler(this::searchWayStone)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("search")
+                .senderType(Player.class)
+                .argument(StringArgument.of("term"))
+                .handler(this::searchWayStoneTerm)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("edit")
@@ -378,6 +383,10 @@ public class WayStoneCommands extends CommandHandler {
 
 
     private void searchWayStone(CommandContext<CommandSender> context) {
+        screen.search((Player) context.getSender());
+    }
+
+    private void searchWayStoneTerm(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             screen.list(player, context.get("term"));
         }

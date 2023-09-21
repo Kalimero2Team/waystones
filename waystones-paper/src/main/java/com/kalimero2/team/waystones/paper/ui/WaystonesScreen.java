@@ -36,8 +36,14 @@ public class WaystonesScreen {
         return false;
     }
 
-
-    
+    public void search(Player player) {
+        if (isBedrockPlayer(player)) {
+            floodgateIntegration.menu(player);
+        }
+        else {
+            java.search(player, null);
+        }
+    }
 
     public void list(Player player, String search) {
         if (isBedrockPlayer(player)) {

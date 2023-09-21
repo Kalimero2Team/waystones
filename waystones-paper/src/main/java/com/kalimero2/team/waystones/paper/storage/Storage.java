@@ -275,12 +275,12 @@ public class Storage {
                 case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + " ORDER BY USES ASC;");
             }
             assert resultSet != null;
-            StoredWaystone[] all = getWaystonesFromResultSet(resultSet, player);
-            StoredWaystone[] favs = getFavoriteWaystones(player);
-            List<StoredWaystone> result = new ArrayList<StoredWaystone>(Arrays.stream(all).toList());
-            result.removeAll(Arrays.stream(favs).toList());
-            result.addAll(0, Arrays.stream(favs).toList());
-            return result.toArray(new StoredWaystone[0]);
+            return getWaystonesFromResultSet(resultSet, player);
+//            StoredWaystone[] favs = getFavoriteWaystones(player);
+//            List<StoredWaystone> result = new ArrayList<StoredWaystone>(Arrays.stream(all).toList());
+//            result.removeAll(Arrays.stream(favs).toList());
+//            result.addAll(0, Arrays.stream(favs).toList());
+//            return result.toArray(new StoredWaystone[0]);
         } catch (SQLException e) {
             e.printStackTrace();
         }

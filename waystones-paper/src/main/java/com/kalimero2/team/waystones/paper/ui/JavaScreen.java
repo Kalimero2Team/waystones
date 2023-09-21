@@ -15,9 +15,11 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -126,29 +128,95 @@ public class JavaScreen {
 
     }
 
+    public void search(Player player, @Nullable String searchTerm) {
+
+        String title = searchTerm == null ? "Name des Waystones oder Teile des Namen" : "Es gibt keinen Waystone dessen Name '"+searchTerm+"' enthält.";
+        if (searchTerm == null) searchTerm = "Suchbegriff";
+
+        ItemStack item = new ItemStack(Material.ITEM_FRAME);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text(searchTerm));
+        item.setItemMeta(meta);
+
+        new AnvilGUI.Builder().title(title).itemLeft(item).onClick((n, state) -> {
+            if (state.getText().length() > 16) {
+                return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
+            }
+            StoredWaystone[] waystones = storage.getWaystones(player, state.getText());
+            System.out.println(waystones.length);
+            if (waystones.length == 0) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        search(player, state.getText());
+                    }
+                }.runTaskLater(plugin, 1);
+                return Collections.singletonList(AnvilGUI.ResponseAction.close());
+            }
+            if (waystones.length == 1) player.chat("/waystone tp " + waystones[0].id());
+            else {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        list(player, state.getText());
+                    }
+                }.runTaskLater(plugin, 1);
+            }
+            return Collections.singletonList(AnvilGUI.ResponseAction.close());
+        }).plugin(plugin).open(player);
+
+    }
+
+
     public void list(Player player, String search) {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.empty();
-        int counter = 0;
+        int counter = 1;
+
+        current_page = current_page.append(Component.text("Suchergebnisse").color(TextColor.color(0, 10, 200)).decorate(TextDecoration.BOLD));
+        current_page = current_page.append(Component.newline().decoration(TextDecoration.BOLD, false));
+        current_page = current_page.append(Component.newline());
 
         Storage storage = plugin.getStorage();
 
-        StoredWaystone[] waystones = storage.getWaystones(player.getWorld().getUID(), search);
+        StoredWaystone[] waystones = storage.getWaystones(player, search);
 
         for (StoredWaystone waystone : waystones) {
             if (waystone == null) continue;
 
             counter++;
-            if (counter == 14) {
+            if (counter == 12) {
+                current_page = current_page.append(sortBar(plugin.getStorage().getSortMode(player)));
                 pages.add(current_page);
                 current_page = Component.empty();
                 counter = 0;
+                continue;
             }
-            current_page = current_page.append(Component.text("• " + waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren"))));
+
+            String action = "add";
+            TextColor color = TextColor.color(0, 0, 0);
+            if (Arrays.stream(plugin.getStorage().getFavorites(player)).toList().contains(waystone.id())) {
+                action = "remove";
+                color = TextColor.color(255, 220, 0);
+            }
+            current_page = current_page.append(Component.text("[★] ").color(color).clickEvent(ClickEvent.runCommand("/waystone " + "favorite " + action + " " + waystone.id())));
+
+            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(TextColor.color(0, 0, 0)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren").append(Component.newline()).append(Component.text("Waystone ID: " + waystone.id()).decorate(TextDecoration.BOLD)))));
             current_page = current_page.append(Component.newline());
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));
         }
+
+        if (counter < 12) {
+
+            for (int i = 0; i < 12-counter; i++) {
+                current_page = current_page.append(Component.newline());
+            }
+
+            current_page = current_page.append(sortBar(plugin.getStorage().getSortMode(player)));
+        }
+
+
         pages.add(current_page);
 
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
@@ -210,7 +278,6 @@ public class JavaScreen {
     }
 
     public void create(Player player, Location location, ItemStack stack) {
-        player.sendMessage(Component.text("Das Anvil GUI ist aktuell noch nicht implementiert"));
 
         new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
             if (state.getText().length() > 16) {
