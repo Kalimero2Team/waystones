@@ -1,6 +1,7 @@
 package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.SortMode;
@@ -10,23 +11,29 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.wesjd.anvilgui.AnvilGUI;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class JavaScreen {
 
     private final PaperWayStones plugin;
     private final Storage storage;
+    private final DisplayManager displayManager;
 
     public JavaScreen(PaperWayStones plugin) {
         this.plugin = plugin;
         this.storage = plugin.getStorage();
+        this.displayManager = plugin.getDisplayManager();
     }
 
 
@@ -201,7 +208,9 @@ public class JavaScreen {
 
     public void create(Player player, Location location, ItemStack stack) {
         player.sendMessage(Component.text("Das Anvil GUI ist aktuell noch nicht implementiert"));
-        /*
+
+        AnvilGUI ui = null;
+
         new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
             if (state.getText().length() > 16) {
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
@@ -209,15 +218,16 @@ public class JavaScreen {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    plugin.getStorage().addWaystone(state.getText(), event.getPlayer().getUniqueId(), location.getChunk().getX(), location.getChunk().getZ(), location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+                    plugin.getStorage().addWaystone(state.getText(), player.getUniqueId(), 0, 1, location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+                    displayManager.updateDisplay(plugin.getStorage().getWaystone(location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID()));
+                    if (player.getGameMode().equals(GameMode.CREATIVE)) {
+                        stack.setAmount(stack.getAmount() - 1);
+                    }
                 }
             }.runTask(plugin);
             return Collections.singletonList(AnvilGUI.ResponseAction.close());
-        }).preventClose().plugin(plugin).open(event.getPlayer());
+        }).preventClose().plugin(plugin).open(player);
 
-        if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
-            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
-        }
-         */
+
     }
 }
