@@ -4,9 +4,7 @@ import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
-import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -52,7 +50,10 @@ public class WaystonesScreen {
 
     public void menu(Player player, @Nullable StoredWaystone waystone) {
         if (isBedrockPlayer(player)) {
-            floodgateIntegration.menu(player);
+            if (player.isSneaking() && waystone != null) {
+                settings(player, waystone);
+            }
+            else floodgateIntegration.menu(player);
         }
         else {
             java.menu(player, waystone);
@@ -61,7 +62,7 @@ public class WaystonesScreen {
 
     public void settings(Player player, @NotNull StoredWaystone waystone) {
         if (isBedrockPlayer(player)) {
-            //FloodgateIntegration.showBedrockForm(event.getPlayer());
+            floodgateIntegration.settings(player, waystone);
         }
         else {
             java.settings(player, waystone);

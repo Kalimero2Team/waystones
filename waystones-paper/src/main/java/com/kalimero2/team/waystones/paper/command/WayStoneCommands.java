@@ -486,7 +486,7 @@ public class WayStoneCommands extends CommandHandler {
 
         sender.sendMessage(Component.text("Folgende Spieler sind auf der Zugriffsliste von Waystone " + waystone.id() + ":").color(TextColor.color(18, 255, 36)));
 
-        for (Player p : storage.accesslist(waystone.id())) {
+        for (OfflinePlayer p : storage.accesslist(waystone.id())) {
             sender.sendMessage(Component.text(p.getName()).hoverEvent(HoverEvent.showText(Component.text(p.getUniqueId().toString()))));
         }
 

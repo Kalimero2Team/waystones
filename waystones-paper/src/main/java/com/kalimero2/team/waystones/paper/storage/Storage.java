@@ -5,6 +5,7 @@ import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Language;
@@ -150,7 +151,7 @@ public class Storage {
     }
 
     public void updateWaystone(StoredWaystone waystone) {
-        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', VISIBILITY = " + waystone.visibility() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "', USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
+        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', VISIBILITY = " + waystone.visibility().ordinal() + ", CATEGORY = " + waystone.category().id() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "', USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
     }
 
 
@@ -454,26 +455,26 @@ public class Storage {
         executeUpdate("UPDATE WAYSTONES SET VISIBILITY = " + visibility.ordinal() + " WHERE ID = " + id + ";");
     }
 
-    public boolean onAccesslist(Player player, int id) {
+    public boolean onAccesslist(OfflinePlayer player, int id) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE PLAYER = '"+player.getUniqueId()+"';")) {
             return resultSet.next();
         } catch (SQLException ignored) {}
         return false;
     }
 
-    public void addAccess(Player player, int id) {
+    public void addAccess(OfflinePlayer player, int id) {
         executeUpdate("INSERT INTO ACCESSLISTS(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
     }
 
-    public void removeAccess(Player player, int id) {
+    public void removeAccess(OfflinePlayer player, int id) {
         executeUpdate("DELETE FROM ACCESSLISTS WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
     }
 
-    public List<Player> accesslist(int id) {
-        List<Player> result = new ArrayList<>();
+    public List<OfflinePlayer> accesslist(int id) {
+        List<OfflinePlayer> result = new ArrayList<>();
         try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE WAYSTONE = "+id+";")) {
             while (resultSet.next()) {
-                result.add(Bukkit.getPlayer(UUID.fromString(resultSet.getString("PLAYER"))));
+                result.add(Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString("PLAYER"))));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -560,14 +561,14 @@ public class Storage {
         List<Category> result = new ArrayList<>();
         try (ResultSet resultSet = executeQuery("SELECT * FROM CATEGORIES;")) {
             while (resultSet.next()) {
-                result.add(new Category(resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC")));
+                result.add(new Category(resultSet.getInt("ID"), resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC")));
             }
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
         if (result.size() == 0) {
-            result.add(new Category("NULL", true));
+            result.add(Category.NONE);
         }
         return result;
     }
@@ -575,7 +576,7 @@ public class Storage {
     public @Nullable Category getCategory(int id) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM CATEGORIES WHERE ID = " + id + ";")) {
             if (resultSet.next()) {
-                return new Category(resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC"));
+                return new Category(id, resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC"));
             }
         }
         catch (SQLException e) {

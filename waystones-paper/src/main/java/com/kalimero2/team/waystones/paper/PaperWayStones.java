@@ -4,6 +4,7 @@ import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
 import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
 import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
+import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.Storage;
@@ -27,6 +28,7 @@ public class PaperWayStones extends JavaPlugin {
     public @Nullable ClaimsIntegration claimsIntegration;
 
     public static Storage storage;
+    public static DisplayManager displayManager;
 
     @Override
     public void onEnable() {
@@ -52,6 +54,11 @@ public class PaperWayStones extends JavaPlugin {
         if (!getConfig().getBoolean("did-legacy-conversion", false)) {
             new LegacyConverter(this).convert();
         }
+
+
+        // Display Manager
+
+        displayManager = new DisplayManager(this);
 
 
         // Floodgate Compat
@@ -88,6 +95,9 @@ public class PaperWayStones extends JavaPlugin {
 
     public Storage getStorage() {
         return storage;
+    }
+    public DisplayManager getDisplayManager() {
+        return displayManager;
     }
 
     /*

@@ -54,8 +54,6 @@ public class WayStonesListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
 
-        System.out.println("place event");
-
         Player player = event.getPlayer();
 
         if (event.isCancelled()) {
