@@ -106,7 +106,18 @@ public class JavaScreen {
             color = TextColor.color(0, 0, 0);
             if (clickedwaystone != null) if(waystone.id() == clickedwaystone.id()) color = TextColor.color(0, 180, 50);
 
-            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(color).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren").append(Component.newline()).append(Component.text("Waystone ID: " + waystone.id()).decorate(TextDecoration.BOLD)))));
+            Component hoverText = Component.translatable("waystone.ui.clicktoteleport").fallback("Klicke um zu diesem Waystone zu teleportieren");
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.text("ID: " + waystone.id()));
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.text(waystone.category().name()));
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.text("Pos: [" + waystone.block_x() + ", " + waystone.block_y() + ", " + waystone.block_z() + "]"));
+
+
+            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(color).hoverEvent(HoverEvent.showText(hoverText)));
             current_page = current_page.append(Component.newline());
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));
@@ -201,8 +212,17 @@ public class JavaScreen {
             }
             current_page = current_page.append(Component.text("[★] ").color(color).clickEvent(ClickEvent.runCommand("/waystone " + "favorite " + action + " " + waystone.id())));
 
-            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(TextColor.color(0, 0, 0)).hoverEvent(HoverEvent.showText(Component.text("Klicke um zu diesem Waystone zu teleportieren").append(Component.newline()).append(Component.text("Waystone ID: " + waystone.id()).decorate(TextDecoration.BOLD)))));
-            current_page = current_page.append(Component.newline());
+            Component hoverText = Component.translatable("waystone.ui.clicktoteleport").fallback("Klicke um zu diesem Waystone zu teleportieren");
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.text("ID: " + waystone.id()));
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.text(waystone.category().name()));
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.newline());
+            hoverText = hoverText.append(Component.text("Pos: [" + waystone.block_x() + ", " + waystone.block_y() + ", " + waystone.block_z() + "]"));
+
+            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(color).hoverEvent(HoverEvent.showText(hoverText)));            current_page = current_page.append(Component.newline());
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));
         }
