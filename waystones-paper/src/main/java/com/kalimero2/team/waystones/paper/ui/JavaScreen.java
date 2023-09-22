@@ -12,11 +12,12 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,6 +36,8 @@ public class JavaScreen {
     private final Storage storage;
     private final DisplayManager displayManager;
 
+    private final Component anvilUIPrefix = MiniMessage.miniMessage().deserialize("<white><tr:space.-60><font:klm2:waystones>c</font><tr:space.-172>");
+
     public JavaScreen(PaperWayStones plugin) {
         this.plugin = plugin;
         this.storage = plugin.getStorage();
@@ -49,17 +52,26 @@ public class JavaScreen {
 
         Component current_page = Component.newline();
 
-        if (mode == SortMode.ALPHABETICAL) current_page = current_page.append(Component.text("  [A-Z]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
-        else if (mode == SortMode.ALPHABETICAL_DESCENDING) current_page = current_page.append(Component.text("  [A-Z]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
-        else current_page = current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
+        if (mode == SortMode.ALPHABETICAL)
+            current_page = current_page.append(Component.text("  [A-Z]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone sortingmode 1")));
+        else if (mode == SortMode.ALPHABETICAL_DESCENDING)
+            current_page = current_page.append(Component.text("  [A-Z]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
+        else
+            current_page = current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 0")));
 
-        if (mode == SortMode.NUMERIC) current_page = current_page.append(Component.text("  [1-2]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone sortingmode 3")));
-        else if (mode == SortMode.NUMERIC_DESCENDING) current_page = current_page.append(Component.text("  [1-2]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
-        else current_page = current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
+        if (mode == SortMode.NUMERIC)
+            current_page = current_page.append(Component.text("  [1-2]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone sortingmode 3")));
+        else if (mode == SortMode.NUMERIC_DESCENDING)
+            current_page = current_page.append(Component.text("  [1-2]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
+        else
+            current_page = current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 2")));
 
-        if (mode == SortMode.POPULARITY) current_page = current_page.append(Component.text("  [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone sortingmode 5")));
-        else if (mode == SortMode.POPULARITY_ASCENDING) current_page = current_page.append(Component.text("  [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone sortingmode 4")));
-        else current_page = current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 4")));
+        if (mode == SortMode.POPULARITY)
+            current_page = current_page.append(Component.text("  [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone sortingmode 5")));
+        else if (mode == SortMode.POPULARITY_ASCENDING)
+            current_page = current_page.append(Component.text("  [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone sortingmode 4")));
+        else
+            current_page = current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone sortingmode 4")));
 
         return current_page;
     }
@@ -71,11 +83,13 @@ public class JavaScreen {
         int counter = 1;
 
         boolean owned = false;
-        if (clickedwaystone!= null) {
+        if (clickedwaystone != null) {
             owned = clickedwaystone.owner().equals(player.getUniqueId()) || storage.forceMode(player);
         }
-        if (owned) current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ] ").hoverEvent(HoverEvent.showText(Component.text("Waystone bearbeiten"))).clickEvent(ClickEvent.runCommand("/waystone edit " + clickedwaystone.id())).append(Component.text("    [ \uD83D\uDD0D Suchen ]").hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search"))).color(TextColor.color(0, 10, 200)));
-        else current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  Suchen  ]   ").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search")));
+        if (owned)
+            current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ] ").hoverEvent(HoverEvent.showText(Component.text("Waystone bearbeiten"))).clickEvent(ClickEvent.runCommand("/waystone edit " + clickedwaystone.id())).append(Component.text("    [ \uD83D\uDD0D Suchen ]").hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search"))).color(TextColor.color(0, 10, 200)));
+        else
+            current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  Suchen  ]   ").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.text("Suchen"))).clickEvent(ClickEvent.runCommand("/waystone search")));
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
 
@@ -104,7 +118,7 @@ public class JavaScreen {
             current_page = current_page.append(Component.text("[★] ").color(color).clickEvent(ClickEvent.runCommand("/waystone " + "favorite " + action + " " + waystone.id())));
 
             color = TextColor.color(0, 0, 0);
-            if (clickedwaystone != null) if(waystone.id() == clickedwaystone.id()) color = TextColor.color(0, 180, 50);
+            if (clickedwaystone != null) if (waystone.id() == clickedwaystone.id()) color = TextColor.color(0, 180, 50);
 
             Component hoverText = Component.translatable("waystone.ui.clicktoteleport").fallback("Klicke um zu diesem Waystone zu teleportieren");
             hoverText = hoverText.append(Component.newline());
@@ -125,7 +139,7 @@ public class JavaScreen {
 
         if (counter < 12) {
 
-            for (int i = 0; i < 12-counter; i++) {
+            for (int i = 0; i < 12 - counter; i++) {
                 current_page = current_page.append(Component.newline());
             }
 
@@ -141,7 +155,9 @@ public class JavaScreen {
 
     public void search(Player player, @Nullable String searchTerm) {
 
-        String title = searchTerm == null ? "Name des Waystones oder Teile des Namen" : "Es gibt keinen Waystone dessen Name '"+searchTerm+"' enthält.";
+        Component title = anvilUIPrefix.append(Component.text(searchTerm == null ? "Name des Waystones oder Teile des Namen" : "Es gibt keinen Waystone dessen Name '" + searchTerm + "' enthält."));
+        String jsonTitle = JSONComponentSerializer.json().serialize(title);
+
         if (searchTerm == null) searchTerm = "Suchbegriff";
 
         ItemStack item = new ItemStack(Material.ITEM_FRAME);
@@ -149,8 +165,9 @@ public class JavaScreen {
         meta.displayName(Component.text(searchTerm));
         item.setItemMeta(meta);
 
-        new AnvilGUI.Builder().title(title).itemLeft(item).onClick((n, state) -> {
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(item).onClick((n, state) -> {
             if (state.getText().length() > 16) {
+                // TODO: This will break the anvilUI Prefix ...
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
             }
             StoredWaystone[] waystones = storage.getWaystones(player, state.getText());
@@ -222,14 +239,15 @@ public class JavaScreen {
             hoverText = hoverText.append(Component.newline());
             hoverText = hoverText.append(Component.text("Pos: [" + waystone.block_x() + ", " + waystone.block_y() + ", " + waystone.block_z() + "]"));
 
-            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(color).hoverEvent(HoverEvent.showText(hoverText)));            current_page = current_page.append(Component.newline());
+            current_page = current_page.append(Component.text(waystone.name()).clickEvent(ClickEvent.runCommand("/waystone tp " + waystone.id())).color(color).hoverEvent(HoverEvent.showText(hoverText)));
+            current_page = current_page.append(Component.newline());
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));
         }
 
         if (counter < 12) {
 
-            for (int i = 0; i < 12-counter; i++) {
+            for (int i = 0; i < 12 - counter; i++) {
                 current_page = current_page.append(Component.newline());
             }
 
@@ -288,7 +306,7 @@ public class JavaScreen {
                 current_page = current_page.append(Component.text("Whitelist bearbeiten").clickEvent(ClickEvent.runCommand("/waystone access " + id + " edit")));
             }
             default ->
-                current_page = current_page.append(Component.text("ERROR: Cannot resolve visibility code " + waystone.visibility()));
+                    current_page = current_page.append(Component.text("ERROR: Cannot resolve visibility code " + waystone.visibility()));
         }
 
         pages.add(current_page);
@@ -298,9 +316,11 @@ public class JavaScreen {
     }
 
     public void create(Player player, Location location, ItemStack stack) {
-
-        new AnvilGUI.Builder().title("Gebe dem Waystone einen Namen").itemLeft(plugin.getItem()).onClick((n, state) -> {
+        Component title = anvilUIPrefix.append(Component.text("Gebe dem Waystone einen Namen"));
+        String jsonTitle = JSONComponentSerializer.json().serialize(title);
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(plugin.getItem()).onClick((n, state) -> {
             if (state.getText().length() > 16) {
+                // TODO: This will break the anvilUI Prefix ...
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
             }
             new BukkitRunnable() {
