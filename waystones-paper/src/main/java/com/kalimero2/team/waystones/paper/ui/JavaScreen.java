@@ -5,6 +5,7 @@ import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.Category;
+import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -316,12 +317,15 @@ public class JavaScreen {
     }
 
     public void create(Player player, Location location, ItemStack stack) {
-        Component title = anvilUIPrefix.append(Component.text("Gebe dem Waystone einen Namen"));
+        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil"));
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
-        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(plugin.getItem()).onClick((n, state) -> {
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(plugin.getStatic()).onClick((n, state) -> {
             if (state.getText().length() > 16) {
                 // TODO: This will break the anvilUI Prefix ...
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
+            }
+            if (!storage.nameFree(state.getText())) {
+                return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Name ist bereits vergeben!"));
             }
             new BukkitRunnable() {
                 @Override
@@ -334,6 +338,36 @@ public class JavaScreen {
                         stack.setAmount(stack.getAmount() - 1);
                     }
                     visibilitySelection(player, waystone);
+                }
+            }.runTask(plugin);
+            return Collections.singletonList(AnvilGUI.ResponseAction.close());
+        }).preventClose().plugin(plugin).open(player);
+
+    }
+
+    public void rename(Player player, StoredWaystone waystone) {
+        ItemStack stack = plugin.getStatic().clone();
+        ItemMeta meta = stack.getItemMeta();
+        meta.displayName(Component.text(waystone.name()));
+        stack.setItemMeta(meta);
+
+        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil"));
+        String jsonTitle = JSONComponentSerializer.json().serialize(title);
+
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
+            if (state.getText().length() > 16) {
+                // TODO: This will break the anvilUI Prefix ...
+                return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
+            }
+            if (!storage.nameFree(state.getText())) {
+                return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Name ist bereits vergeben!"));
+            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    StoredWaystone newWaystone = new StoredWaystone(waystone.id(), state.getText(), waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses());
+                    storage.updateWaystone(newWaystone);
+                    displayManager.updateDisplay(newWaystone);
                 }
             }.runTask(plugin);
             return Collections.singletonList(AnvilGUI.ResponseAction.close());

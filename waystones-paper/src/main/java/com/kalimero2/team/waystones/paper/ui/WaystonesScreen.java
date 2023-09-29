@@ -84,6 +84,15 @@ public class WaystonesScreen {
         }
     }
 
+    public void rename(Player player, StoredWaystone waystone) {
+        if (isBedrockPlayer(player)) {
+            floodgateIntegration.rename(player, waystone, LastCreationResult.FIRST_CALL);
+        }
+        else {
+            java.rename(player, waystone);
+        }
+    }
+
     public void category(Player player, @NotNull StoredWaystone waystone) {
         if (isBedrockPlayer(player)) {
             floodgateIntegration.setCategory(player, waystone, LastCreationResult.FIRST_CALL);

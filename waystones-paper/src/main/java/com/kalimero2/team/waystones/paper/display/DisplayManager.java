@@ -9,16 +9,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.sql.Time;
-import java.time.Instant;
-import java.util.TimeZone;
-import java.util.Timer;
-import java.util.UUID;
 
 public class DisplayManager {
 
@@ -51,7 +44,7 @@ public class DisplayManager {
         topLocationBlock.setType(Material.BARRIER);
 
         ItemDisplay itemDisplay = world.spawn(centerLocation, ItemDisplay.class);
-        itemDisplay.setItemStack(plugin.getItem());
+        itemDisplay.setItemStack(plugin.getStatic());
 
         PersistentDataContainer itemDataContainer = itemDisplay.getPersistentDataContainer();
         itemDataContainer.set(key, PersistentDataType.BOOLEAN, true);

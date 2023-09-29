@@ -100,118 +100,11 @@ public class PaperWayStones extends JavaPlugin {
         return displayManager;
     }
 
-    /*
-    @Override
-    public void createWayStone(UUID player, UUID world, int block_x, int block_y, int block_z, String name) {
-        createWayStone(getServer().getPlayer(player), new Location(getServer().getWorld(world), block_x, block_y, block_z), name);
-    }
-
-    public void createWayStone(Player player, Location location, String name) {
-        Location centerLocation = location.clone().toCenterLocation();
-
-        SerializableWayStone data = new SerializableWayStone(player.getUniqueId().toString(), name, centerLocation);
-
-        centerLocation.getWorld().spawnParticle(Particle.REVERSE_PORTAL, centerLocation, 100, 0.0125, 0.0125, 0.0125, 2);
-
-        ArmorStand armorStand = centerLocation.getWorld().spawn(centerLocation.add(0, -0.5, 0), ArmorStand.class);
-        armorStand.setItem(EquipmentSlot.HEAD, getItem());
-        armorStand.addDisabledSlots(EquipmentSlot.values());
-        armorStand.setInvisible(true);
-        armorStand.setCollidable(false);
-        armorStand.setGravity(false);
-        armorStand.setInvulnerable(true);
-        armorStand.setCustomNameVisible(true);
-        armorStand.customName(Component.text(name));
-        armorStand.setGravity(false);
-        armorStand.getPersistentDataContainer().set(WAYSTONE_KEY, WAY_STONE, data);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Block bottom_block = centerLocation.getBlock();
-                Block top_block = centerLocation.clone().add(0, 1, 0).getBlock();
-                bottom_block.setType(Material.BARRIER);
-                top_block.setType(Material.BARRIER);
-                CustomBlockData bottomBlockData = new CustomBlockData(bottom_block, PaperWayStones.plugin);
-                CustomBlockData topBlockData = new CustomBlockData(top_block, PaperWayStones.plugin);
-                bottomBlockData.set(WAYSTONE_KEY, WAY_STONE, data);
-                topBlockData.set(WAYSTONE_KEY, WAY_STONE, data);
-
-            }
-        }.runTaskLater(PaperWayStones.plugin, 1);
-
-
-        SerializableWayStones wayStones = getSerializableWayStones(location.getWorld());
-
-        wayStones.addWayStone(wayStones.getNextId(), location);
-
-        setSerializableWayStones(location.getWorld(), wayStones);
-    }
-
-    public void removeWayStone(UUID world, int block_x, int block_y, int block_z) {
-        removeWaystone(new Location(getServer().getWorld(world), block_x, block_y, block_z));
-    }
-
-    public void removeWaystone(Location location) {
-        Block block = location.getBlock();
-        CustomBlockData customBlockData = new CustomBlockData(block, PaperWayStones.plugin);
-        SerializableWayStone wayStone = customBlockData.get(PaperWayStones.WAYSTONE_KEY, WAY_STONE);
-
-        location.getNearbyEntities(2, 2, 2).forEach(entity -> {
-            if (entity instanceof ArmorStand armorStand && Objects.equals(entity.getPersistentDataContainer().get(PaperWayStones.WAYSTONE_KEY, WAY_STONE), wayStone)) {
-                armorStand.remove();
-            }
-        });
-
-        boolean secondBlockIsUpperBlock = false;
-
-        Block second_block = location.clone().add(0, 1, 0).getBlock();
-        CustomBlockData secondBlockData = new CustomBlockData(second_block, PaperWayStones.plugin);
-        if (secondBlockData.has(PaperWayStones.WAYSTONE_KEY, WAY_STONE)) {
-            secondBlockData.remove(PaperWayStones.WAYSTONE_KEY);
-            second_block.setType(Material.AIR);
-            secondBlockIsUpperBlock = true;
-        } else {
-            second_block = location.clone().add(0, -1, 0).getBlock();
-            if (secondBlockData.has(PaperWayStones.WAYSTONE_KEY, WAY_STONE)) {
-                secondBlockData.remove(PaperWayStones.WAYSTONE_KEY);
-                second_block.setType(Material.AIR);
-            }
-        }
-
-        SerializableWayStones wayStones = getSerializableWayStones(location.getWorld());
-        Location mainLocation = location.clone();
-        if (secondBlockIsUpperBlock) {
-            mainLocation.add(0, -1, 0);
-        }
-        int wayStone1 = wayStones.getWayStone(mainLocation);
-        if (wayStone1 != -1) {
-            wayStones.removeWayStone(wayStone1);
-        }
-
-        setSerializableWayStones(location.getWorld(), wayStones);
-    }
-
-    public SerializableWayStones getSerializableWayStones(World world) {
-        PersistentDataContainer persistentDataContainer = world.getPersistentDataContainer();
-        SerializableWayStones wayStones = new SerializableWayStones(new HashMap<>(), 0);
-
-        if (persistentDataContainer.has(PaperWayStones.WAYSTONE_LIST_KEY)) {
-            wayStones = persistentDataContainer.getOrDefault(PaperWayStones.WAYSTONE_LIST_KEY, WAY_STONES, wayStones);
-        }
-        return wayStones;
-    }
-
-    public void setSerializableWayStones(World world, SerializableWayStones wayStones) {
-        world.getPersistentDataContainer().set(PaperWayStones.WAYSTONE_LIST_KEY, WAY_STONES, wayStones);
-    }
-
- */
-    public ItemStack getItem() {
+    public ItemStack getStatic() {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.displayName(Component.translatable("waystones.waystone").fallback("Waystone").decoration(TextDecoration.ITALIC, false));
-        itemMeta.lore(List.of(Component.translatable("waystones.waystone.lore").fallback("Platziere diesen Waystone").decoration(TextDecoration.ITALIC, false)));
+        itemMeta.displayName(Component.translatable("waystones.item.static").decoration(TextDecoration.ITALIC, false));
+        itemMeta.lore(List.of(Component.translatable("waystones.item.static.description").decoration(TextDecoration.ITALIC, false)));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22022);
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
@@ -223,8 +116,8 @@ public class PaperWayStones extends JavaPlugin {
     public ItemStack getPortable() {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.displayName(Component.translatable("waystones.portable").fallback("Portable Waystone").decoration(TextDecoration.ITALIC, false));
-        itemMeta.lore(List.of(Component.translatable("waystones.portable.lore").fallback("Rechts klicke, um dich zu teleportieren").decoration(TextDecoration.ITALIC, false)));
+        itemMeta.displayName(Component.translatable("waystones.item.portable").decoration(TextDecoration.ITALIC, false));
+        itemMeta.lore(List.of(Component.translatable("waystones.item.portable.description").decoration(TextDecoration.ITALIC, false)));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.setCustomModelData(22023);
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();

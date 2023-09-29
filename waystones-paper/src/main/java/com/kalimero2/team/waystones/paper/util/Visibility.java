@@ -1,5 +1,7 @@
 package com.kalimero2.team.waystones.paper.util;
 
+import net.kyori.adventure.text.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +11,7 @@ public enum Visibility {
     PRIVATE;
 
     private static final Map<Integer, Visibility> MAP = new HashMap<>();
-    private static final String[] TEXT = {"öffentlich", "ungelistet", "privat"};
+    private static final Component[] TEXT = {Component.translatable("waystones.visibility.public"), Component.translatable("waystones.visibility.unlisted"), Component.translatable("waystones.visibility.private")};
 
     static {
         for (Visibility element : values()) {
@@ -27,7 +29,7 @@ public enum Visibility {
         }
     }
 
-    public String text() {
+    public Component text() {
         return TEXT[ordinal()];
     }
 }
