@@ -367,7 +367,6 @@ public class JavaScreen {
                 public void run() {
                     StoredWaystone newWaystone = new StoredWaystone(waystone.id(), state.getText(), waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses());
                     storage.updateWaystone(newWaystone);
-                    displayManager.updateDisplay(newWaystone);
                 }
             }.runTask(plugin);
             return Collections.singletonList(AnvilGUI.ResponseAction.close());

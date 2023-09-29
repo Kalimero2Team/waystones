@@ -1,6 +1,7 @@
 package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
@@ -25,8 +26,11 @@ public class Storage {
     private Connection connection;
     private List<Player> forceMode = new ArrayList<>();
 
+    private DisplayManager display;
+
     public Storage(PaperWayStones plugin, File dataBase) {
         this.plugin = plugin;
+        this.display = plugin.getDisplayManager();
 
         try {
             Class.forName("org.sqlite.JDBC");
@@ -152,6 +156,7 @@ public class Storage {
 
     public void updateWaystone(StoredWaystone waystone) {
         executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', VISIBILITY = " + waystone.visibility().ordinal() + ", CATEGORY = " + waystone.category().id() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "', USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
+        display.updateDisplay(getWaystone(waystone.id()));
     }
 
 
