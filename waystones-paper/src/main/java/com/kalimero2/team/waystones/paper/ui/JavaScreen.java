@@ -5,6 +5,7 @@ import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.Category;
+import com.kalimero2.team.waystones.paper.util.ColorUtil;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.inventory.Book;
@@ -16,9 +17,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -317,7 +316,7 @@ public class JavaScreen {
     }
 
     public void create(Player player, Location location, ItemStack stack) {
-        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil"));
+        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.name"));
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(plugin.getStatic()).onClick((n, state) -> {
             if (state.getText().length() > 16) {
@@ -342,7 +341,6 @@ public class JavaScreen {
             }.runTask(plugin);
             return Collections.singletonList(AnvilGUI.ResponseAction.close());
         }).preventClose().plugin(plugin).open(player);
-
     }
 
     public void rename(Player player, StoredWaystone waystone) {
@@ -351,7 +349,7 @@ public class JavaScreen {
         meta.displayName(Component.text(waystone.name()));
         stack.setItemMeta(meta);
 
-        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil"));
+        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.name"));
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
 
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
@@ -366,6 +364,102 @@ public class JavaScreen {
                 @Override
                 public void run() {
                     StoredWaystone newWaystone = new StoredWaystone(waystone.id(), state.getText(), waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses());
+                    storage.updateWaystone(newWaystone);
+                }
+            }.runTask(plugin);
+            return Collections.singletonList(AnvilGUI.ResponseAction.close());
+        }).preventClose().plugin(plugin).open(player);
+
+    }
+
+
+    public void addAccess(Player player, StoredWaystone waystone) {
+        if (!waystone.checkPermission(player)) return;
+        ItemStack stack = new ItemStack(Material.PLAYER_HEAD);
+        ItemMeta meta = stack.getItemMeta();
+        meta.displayName(Component.text("name"));
+        stack.setItemMeta(meta);
+
+        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.player"));
+        String jsonTitle = JSONComponentSerializer.json().serialize(title);
+
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
+            OfflinePlayer p = Bukkit.getOfflinePlayerIfCached(state.getText());
+            if (p == null) {
+                Component title2 = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.player.invalid"));
+                String jsonTitle2 = JSONComponentSerializer.json().serialize(title2);
+                return Collections.singletonList(AnvilGUI.ResponseAction.updateJsonTitle(jsonTitle2, true));
+            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    storage.addAccess(p, waystone.id());
+                }
+            }.runTask(plugin);
+            return Collections.singletonList(AnvilGUI.ResponseAction.close());
+        }).preventClose().plugin(plugin).open(player);
+
+    }
+
+    public void accessSettings(Player player, StoredWaystone waystone) {
+        List<Component> pages = new ArrayList<>();
+        Component current_page = Component.empty();
+        int counter = 4;
+
+        current_page = current_page.append(Component.translatable("waystones.ui.access.title").color(TextColor.color(0, 10, 200)).decorate(TextDecoration.BOLD));
+        current_page = current_page.append(Component.newline().decoration(TextDecoration.BOLD, false));
+        current_page = current_page.append(Component.translatable("waystones.ui.access.add").clickEvent(ClickEvent.runCommand("/waystone internal button access add " + waystone.id())));
+        current_page = current_page.append(Component.newline());
+        current_page = current_page.append(Component.newline());
+
+        Storage storage = plugin.getStorage();
+
+        List<OfflinePlayer> list = storage.accesslist(waystone.id());
+
+        for (OfflinePlayer p : list) {
+
+            counter++;
+            if (counter == 13) {
+                pages.add(current_page);
+                current_page = Component.empty();
+                counter = 0;
+                continue;
+            }
+
+        current_page = current_page.append(Component.text("[X] ").color(ColorUtil.RED).clickEvent(ClickEvent.runCommand("/waystone access " + waystone.id() + " remove " + p.getName())).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.access.remove"))));
+            current_page = current_page.append(Component.text(p.getName()));
+            current_page = current_page.append(Component.newline());
+
+            player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+        }
+
+        pages.add(current_page);
+
+        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+
+    }
+
+    public void setOwner(Player player, StoredWaystone waystone) {
+        if (!waystone.checkPermission(player)) return;
+        ItemStack stack = plugin.getStatic().clone();
+        ItemMeta meta = stack.getItemMeta();
+        meta.displayName(Component.text(waystone.name()));
+        stack.setItemMeta(meta);
+
+        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.player"));
+        String jsonTitle = JSONComponentSerializer.json().serialize(title);
+
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
+            OfflinePlayer p = Bukkit.getOfflinePlayerIfCached(state.getText());
+            if (p == null) {
+                Component title2 = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.player.invalid"));
+                String jsonTitle2 = JSONComponentSerializer.json().serialize(title2);
+                return Collections.singletonList(AnvilGUI.ResponseAction.updateJsonTitle(jsonTitle2, true));
+            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    StoredWaystone newWaystone = new StoredWaystone(waystone.id(), waystone.name(), p.getUniqueId(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses());
                     storage.updateWaystone(newWaystone);
                 }
             }.runTask(plugin);

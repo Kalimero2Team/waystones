@@ -247,6 +247,15 @@ public class WayStoneCommands extends CommandHandler {
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("internal")
                 .literal("button")
+                .literal("access")
+                .literal("add")
+                .argument(WaystoneArgument.of("waystone"))
+                .senderType(Player.class)
+                .handler(this::buttonAddAccess)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("internal")
+                .literal("button")
                 .literal("transferownership")
                 .argument(WaystoneArgument.of("waystone"))
                 .senderType(Player.class)
@@ -621,18 +630,19 @@ public class WayStoneCommands extends CommandHandler {
         screen.rename((Player) context.getSender(), waystone);
     }
 
+    private void buttonAddAccess(CommandContext<CommandSender> context) {
+        StoredWaystone waystone = context.get("waystone");
+        screen.addAccess((Player) context.getSender(), waystone);
+    }
+
+
     private void buttonEditAccesslist(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
-        context.getSender().sendMessage(Component.text("Spieler auf die Zugriffsliste setzen:").color(TextColor.color(18, 255, 36)));
-        context.getSender().sendMessage(Component.text("Nutze /waystone access " + waystone.id() + " add spielername").clickEvent(ClickEvent.suggestCommand("/waystone access " + waystone.id() + " add ")));
-        context.getSender().sendMessage(Component.text("Spieler von der Zugriffsliste entfernen:").color(TextColor.color(18, 255, 36)));
-        context.getSender().sendMessage(Component.text("Nutze /waystone access " + waystone.id() + " remove spielername").clickEvent(ClickEvent.suggestCommand("/waystone access " + waystone.id() + " remove ")));
-        context.getSender().sendMessage(Component.text("Zugriffsliste ansehen:").color(TextColor.color(18, 255, 36)).clickEvent(ClickEvent.runCommand("/waystone access " + waystone.id() + " list")));
+        screen.accessSettings((Player) context.getSender(), waystone);
     }
 
     private void buttonTransferOwnership(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
-        context.getSender().sendMessage(Component.text("Um den Waystone ").color(TextColor.color(18, 255, 36)).append(Component.text(waystone.name()).color(TextColor.color(255, 255, 255))).append(Component.text(" auf einen anderen Spieler zu übertragen,").color(TextColor.color(18, 255, 360))));
-        context.getSender().sendMessage(Component.text("Nutze /waystone owner " + waystone.id() + " neuerbesitzer").clickEvent(ClickEvent.suggestCommand("/waystone owner " + waystone.id() + " ")));
+        screen.transferOwnership((Player) context.getSender(), waystone);
     }
 }

@@ -101,4 +101,30 @@ public class WaystonesScreen {
             java.categorySelection(player, waystone);
         }
     }
+
+    public void accessSettings(Player player, StoredWaystone waystone) {
+        if (isBedrockPlayer(player)) {
+            floodgateIntegration.accessSettings(player, waystone);
+        }
+        else {
+            java.accessSettings(player, waystone);
+        }
+    }
+    public void addAccess(Player player, StoredWaystone waystone) {
+        if (isBedrockPlayer(player)) {
+            floodgateIntegration.accessAdd(player, waystone, LastCreationResult.FIRST_CALL);
+        }
+        else {
+            java.addAccess(player, waystone);
+        }
+    }
+
+    public void transferOwnership(Player player, StoredWaystone waystone) {
+        if (isBedrockPlayer(player)) {
+            floodgateIntegration.settings(player, waystone);
+        }
+        else {
+            java.setOwner(player, waystone);
+        }
+    }
 }
