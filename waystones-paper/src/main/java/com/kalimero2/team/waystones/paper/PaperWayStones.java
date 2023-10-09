@@ -213,7 +213,7 @@ public class PaperWayStones extends JavaPlugin {
         itemMeta.displayName(Component.translatable("waystones.waystone").fallback("Waystone").decoration(TextDecoration.ITALIC, false));
         itemMeta.lore(List.of(Component.translatable("waystones.waystone.lore").fallback("Platziere diesen Waystone").decoration(TextDecoration.ITALIC, false)));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.setCustomModelData(22022);
+        itemMeta.setCustomModelData(2);
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
         dataContainer.set(new NamespacedKey(this, "static"), PersistentDataType.BOOLEAN, true);
         item.setItemMeta(itemMeta);
@@ -221,12 +221,12 @@ public class PaperWayStones extends JavaPlugin {
     }
 
     public ItemStack getPortable() {
-        ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);
+        ItemStack item = new ItemStack(Material.CLOCK);
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.displayName(Component.translatable("waystones.portable").fallback("Portable Waystone").decoration(TextDecoration.ITALIC, false));
         itemMeta.lore(List.of(Component.translatable("waystones.portable.lore").fallback("Rechts klicke, um dich zu teleportieren").decoration(TextDecoration.ITALIC, false)));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.setCustomModelData(22023);
+        itemMeta.setCustomModelData(3);
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
         dataContainer.set(new NamespacedKey(this, "portable"), PersistentDataType.BOOLEAN, true);
         item.setItemMeta(itemMeta);

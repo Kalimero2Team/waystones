@@ -1,7 +1,6 @@
 repositories {
     maven("https://repo.opencollab.dev/maven-releases")
     maven("https://repo.opencollab.dev/maven-snapshots")
-    maven("https://repo.kalimero2.com/snapshots")
     mavenLocal()
     mavenCentral()
 }
