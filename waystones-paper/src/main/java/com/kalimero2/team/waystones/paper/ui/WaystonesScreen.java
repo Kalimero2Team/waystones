@@ -2,7 +2,7 @@ package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
-import com.kalimero2.team.waystones.paper.storage.Storage;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import org.bukkit.Location;
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 public class WaystonesScreen {
 
     private final PaperWayStones plugin;
-    private final Storage storage;
+    private final WaystoneManager manager;
 
 
     private final JavaScreen java;
@@ -24,7 +24,7 @@ public class WaystonesScreen {
 
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
-        this.storage = plugin.getStorage();
+        this.manager = plugin.getManager();
         this.java = new JavaScreen(plugin);
         floodgateIntegration = plugin.floodgateIntegration;
     }

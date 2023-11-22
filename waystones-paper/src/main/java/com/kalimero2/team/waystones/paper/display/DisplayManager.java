@@ -1,8 +1,8 @@
 package com.kalimero2.team.waystones.paper.display;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -13,19 +13,22 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Collection;
+import java.util.List;
+
 public class DisplayManager {
 
 
     public static NamespacedKey key;
 
 
-    private Storage storage;
+    private WaystoneManager manager;
     private PaperWayStones plugin;
 
 
     public DisplayManager(PaperWayStones plugin) {
         this.plugin = plugin;
-        this.storage = plugin.getStorage();
+        this.manager = plugin.getManager();
         key = new NamespacedKey(plugin, "waystone");
     }
 
@@ -106,13 +109,13 @@ public class DisplayManager {
 
         removeAll();
 
-        StoredWaystone[] waystones = storage.getWaystones();
+        List<StoredWaystone> waystones = manager.getWaystones().stream().toList();
 
-        plugin.getLogger().info("Updating " + waystones.length + " waystones with a batch size of " + batchSize + ".. This will take " + Math.ceil(waystones.length / batchSize) + " ticks");
+        plugin.getLogger().info("Updating " + waystones.size() + " waystones with a batch size of " + batchSize + ".. This will take " + Math.ceil(waystones.size() / batchSize) + " ticks");
 
-        for (int i = 0; i <= waystones.length; i++) {
+        for (int i = 0; i <= waystones.size(); i++) {
 
-            if (i == waystones.length) {
+            if (i == waystones.size()) {
                 BukkitRunnable runnable = new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -124,7 +127,7 @@ public class DisplayManager {
             }
 
             else {
-                StoredWaystone waystone = waystones[i];
+                StoredWaystone waystone = waystones.get(i);
                 BukkitRunnable runnable = new BukkitRunnable() {
                     @Override
                     public void run() {

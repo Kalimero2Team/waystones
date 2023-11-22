@@ -18,31 +18,31 @@ public class ChunkListener implements Listener {
 
     public ChunkListener(PaperWayStones plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+//        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-
-    @EventHandler
-    public void onPlayerChunkLoad(PlayerChunkLoadEvent event) {
-        Player player = event.getPlayer();
-        Chunk chunk = event.getChunk();
-
-        StoredWaystone[] waystones = plugin.getStorage().getWaystones(chunk.getX(), chunk.getZ(), chunk.getWorld().getUID());
-        for (StoredWaystone waystone : waystones) {
-            Location baseLocation = new Location(plugin.getServer().getWorld(waystone.world()), waystone.block_x(), waystone.block_y(), waystone.block_z()).toCenterLocation().add(0, -0.5, 0);
-            TextComponent name = Component.text(waystone.name());
-            ItemStack headItem = plugin.getStatic();
-            /*
-            FakeArmorStand fakeArmorStand = new FakeArmorStand(baseLocation);
-            fakeArmorStand.setHeadItem(headItem);
-            fakeArmorStand.setName(name.color(NamedTextColor.WHITE));
-            fakeArmorStand.setShowName(true);
-            fakeArmorStand.setVisible(false);
-            fakeArmorStand.showForPlayer(player);
-
-             */
-        }
-    }
+//
+//    @EventHandler
+//    public void onPlayerChunkLoad(PlayerChunkLoadEvent event) {
+//        Player player = event.getPlayer();
+//        Chunk chunk = event.getChunk();
+//
+//        StoredWaystone[] waystones = plugin.getStorage().getWaystones(chunk.getX(), chunk.getZ(), chunk.getWorld().getUID());
+//        for (StoredWaystone waystone : waystones) {
+//            Location baseLocation = new Location(plugin.getServer().getWorld(waystone.world()), waystone.block_x(), waystone.block_y(), waystone.block_z()).toCenterLocation().add(0, -0.5, 0);
+//            TextComponent name = Component.text(waystone.name());
+//            ItemStack headItem = plugin.getStatic();
+//            /*
+//            FakeArmorStand fakeArmorStand = new FakeArmorStand(baseLocation);
+//            fakeArmorStand.setHeadItem(headItem);
+//            fakeArmorStand.setName(name.color(NamedTextColor.WHITE));
+//            fakeArmorStand.setShowName(true);
+//            fakeArmorStand.setVisible(false);
+//            fakeArmorStand.showForPlayer(player);
+//
+//             */
+//        }
+//    }
 
 
 }

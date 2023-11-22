@@ -2,17 +2,12 @@ package com.kalimero2.team.waystones.paper.listener;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
-import com.kalimero2.team.waystones.paper.storage.Storage;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
-import com.kalimero2.team.waystones.paper.util.Category;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.TextColor;
-import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -22,28 +17,22 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Collections;
-import java.util.List;
 
 public class WayStonesListener implements Listener {
 
 
     private final PaperWayStones plugin;
-    private final Storage storage;
+    private final WaystoneManager manager;
     private final DisplayManager display;
     private final WaystonesScreen screen;
 
     public WayStonesListener(PaperWayStones plugin) {
         this.plugin = plugin;
-        this.storage = plugin.getStorage();
+        this.manager = plugin.getManager();
         this.display = new DisplayManager(plugin);
         this.screen = new WaystonesScreen(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -87,10 +76,10 @@ public class WayStonesListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
-        StoredWaystone waystone = plugin.getStorage().getWaystone(block.getLocation().getBlockX(), block.getLocation().getBlockY(), block.getLocation().getBlockZ(), block.getWorld().getUID());
+        StoredWaystone waystone = plugin.getManager().getWaystone(block.getLocation());
         if (waystone == null) {
             Block blockBelow = block.getWorld().getBlockAt(block.getLocation().clone().add(0, -1, 0));
-            waystone = plugin.getStorage().getWaystone(blockBelow.getLocation().getBlockX(), blockBelow.getLocation().getBlockY(), blockBelow.getLocation().getBlockZ(), blockBelow.getWorld().getUID());
+            waystone = plugin.getManager().getWaystone(blockBelow.getLocation());
         }
         if (waystone != null) {
             int waystoneID = waystone.id();
@@ -111,10 +100,10 @@ public class WayStonesListener implements Listener {
             Block clickedBlock = event.getClickedBlock();
 
             if (clickedBlock != null) {
-                StoredWaystone waystone = plugin.getStorage().getWaystone(clickedBlock.getLocation().getBlockX(), clickedBlock.getLocation().getBlockY(), clickedBlock.getLocation().getBlockZ(), clickedBlock.getWorld().getUID());
+                StoredWaystone waystone = plugin.getManager().getWaystone(clickedBlock.getLocation());
                 if (waystone == null) {
                     Block blockBelow = clickedBlock.getWorld().getBlockAt(clickedBlock.getLocation().add(0, -1, 0));
-                    waystone = plugin.getStorage().getWaystone(blockBelow.getLocation().getBlockX(), blockBelow.getLocation().getBlockY(), blockBelow.getLocation().getBlockZ(), blockBelow.getWorld().getUID());
+                    waystone = plugin.getManager().getWaystone(blockBelow.getLocation());
                 }
                 if (waystone != null) {
                     event.setCancelled(true);
@@ -122,6 +111,12 @@ public class WayStonesListener implements Listener {
                 }
             }
         }
+    }
+
+
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent event) {
+        manager.removePlayerCache(event.getPlayer());
     }
 
 }

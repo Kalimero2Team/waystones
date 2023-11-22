@@ -50,7 +50,7 @@ public class LegacyConverter {
                         LOGGER.info("Converting Waystone with old id:" + id);
                         CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), plugin);
                         SerializableWayStone wayStone = customBlockData.get(WAYSTONE_KEY, WAY_STONE);
-                        plugin.getStorage().addWaystone(wayStone.getName(), wayStone.getOwnerUUID(), 0, 0, location.getBlockX(), location.getBlockY(), location.getBlockZ(), world.getUID());
+                        plugin.getManager().createWaystone(wayStone.getName(), wayStone.getOwnerUUID(), 0, 0, location);
                     });
                 }
             } else {

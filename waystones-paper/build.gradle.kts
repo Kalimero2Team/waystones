@@ -11,7 +11,7 @@ repositories {
     mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
-    maven("https://repo.byquanton.eu/releases")
+    maven("https://repo.kalimero2.com/releases")
     maven("https://repo.opencollab.dev/main")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
     maven("https://repo.dmulloy2.net/repository/public/")
@@ -23,14 +23,14 @@ dependencies {
     bukkitLibrary(libs.sqlite)
     compileOnly(libs.floodgate.api)
     implementation(libs.anvilgui)
-    compileOnly("com.kalimero2.team:claims-api:1.1.5")
+    compileOnly("com.kalimero2.team:claims-api:2.0.3")
     implementation(libs.customblockdata)
     implementation(libs.morepersistentdatatypes)
 }
 
 tasks {
     runServer {
-        minecraftVersion("1.20.1")
+        minecraftVersion("1.20.2")
 
         downloadPlugins {
             url("https://mitochondrium.kalimero2.com/plugins/resource-pack-loader-1.0.0.jar")

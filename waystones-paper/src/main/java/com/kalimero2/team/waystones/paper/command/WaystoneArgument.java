@@ -10,7 +10,7 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.parsing.NoInputProvidedException;
 import cloud.commandframework.exceptions.parsing.ParserException;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.Storage;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -29,7 +29,7 @@ import java.util.function.BiFunction;
 public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone> {
 
 
-    private static Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();;
+    private static WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
 
     private WaystoneArgument(
             final boolean required,
@@ -40,7 +40,7 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
             final @NotNull ArgumentDescription defaultDescription
     ) {
         super(required, name, new WaystoneArgument.WaystoneParser<>(), defaultValue, StoredWaystone.class, suggestionsProvider, defaultDescription);
-        storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
+        manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
     }
 
     /**
@@ -119,11 +119,11 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
 
             StoredWaystone waystone = null;
             try {
-                waystone = storage.getWaystone(Integer.parseInt(input));
+                waystone = manager.getWaystone(Integer.parseInt(input));
             } catch (NumberFormatException ignored) {}
 
             if (waystone == null) {
-                waystone = storage.getWaystone(input.replaceAll("–", " "));
+                waystone = manager.getWaystone(input.replaceAll("–", " "));
             }
 
             if (waystone == null) {
@@ -143,12 +143,12 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
             List<String> output = new ArrayList<>();
 
             if (commandContext.getSender() instanceof Player player) {
-                for (StoredWaystone waystone : storage.getWaystones(player)) {
+                for (StoredWaystone waystone : manager.getWaystones(player)) {
                     output.add(String.valueOf(waystone.name()).replaceAll(" ", "–"));
                 }
             }
             else {
-                for (StoredWaystone waystone : storage.getWaystones()) {
+                for (StoredWaystone waystone : manager.getWaystones()) {
                     output.add(String.valueOf(waystone.name()).replaceAll(" ", "–"));
                 }
             }

@@ -1,7 +1,7 @@
 package com.kalimero2.team.waystones.paper.compat;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.Storage;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
@@ -23,15 +23,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 public class FloodgateIntegration {
     private final PaperWayStones plugin;
-    private final Storage storage;
+    private final WaystoneManager manager;
 
     public FloodgateIntegration(PaperWayStones plugins) {
         this.plugin = plugins;
-        this.storage = plugin.getStorage();
+        this.manager = plugin.getManager();
     }
 
     public void menu(Player player) {
@@ -47,12 +48,12 @@ public class FloodgateIntegration {
         dropdownBuilder.option("Numerisch invertiert");
         dropdownBuilder.option("Beliebtheit");
         dropdownBuilder.option("Beliebtheit invertiert");
-        dropdownBuilder.defaultOption(storage.getSortMode(player).ordinal());
+        dropdownBuilder.defaultOption(manager.getSortMode(player).ordinal());
         builder.dropdown(dropdownBuilder);
 
         builder.validResultHandler(customFormResponse -> {
             String input = customFormResponse.asInput();
-            storage.setSortMode(player, SortMode.valueByNumber(customFormResponse.asDropdown()));
+            manager.setSortMode(player, SortMode.valueByNumber(customFormResponse.asDropdown()));
             list(player, input);
         });
 
@@ -66,9 +67,9 @@ public class FloodgateIntegration {
         SimpleForm.Builder builder = SimpleForm.builder().title("Waystones").content("Wähle einen Waystone aus!");
 
 
-        StoredWaystone[] waystones = plugin.getStorage().getWaystones(player, search);
+        List<StoredWaystone> waystones = plugin.getManager().getWaystones(player.getWorld().getUID(), search);
 
-        if (waystones.length == 0) {
+        if (waystones.size() == 0) {
             builder.content("Es konnten keine Waystones gefunden werden, dessen Name '" + search + "' enthält.");
         }
 
@@ -79,7 +80,7 @@ public class FloodgateIntegration {
         builder.validResultHandler(simpleFormResponse -> {
             int clickedButtonId = simpleFormResponse.clickedButtonId();
             System.out.println(clickedButtonId);
-            StoredWaystone waystone = waystones[clickedButtonId];
+            StoredWaystone waystone = waystones.get(clickedButtonId);
             player.chat("/waystone tp " + waystone.id());
         });
 
@@ -128,7 +129,7 @@ public class FloodgateIntegration {
         DropdownComponent.Builder dropdownBuilder2 = DropdownComponent.builder();
         dropdownBuilder2.text("Kategorie");
         List<Category> list = new ArrayList<>();
-        for (Category c : storage.getCategories()) {
+        for (Category c : manager.getCategories()) {
             dropdownBuilder2.option(c.name());
             list.add(c);
         }
@@ -137,7 +138,7 @@ public class FloodgateIntegration {
 
         builder.validResultHandler(customFormResponse -> {
             String input = customFormResponse.asInput(1);
-            if (!storage.nameFree(input)) {
+            if (!manager.nameFree(input)) {
                 create(player, location, stack, LastCreationResult.NAME_TAKEN);
                 return;
             }
@@ -148,12 +149,12 @@ public class FloodgateIntegration {
                 create(player, location, stack, LastCreationResult.CATEGORY_INVALID);
                 return;
             }
-            if (!storedCategory.isPublic() && !storage.forceMode(player) && !player.hasPermission("waystones.category")) {
+            if (!storedCategory.isPublic() && !manager.forceMode(player) && !player.hasPermission("waystones.category")) {
                 create(player, location, stack, LastCreationResult.CATEGORY_PRIVATE);
                 return;
             }
 
-            storage.addWaystone(input, player.getUniqueId(), visibility, category, location.blockX(), location.blockY(), location.blockZ(), location.getWorld().getUID());
+            manager.createWaystone(input, player.getUniqueId(), visibility, category, location);
             stack.setAmount(stack.getAmount() - 1);
             player.sendMessage(Component.text(""));
         });
@@ -241,7 +242,7 @@ public class FloodgateIntegration {
         System.out.println("DEFAULT: " + waystone.category().name() + ": " + waystone.category().id());
 
         List<Category> list = new ArrayList<Category>();
-        for (Category c : storage.getCategories()) {
+        for (Category c : manager.getCategories()) {
             dropdownBuilder2.option(c.name());
             list.add(c);
             System.out.println("Adding category:   " + c.name() + ": " + c.id());
@@ -258,23 +259,23 @@ public class FloodgateIntegration {
                 settingsFull(player, waystone, LastCreationResult.NAME_TAKEN);
                 return;
             }
-            if (!storage.nameFree(input) && !input.equalsIgnoreCase(waystone.name())) {
+            if (!manager.nameFree(input) && !input.equalsIgnoreCase(waystone.name())) {
                 settingsFull(player, waystone, LastCreationResult.NAME_TAKEN);
                 return;
             }
             int visibility = customFormResponse.asDropdown(2);
             int category = customFormResponse.asDropdown(3);
-            Category storedCategory = storage.getCategory(category);
+            Category storedCategory = manager.getCategory(category);
             if (storedCategory == null) {
                 settingsFull(player, waystone, LastCreationResult.CATEGORY_INVALID);
                 return;
             }
-            if (!storedCategory.isPublic() && !storage.forceMode(player) && !player.hasPermission("waystones.category")) {
+            if (!storedCategory.isPublic() && !manager.forceMode(player) && !player.hasPermission("waystones.category")) {
                 settingsFull(player, waystone, LastCreationResult.CATEGORY_PRIVATE);
                 return;
             }
 
-            storage.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), Visibility.valueByNumber(visibility), storedCategory, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            manager.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), Visibility.valueByNumber(visibility), storedCategory, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -308,12 +309,12 @@ public class FloodgateIntegration {
 
         builder.validResultHandler(customFormResponse -> {
             String input = customFormResponse.asInput(1);
-            if (!storage.nameFree(input)) {
+            if (!manager.nameFree(input)) {
                 rename(player, waystone, LastCreationResult.NAME_TAKEN);
                 return;
             }
 
-            storage.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            manager.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -351,7 +352,7 @@ public class FloodgateIntegration {
 
         builder.validResultHandler(customFormResponse -> {
             int visibility = customFormResponse.asDropdown();
-            storage.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), Visibility.valueByNumber(visibility), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), Visibility.valueByNumber(visibility), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -395,7 +396,7 @@ public class FloodgateIntegration {
         dropdownBuilder2.text("Kategorie");
 
         List<Category> list = new ArrayList<>();
-        for (Category c : storage.getCategories()) {
+        for (Category c : manager.getCategories()) {
             dropdownBuilder2.option(c.name());
             list.add(c);
         }
@@ -406,17 +407,17 @@ public class FloodgateIntegration {
 
         builder.validResultHandler(customFormResponse -> {
             int category = customFormResponse.asDropdown() + 1;
-            Category storedCategory = storage.getCategory(category);
+            Category storedCategory = manager.getCategory(category);
             if (storedCategory == null) {
                 settingsFull(player, waystone, LastCreationResult.CATEGORY_INVALID);
                 return;
             }
-            if (!storedCategory.isPublic() && !storage.forceMode(player) && !player.hasPermission("waystones.category")) {
+            if (!storedCategory.isPublic() && !manager.forceMode(player) && !player.hasPermission("waystones.category")) {
                 settingsFull(player, waystone, LastCreationResult.CATEGORY_PRIVATE);
                 return;
             }
 
-            storage.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), storedCategory, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), storedCategory, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -460,7 +461,7 @@ public class FloodgateIntegration {
 
         SimpleForm.Builder builder = SimpleForm.builder().title("Waystone " + waystone.id()).content("Zugriffsliste");
 
-        for (OfflinePlayer p : storage.accesslist(waystone.id())) {
+        for (OfflinePlayer p : manager.getAccess(waystone.id())) {
             builder.button(p.getName());
         }
 
@@ -505,11 +506,11 @@ public class FloodgateIntegration {
                 accessAdd(player, waystone, LastCreationResult.PLAYER_INVALID);
                 return;
             }
-            if (storage.onAccesslist(p, waystone.id())) {
+            if (manager.hasAccess(p, waystone.id())) {
                 accessAdd(player, waystone, LastCreationResult.PLAYER_EXISTING);
                 return;
             }
-            storage.addAccess(p, waystone.id());
+            manager.addAccess(p, waystone.id());
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -535,7 +536,7 @@ public class FloodgateIntegration {
         dropdownBuilder.text("Spieler zum Entfernen");
 
         List<OfflinePlayer> list = new ArrayList<>();
-        for (OfflinePlayer p : storage.accesslist(waystone.id())) {
+        for (OfflinePlayer p : manager.getAccess(waystone.id())) {
             dropdownBuilder.option(p.getName());
             list.add(p);
         }
@@ -543,7 +544,7 @@ public class FloodgateIntegration {
 
         builder.validResultHandler(customFormResponse -> {
             OfflinePlayer p = list.get(customFormResponse.asDropdown());
-            storage.removeAccess(p, waystone.id());
+            manager.removeAccess(p, waystone.id());
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());

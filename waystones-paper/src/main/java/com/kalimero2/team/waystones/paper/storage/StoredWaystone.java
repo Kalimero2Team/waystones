@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
+import static com.kalimero2.team.waystones.paper.PaperWayStones.manager;
+
 public record StoredWaystone(int id,
                              String name,
                              UUID owner,
@@ -47,7 +49,7 @@ public record StoredWaystone(int id,
     }
 
     public StoredWaystone(int id, String name, String owner_uuid, int visibility, int category, int x, int y, int z, String world_uuid, int uses) {
-        this(id, name, UUID.fromString(owner_uuid), Visibility.valueByNumber(visibility), PaperWayStones.storage.getCategory(category), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
+        this(id, name, UUID.fromString(owner_uuid), Visibility.valueByNumber(visibility), manager.getCategory(category), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
     public Location location() {
@@ -57,26 +59,25 @@ public record StoredWaystone(int id,
     public boolean checkTeleport(Player player) {
         if (!visibility.equals(Visibility.PRIVATE)) return true;
         if (owner.equals(player.getUniqueId())) return true;
-        Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
-        if (storage.forceMode(player)) return true;
-        return storage.onAccesslist(player, id);
+        WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
+        if (manager.forceMode(player)) return true;
+        return manager.hasAccess(player, id);
     }
 
     public boolean checkPermission(CommandSender sender) {
         if (sender instanceof Player player) {
             if (owner.equals(player.getUniqueId())) return true;
-            Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
-            if (storage.forceMode(player)) return true;
-            return storage.onAccesslist(player, id);
+            WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
+            return manager.forceMode(player);
         } return true;
     }
 
     public boolean visibleTo(Player player) {
         if (visibility.equals(Visibility.PUBLIC)) return true;
         if (owner.equals(player.getUniqueId())) return true;
-        Storage storage = PaperWayStones.getPlugin(PaperWayStones.class).getStorage();
-        if (storage.forceMode(player)) return true;
-        return storage.onAccesslist(player, id);
+        WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
+        if (manager.forceMode(player)) return true;
+        return manager.hasAccess(player, id);
     }
 
 

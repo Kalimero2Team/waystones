@@ -9,8 +9,8 @@ import cloud.commandframework.bukkit.parsers.location.LocationArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
-import com.kalimero2.team.waystones.paper.storage.Storage;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.ColorUtil;
@@ -27,19 +27,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.UUID;
 
 public class WayStoneCommands extends CommandHandler {
 
     private final WaystonesScreen screen;
     private final DisplayManager display;
-    private final Storage storage;
+    private final WaystoneManager manager;
 
 
     public WayStoneCommands(PaperWayStones plugin, CommandManager commandManager) {
         super(plugin, commandManager);
         screen = new WaystonesScreen(plugin);
         display = new DisplayManager(plugin);
-        storage = plugin.getStorage();
+        manager = plugin.getManager();
     }
 
     @Override
@@ -263,6 +264,14 @@ public class WayStoneCommands extends CommandHandler {
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("internal")
+                .literal("button")
+                .literal("category")
+                .argument(WaystoneArgument.of("waystone"))
+                .senderType(Player.class)
+                .handler(this::categorySelection)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("internal")
                 .literal("creation")
                 .literal("visibility")
                 .argument(WaystoneArgument.of("waystone"))
@@ -298,7 +307,7 @@ public class WayStoneCommands extends CommandHandler {
 
     private void forceMode(CommandContext<CommandSender> context) {
         Player player = (Player) context.getSender();
-        if (storage.forceMode(player, !storage.forceMode(player))) {
+        if (manager.toggleForceMode(player)) {
             player.sendMessage(Component.translatable("waystones.force.on", ColorUtil.GREEN));
         }
         else player.sendMessage(Component.translatable("waystones.force.off", ColorUtil.GREEN));
@@ -330,9 +339,9 @@ public class WayStoneCommands extends CommandHandler {
         if (context.getSender() instanceof Player player) {
             StoredWaystone waystone = context.get("waystone");
 
-            boolean teleportAllowed = storage.forceMode(player);
+            boolean teleportAllowed = manager.forceMode(player);
 
-            for (StoredWaystone w : storage.getWaystones(player.getWorld().getUID())) {
+            for (StoredWaystone w : manager.getWaystones(player.getWorld().getUID())) {
                 if (w.location().distance(player.getLocation()) <= 5) teleportAllowed = true;
             }
 
@@ -357,7 +366,7 @@ public class WayStoneCommands extends CommandHandler {
                 return;
             }
 
-            if (waystone.checkTeleport(player) || storage.forceMode(player)) {
+            if (waystone.checkTeleport(player) || manager.forceMode(player)) {
                 player.teleport(waystone.location());
             }
         }
@@ -366,7 +375,7 @@ public class WayStoneCommands extends CommandHandler {
     private void editWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
             StoredWaystone waystone = context.get("waystone");
-            if (waystone.owner().equals(player.getUniqueId()) || storage.forceMode(player)) {
+            if (waystone.owner().equals(player.getUniqueId()) || manager.forceMode(player)) {
                 screen.settings(player, waystone);
             }
         }
@@ -379,11 +388,10 @@ public class WayStoneCommands extends CommandHandler {
         String newName = context.get("newname");
 
         if (sender instanceof Player player) {
-            if (!waystone.owner().equals(player.getUniqueId()) && !storage.forceMode(player)) return;
+            if (!waystone.owner().equals(player.getUniqueId()) && !manager.forceMode(player)) return;
         }
 
-        if (storage.nameFree(newName)) {
-            storage.renameWaystone(waystone.id(), newName);
+        if (manager.renameWaystone(waystone.id(), newName)) {
             display.updateDisplay(waystone);
             sender.sendMessage(Component.translatable("waystones.ui.name.rename", ColorUtil.GREEN, Component.text(waystone.id()), Component.text(waystone.name()), Component.text(newName)));
         }
@@ -405,17 +413,17 @@ public class WayStoneCommands extends CommandHandler {
     }
 
     private void addFavorite(CommandContext<CommandSender> context) {
-        plugin.getStorage().addFavorite((Player) context.getSender(), context.get("id"));
+        manager.addFavorite((Player) context.getSender(), context.get("id"));
         screen.menu((Player) context.getSender(), null);
     }
 
     private void removeFavorite(CommandContext<CommandSender> context) {
-        plugin.getStorage().removeFavorite((Player) context.getSender(), context.get("id"));
+        manager.removeFavorite((Player) context.getSender(), context.get("id"));
         screen.menu((Player) context.getSender(), null);
     }
 
     private void sortingMode(CommandContext<CommandSender> context) {
-        plugin.getStorage().setSortMode((Player) context.getSender(), SortMode.valueByNumber(context.get("mode")));
+        manager.setSortMode((Player) context.getSender(), SortMode.valueByNumber(context.get("mode")));
         screen.menu((Player) context.getSender(), null);
     }
 
@@ -425,7 +433,7 @@ public class WayStoneCommands extends CommandHandler {
 
             player.sendMessage("Waystones in " + world.getName() + ":");
 
-            StoredWaystone[] waystones = plugin.getStorage().getWaystones(world.getUID());
+            List<StoredWaystone> waystones = manager.getWaystones(world.getUID());
             for (StoredWaystone waystone : waystones) {
                 player.sendMessage(Component.text("Waystone " + waystone.id() + ": " + waystone.name() + " (" + waystone.block_x() + ", " + waystone.block_y() + ", " + waystone.block_z() + ")" + " Owner: " + waystone.owner()).clickEvent(ClickEvent.runCommand("/tp " + waystone.block_x() + " " + waystone.block_y() + " " + waystone.block_z())));
             }
@@ -450,15 +458,15 @@ public class WayStoneCommands extends CommandHandler {
         Location location = context.get("location");
         String name = context.get("name");
 
-        if (!storage.nameFree(name)) {
+        if (!manager.nameFree(name)) {
             context.getSender().sendMessage(Component.translatable("waystones.ui.name.taken", TextColor.color(255, 73, 0), Component.text(name)));
             return;
         }
 
         Player player = (Player) context.getSender();
 
-        storage.addWaystone(name, player.getUniqueId(), 0, 0, location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID());
-        StoredWaystone waystone = storage.getWaystone(location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID());
+        manager.createWaystone(name, player.getUniqueId(), 1, -1, location);
+        StoredWaystone waystone = manager.getWaystone(location);
 
         display.updateDisplay(waystone);
 
@@ -477,7 +485,7 @@ public class WayStoneCommands extends CommandHandler {
         }
 
         display.clearDisplay(waystone);
-        storage.removeWaystone(waystone.id());
+        manager.removeWaystone(waystone.id());
 
         if (context.getSender() instanceof Player player) {
             if (!(player.getGameMode().equals(GameMode.CREATIVE) || player.getGameMode().equals(GameMode.SPECTATOR))) {
@@ -497,7 +505,7 @@ public class WayStoneCommands extends CommandHandler {
             if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.remove")) return;
         }
 
-        storage.setVisibility(waystone.id(), visibility);
+        manager.setVisibility(waystone.id(), visibility);
 
         sender.sendMessage(Component.translatable("waystones.visibility.set", TextColor.color(255, 73, 0), Component.text(waystone.id()), visibility.text()));
     }
@@ -508,16 +516,19 @@ public class WayStoneCommands extends CommandHandler {
 
     private void changeVisibilityToPublicRedirectToCategorySelection(CommandContext<CommandSender> context) {
         changeVisibility(context, Visibility.PUBLIC);
-        StoredWaystone waystone = context.get("waystone");
-        screen.category((Player) context.getSender(), waystone);
+        categorySelection(context);
     }
     private void changeVisibilityToUnlistedRedirectToCategorySelection(CommandContext<CommandSender> context) {
         changeVisibility(context, Visibility.UNLISTED);
-        StoredWaystone waystone = context.get("waystone");
-        screen.category((Player) context.getSender(), waystone);
+        categorySelection(context);
     }
     private void changeVisibilityToPrivateRedirectToCategorySelection(CommandContext<CommandSender> context) {
         changeVisibility(context, Visibility.PRIVATE);
+        categorySelection(context);
+    }
+
+
+    private void categorySelection(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
         screen.category((Player) context.getSender(), waystone);
     }
@@ -533,7 +544,7 @@ public class WayStoneCommands extends CommandHandler {
             if (!waystone.owner().equals(player2.getUniqueId()) && !player2.hasPermission("waystones.admin")) return;
         }
 
-        storage.addAccess(player, waystone.id());
+        manager.addAccess(player, waystone.id());
         sender.sendMessage(Component.translatable("waystones.access.add", ColorUtil.GREEN, player.displayName(), Component.text(waystone.id())));
     }
 
@@ -547,7 +558,7 @@ public class WayStoneCommands extends CommandHandler {
             if (!waystone.owner().equals(player2.getUniqueId()) && !player2.hasPermission("waystones.admin")) return;
         }
 
-        storage.removeAccess(player, waystone.id());
+        manager.removeAccess(player, waystone.id());
         sender.sendMessage(Component.translatable("waystones.access.remove", ColorUtil.GREEN, player.displayName(), Component.text(waystone.id())));
     }
 
@@ -557,15 +568,15 @@ public class WayStoneCommands extends CommandHandler {
         StoredWaystone waystone = context.get("waystone");
 
         if (sender instanceof Player player) {
-            if (!waystone.owner().equals(player.getUniqueId()) && !storage.forceMode(player)) return;
+            if (!waystone.owner().equals(player.getUniqueId()) && !manager.forceMode(player)) return;
         }
 
-        List<OfflinePlayer> list = storage.accesslist(waystone.id());
+        List<OfflinePlayer> list = manager.getAccess(waystone.id());
 
         if (list.size() > 0) sender.sendMessage(Component.translatable("waystones.access.list", ColorUtil.GREEN));
         else sender.sendMessage(Component.translatable("waystones.access.list.empty", ColorUtil.GREEN));
 
-        for (OfflinePlayer p : storage.accesslist(waystone.id())) {
+        for (OfflinePlayer p : list) {
             sender.sendMessage(Component.text(p.getName()).hoverEvent(HoverEvent.showText(Component.text(p.getUniqueId().toString()))));
         }
 
@@ -589,7 +600,7 @@ public class WayStoneCommands extends CommandHandler {
 
 
     private void addCategory(CommandContext<CommandSender> context) {
-        if (storage.addCategory(context.get("name"), context.get("public"))) {
+        if (manager.addCategory(context.get("name"), context.get("public")) != null) {
             String type = "restricted";
             if (context.get("public")) type = "public";
             context.getSender().sendMessage(Component.translatable("waystones.category.add." + type, ColorUtil.GREEN, Component.text(context.get("name").toString()).color(TextColor.color(255, 255, 255))));
@@ -600,19 +611,19 @@ public class WayStoneCommands extends CommandHandler {
     }
 
     private void removeCategory(CommandContext<CommandSender> context) {
-        storage.addCategory(context.get("name"), context.get("public"));
+        manager.addCategory(context.get("name"), context.get("public"));
         context.getSender().sendMessage(Component.translatable("waystones.category.remove", ColorUtil.GREEN,  Component.text(context.get("name").toString()).color(TextColor.color(255, 255, 255))));
     }
 
     private void setCategory(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
         if (waystone.checkPermission(context.getSender())) {
-            Category category = storage.getCategory(context.get("category"));
+            Category category = manager.getCategory((int) context.get("category"));
             if (category == null) {
                 context.getSender().sendMessage(Component.translatable("waystones.category.invalid"));
                 return;
             }
-            storage.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), category, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), category, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
             context.getSender().sendMessage(Component.translatable("waystones.category.set", ColorUtil.GREEN, Component.text(waystone.name()), Component.text(category.name())));
             return;
         }

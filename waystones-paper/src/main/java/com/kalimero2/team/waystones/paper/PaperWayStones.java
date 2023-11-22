@@ -7,7 +7,7 @@ import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
-import com.kalimero2.team.waystones.paper.storage.Storage;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -27,18 +27,19 @@ public class PaperWayStones extends JavaPlugin {
     public @Nullable FloodgateIntegration floodgateIntegration;
     public @Nullable ClaimsIntegration claimsIntegration;
 
-    public static Storage storage;
+    public static WaystoneManager manager;
     public static DisplayManager displayManager;
 
     @Override
     public void onEnable() {
+        //TODO: API
         //WayStonesApiHolder.setApi(this);
 
         // Claims Compat
 
         try {
             Class.forName("com.kalimero2.team.claims.api.ClaimsApi");
-            claimsIntegration = new ClaimsIntegration(this);
+            claimsIntegration = new ClaimsIntegration();
             getLogger().info("Claims integration enabled");
         } catch (ClassNotFoundException e) {
             claimsIntegration = null;
@@ -46,19 +47,21 @@ public class PaperWayStones extends JavaPlugin {
         }
 
 
-        // Storage
-
-        getDataFolder().mkdirs();
-        storage = new Storage(this, new File(getDataFolder(), "waystones.db"));
-
-        if (!getConfig().getBoolean("did-legacy-conversion", false)) {
-            new LegacyConverter(this).convert();
-        }
-
 
         // Display Manager
 
         displayManager = new DisplayManager(this);
+
+
+        // Storage
+
+        getDataFolder().mkdirs();
+        manager = new WaystoneManager(this, new File(getDataFolder(), "waystones.db"));
+        manager.load();
+
+        if (!getConfig().getBoolean("did-legacy-conversion", false)) {
+            new LegacyConverter(this).convert();
+        }
 
 
         // Floodgate Compat
@@ -93,8 +96,8 @@ public class PaperWayStones extends JavaPlugin {
 
     }
 
-    public Storage getStorage() {
-        return storage;
+    public WaystoneManager getManager() {
+        return manager;
     }
     public DisplayManager getDisplayManager() {
         return displayManager;
