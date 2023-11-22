@@ -49,6 +49,8 @@ bukkit {
     main = "com.kalimero2.team.waystones.paper.PaperWayStones"
     apiVersion = "1.19"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
-    authors = listOf("byquanton", "Quantum625")
+    authors = listOf("byquanton", "nanoflux")
+    version = "2.0.0"
+    depend = listOf("resource-pack-loader")
     softDepend = listOf("floodgate", "claims-paper")
 }
