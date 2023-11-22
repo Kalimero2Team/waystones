@@ -305,10 +305,6 @@ public class WaystoneManager {
     private HashMap<Integer, Category> categories = new HashMap<>();
 
     public Collection<Category> getCategories() {
-        for (int id : categories.keySet()) {
-            System.out.print(id + ": ");
-            System.out.println(categories.get(id));
-        }
         return categories.values();
     }
 

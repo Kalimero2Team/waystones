@@ -243,176 +243,6 @@ public class Storage {
         return null;
     }
 
-    public StoredWaystone getWaystone(int block_x, int block_y, int block_z, UUID world) {
-        try (ResultSet resultSet = executeQuery("SELECT  * FROM WAYSTONES WHERE BLOCK_X = " + block_x + " AND BLOCK_Y = " + block_y + " AND BLOCK_Z = " + block_z + " AND WORLD_UUID = '"+world+"';")) {
-            if (resultSet.next()) {
-                return new StoredWaystone(resultSet.getInt("ID"),
-                        resultSet.getString("NAME"),
-                        resultSet.getString("OWNER_UUID"),
-                        resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CATEGORY"),
-                        resultSet.getInt("BLOCK_X"),
-                        resultSet.getInt("BLOCK_Y"),
-                        resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"),
-                        resultSet.getInt("USES"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public List<StoredWaystone> getWaystones(int chunk_x, int chunk_z, UUID world) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE CHUNK_X = " + chunk_x + " AND CHUNK_Z = " + chunk_z + " AND WORLD_UUID = '"+world+"';")) {
-            return getWaystonesFromResultSet(resultSet);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
-    }
-
-    public List<StoredWaystone> getWaystones(Player player) {
-        SortMode sortMode = getSortMode(player);
-        String sql = "SELECT * FROM WAYSTONES";
-        try  {
-            ResultSet resultSet = null;
-            switch (sortMode) {
-                case ALPHABETICAL -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE ASC;");
-                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE DESC;");
-                case NUMERIC -> resultSet = executeQuery(sql + " ORDER BY ID ASC;");
-                case NUMERIC_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY ID DESC;");
-                case POPULARITY -> resultSet = executeQuery(sql + " ORDER BY USES DESC;");
-                case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + " ORDER BY USES ASC;");
-            }
-            assert resultSet != null;
-            List<StoredWaystone> favs = getFavoriteWaystones(player);
-            List<StoredWaystone> result = getWaystonesFromResultSet(resultSet, player);
-            result.removeAll(favs);
-            result.addAll(0, favs);
-            return result;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
-    }
-
-    public List<StoredWaystone> getWaystones(Player player, String search) {
-        SortMode sortMode = getSortMode(player);
-        String sql = "SELECT * FROM WAYSTONES WHERE NAME LIKE '%" + search + "%'";
-        try  {
-            ResultSet resultSet = null;
-            switch (sortMode) {
-                case ALPHABETICAL -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE ASC;");
-                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY NAME COLLATE NOCASE DESC;");
-                case NUMERIC -> resultSet = executeQuery(sql + " ORDER BY ID ASC;");
-                case NUMERIC_DESCENDING -> resultSet = executeQuery(sql + " ORDER BY ID DESC;");
-                case POPULARITY -> resultSet = executeQuery(sql + " ORDER BY USES DESC;");
-                case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + " ORDER BY USES ASC;");
-            }
-            assert resultSet != null;
-            return getWaystonesFromResultSet(resultSet, player);
-//            StoredWaystone[] favs = getFavoriteWaystones(player);
-//            List<StoredWaystone> result = new ArrayList<StoredWaystone>(Arrays.stream(all).toList());
-//            result.removeAll(Arrays.stream(favs).toList());
-//            result.addAll(0, Arrays.stream(favs).toList());
-//            return result.toArray(new StoredWaystone[0]);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
-    }
-
-    public List<StoredWaystone> getWaystones(UUID world) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"';")) {
-            return getWaystonesFromResultSet(resultSet);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
-    }
-
-    public List<StoredWaystone> getWaystones(UUID world, String searchTerm) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' AND NAME LIKE '%" + searchTerm + "%' ORDER BY NAME COLLATE NOCASE ASC;")) {
-            return getWaystonesFromResultSet(resultSet);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
-    }
-
-    public List<StoredWaystone> getWaystones(Player player, UUID world) {
-        SortMode sortMode = getSortMode(player);
-        try  {
-            ResultSet resultSet = null;
-            switch (sortMode) {
-                case ALPHABETICAL -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY NAME COLLATE NOCASE ASC;");
-                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY NAME COLLATE NOCASE DESC;");
-                case NUMERIC -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY ID ASC;");
-                case NUMERIC_DESCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY ID DESC;");
-                case POPULARITY -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY USES DESC;");
-                case POPULARITY_ASCENDING -> resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE WORLD_UUID = '"+world+"' ORDER BY USES ASC;");
-            }
-            assert resultSet != null;
-            List<StoredWaystone> favs = getFavoriteWaystones(player);
-            List<StoredWaystone> result = getWaystonesFromResultSet(resultSet, player);
-            result.removeAll(favs);
-            result.addAll(0, favs);
-            return result;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
-    }
-
-
-    public List<StoredWaystone> getFavoriteWaystones(Player player) {
-        SortMode sortMode = getSortMode(player);
-        try  {
-            ResultSet resultSet = null;
-            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.VISIBILITY, WAYSTONES.CATEGORY, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
-                    "FROM WAYSTONES, FAVORITES " +
-                    "WHERE FAVORITES.WAYSTONE = WAYSTONES.ID " +
-                    "AND PLAYER = '"+player.getUniqueId()+"' ";
-            switch (sortMode) {
-                case ALPHABETICAL -> resultSet = executeQuery(sql + "ORDER BY NAME COLLATE NOCASE ASC;");
-                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery(sql + "ORDER BY NAME COLLATE NOCASE DESC;");
-                case NUMERIC -> resultSet = executeQuery(sql + "ORDER BY WAYSTONES.ID ASC;");
-                case NUMERIC_DESCENDING -> resultSet = executeQuery(sql + "ORDER BY WAYSTONES.ID DESC;");
-                case POPULARITY -> resultSet = executeQuery(sql + "ORDER BY USES DESC;");
-                case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + "ORDER BY USES ASC;");
-            }
-            return getWaystonesFromResultSet(resultSet, player);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (NullPointerException ignored) {}
-        return new ArrayList<>();
-    }
-
-    public List<StoredWaystone> getFavoriteWaystones(UUID world, Player player) {
-        SortMode sortMode = getSortMode(player);
-        try  {
-            ResultSet resultSet = null;
-            String sql =    "SELECT WAYSTONES.ID, WAYSTONES.NAME, WAYSTONES.OWNER_UUID, WAYSTONES.VISIBILITY, WAYSTONES.CATEGORY, WAYSTONES.CHUNK_X, WAYSTONES.CHUNK_Z, WAYSTONES.BLOCK_X, WAYSTONES.BLOCK_Y, WAYSTONES.BLOCK_Z, WAYSTONES.WORLD_UUID, WAYSTONES.USES " +
-                    "FROM WAYSTONES, FAVORITES " +
-                    "WHERE FAVORITES.WAYSTONE = WAYSTONES.ID " +
-                    "AND WORLD_UUID = '"+world+"' " +
-                    "AND PLAYER = '"+player.getUniqueId()+"' ";
-            switch (sortMode) {
-                case ALPHABETICAL -> resultSet = executeQuery(sql + "ORDER BY NAME COLLATE NOCASE ASC;");
-                case ALPHABETICAL_DESCENDING -> resultSet = executeQuery(sql + "ORDER BY NAME COLLATE NOCASE DESC;");
-                case NUMERIC -> resultSet = executeQuery(sql + "ORDER BY WAYSTONES.ID ASC;");
-                case NUMERIC_DESCENDING -> resultSet = executeQuery(sql + "ORDER BY WAYSTONES.ID DESC;");
-                case POPULARITY -> resultSet = executeQuery(sql + "ORDER BY USES DESC;");
-                case POPULARITY_ASCENDING -> resultSet = executeQuery(sql + "ORDER BY USES ASC;");
-            }
-            return getWaystonesFromResultSet(resultSet, player);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (NullPointerException ignored) {}
-        return new ArrayList<>();
-    }
-
     public List<StoredWaystone> getWaystones() {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES;")) {
             return getWaystonesFromResultSet(resultSet);
@@ -439,30 +269,6 @@ public class Storage {
                         resultSet.getString("WORLD_UUID"),
                         resultSet.getInt("USES"))
                 );
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return waystones;
-    }
-
-    @NotNull
-    private List<StoredWaystone> getWaystonesFromResultSet(ResultSet resultSet, Player player) throws SQLException {
-        List<StoredWaystone> waystones = new ArrayList<>();
-        try {
-            while (resultSet.next()) {
-                StoredWaystone waystone = new StoredWaystone(resultSet.getInt("ID"),
-                        resultSet.getString("NAME"),
-                        resultSet.getString("OWNER_UUID"),
-                        resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CATEGORY"),
-                        resultSet.getInt("BLOCK_X"),
-                        resultSet.getInt("BLOCK_Y"),
-                        resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"),
-                        resultSet.getInt("USES"));
-                if (waystone.visibleTo(player) || forceMode(player)) waystones.add(waystone);
             }
         }
         catch (SQLException e) {
@@ -571,25 +377,6 @@ public class Storage {
 
 
     //
-    // Force Mode Users
-    //
-
-    public boolean forceMode(Player player) {
-        return forceMode.contains(player);
-    }
-
-    public boolean forceMode(Player player, boolean active) {
-        if (active && !forceMode.contains(player)) {
-            forceMode.add(player);
-            return true;
-        }
-        else forceMode.remove(player);
-        return false;
-    }
-
-
-
-    //
     // Categories
     //
 
@@ -606,7 +393,6 @@ public class Storage {
         if (result.size() == 0) {
             result.add(Category.NONE);
         }
-        System.out.println(Arrays.toString(result.toArray()));
         return result;
     }
 
