@@ -355,6 +355,7 @@ public class WayStoneCommands extends CommandHandler {
                             }
                             else {
                                 player.sendMessage(Component.translatable("waystones.teleport.noxp", ColorUtil.ORANGE));
+                                return;
                             }
                         }
                     }

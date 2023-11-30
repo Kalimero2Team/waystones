@@ -84,9 +84,9 @@ public class JavaScreen {
             owned = clickedwaystone.owner().equals(player.getUniqueId()) || manager.forceMode(player);
         }
         if (owned)
-            current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ] ").hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.edit")))).clickEvent(ClickEvent.runCommand("/waystone edit " + clickedwaystone.id())).append(Component.text("    [ \uD83D\uDD0D ").append(Component.translatable("waystones.ui.search")).append(Component.text(" ]").hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search"))).color(TextColor.color(0, 10, 200)));
+            current_page = current_page.append(Component.text(" [ \uD83D\uDD89 ] ").hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.edit")))).clickEvent(ClickEvent.runCommand("/waystone edit " + clickedwaystone.id())).append(Component.text("    [ \uD83D\uDD0D ").append(Component.translatable("waystones.ui.search")).append(Component.text(" ]")).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search"))).color(TextColor.color(0, 10, 200));
         else
-            current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  ").append(Component.translatable("waystones.ui.search")).append(Component.text("  ]   ").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search"))));
+            current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  ").append(Component.translatable("waystones.ui.search")).append(Component.text("  ]   ")).color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search")));
 
         current_page = current_page.append(Component.newline());
         current_page = current_page.append(Component.newline());
@@ -118,7 +118,7 @@ public class JavaScreen {
             color = TextColor.color(0, 0, 0);
             if (clickedwaystone != null) if (waystone.id() == clickedwaystone.id()) color = TextColor.color(0, 180, 50);
 
-            Component hoverText = Component.translatable("waystone.ui.clicktoteleport");
+            Component hoverText = Component.translatable("waystones.ui.clicktoteleport");
             hoverText = hoverText.append(Component.newline());
             hoverText = hoverText.append(Component.newline());
             hoverText = hoverText.append(Component.text("ID: " + waystone.id()));
@@ -227,7 +227,7 @@ public class JavaScreen {
             }
             current_page = current_page.append(Component.text("[★] ").color(color).clickEvent(ClickEvent.runCommand("/waystone internal " + "favorite " + action + " " + waystone.id())));
 
-            Component hoverText = Component.translatable("waystone.ui.clicktoteleport");
+            Component hoverText = Component.translatable("waystones.ui.clicktoteleport");
             hoverText = hoverText.append(Component.newline());
             hoverText = hoverText.append(Component.newline());
             hoverText = hoverText.append(Component.text("ID: " + waystone.id()));
