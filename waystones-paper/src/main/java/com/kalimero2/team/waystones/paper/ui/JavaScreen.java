@@ -299,9 +299,9 @@ public class JavaScreen {
                 current_page = current_page.append(Component.translatable("waystones.access.edit").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " edit")));
             }
             case PRIVATE -> {
-                current_page = current_page.append(Component.text("waystones.ui.visibility.public").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " public")));
+                current_page = current_page.append(Component.translatable("waystones.ui.visibility.public").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " public")));
                 current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("waystones.ui.visibility.unlisted").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " unlisted")));
+                current_page = current_page.append(Component.translatable("waystones.ui.visibility.unlisted").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " unlisted")));
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.newline());
                 current_page = current_page.append(Component.text("waystones.access.edit").clickEvent(ClickEvent.runCommand("/waystone access " + id + " edit")));
