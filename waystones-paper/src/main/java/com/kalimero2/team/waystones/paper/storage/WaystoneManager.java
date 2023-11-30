@@ -251,7 +251,7 @@ public class WaystoneManager {
      */
     public void setVisibility(int id, Visibility visibility) {
         storage.setVisibility(id, visibility);
-        StoredWaystone waystone = getWaystone(id);
+        StoredWaystone waystone = storage.getWaystone(id);
         waystones.put(id, waystone);
         waystoneLocations.put(waystone.location(), waystone);
         waystoneNames.put(waystone.name(), waystone);
