@@ -505,7 +505,7 @@ public class WaystoneManager {
     //
 
     private final HashMap<PlayerWaystoneCombo, Long> teleportTimestamps = new HashMap<>();
-    private final ArrayList<StoredWaystone> waystonesToUpdateTeleportUses = new ArrayList<>();
+//    private final ArrayList<StoredWaystone> waystonesToUpdateTeleportUses = new ArrayList<>();
     public void addTeleport(Player player, int waystoneId) {
         boolean countes = true;
         if (teleportTimestamps.containsKey(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId))) {
@@ -531,4 +531,11 @@ public class WaystoneManager {
 //    public void updateTeleportUses(StoredWaystone waystone) {
 //        if (waystonesToUpdateTeleportUses.remove(waystone)) storage.updateUses(waystone);
 //    }
+
+    public void decreaseGlobalUsesScore() {
+        storage.decreaseGlobalUsesScore();
+        waystones.clear();
+        waystoneNames.clear();
+        waystoneLocations.clear();
+    }
 }

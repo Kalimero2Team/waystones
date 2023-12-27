@@ -421,6 +421,9 @@ public class Storage {
     }
 
 
+    public void decreaseGlobalUsesScore() {
+        executeUpdate("UPDATE WAYSTONES SET USES = USES / 1.5;");
+    }
     public void updateUses(StoredWaystone waystone) {
         executeUpdate("UPDATE WAYSTONES SET USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
     }

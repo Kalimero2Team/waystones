@@ -8,6 +8,7 @@ import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
+import com.kalimero2.team.waystones.paper.util.WaystoneTimer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -62,6 +63,10 @@ public class PaperWayStones extends JavaPlugin {
         if (!getConfig().getBoolean("did-legacy-conversion", false)) {
             new LegacyConverter(this).convert();
         }
+
+        // Timer to divide every waystone's usage score by 1.5 every 24h
+        // This is, so that recent usage will be graded higher than past usage
+        new WaystoneTimer(this);
 
 
         // Floodgate Compat
