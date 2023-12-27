@@ -155,6 +155,8 @@ public class FloodgateIntegration {
             }
 
             manager.createWaystone(input, player.getUniqueId(), visibility, category, location);
+            StoredWaystone waystone = plugin.getManager().getWaystone(location);
+            PaperWayStones.displayManager.updateDisplay(waystone);
             stack.setAmount(stack.getAmount() - 1);
             player.sendMessage(Component.text(""));
         });
