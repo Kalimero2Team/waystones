@@ -369,6 +369,7 @@ public class WayStoneCommands extends CommandHandler {
 
             if (waystone.checkTeleport(player) || manager.forceMode(player)) {
                 player.teleport(waystone.location());
+                manager.addTeleport(player, waystone.id());
             }
         }
     }

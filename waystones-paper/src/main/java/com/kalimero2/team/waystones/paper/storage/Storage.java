@@ -421,5 +421,7 @@ public class Storage {
     }
 
 
-
+    public void updateUses(StoredWaystone waystone) {
+        executeUpdate("UPDATE WAYSTONES SET USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
+    }
 }

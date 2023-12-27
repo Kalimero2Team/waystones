@@ -2,6 +2,7 @@ package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.util.Category;
+import com.kalimero2.team.waystones.paper.util.PlayerWaystoneCombo;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.Location;
@@ -19,6 +20,7 @@ public class WaystoneManager {
 
     private final PaperWayStones plugin;
     private final Storage storage;
+
 
     public WaystoneManager(PaperWayStones plugin, File file) {
         this.plugin = plugin;
@@ -353,10 +355,10 @@ public class WaystoneManager {
     public List<StoredWaystone> sort(SortMode mode, List<StoredWaystone> list) {
         switch (mode) {
             case ALPHABETICAL -> list.sort(Comparator.comparing(StoredWaystone::name));
-            case ALPHABETICAL_DESCENDING -> list.sort(Comparator.comparing(StoredWaystone::name).reversed());
+            case ALPHABETICAL_DESCENDING -> list.sort(Comparator.comparing(StoredWaystone::getName).reversed());
             case NUMERIC -> list.sort(Comparator.comparing(StoredWaystone::id));
             case NUMERIC_DESCENDING -> list.sort(Comparator.comparing(StoredWaystone::id).reversed());
-            case POPULARITY -> list.sort(Comparator.comparing(StoredWaystone::uses).reversed());
+            case POPULARITY -> list.sort(Comparator.comparing(StoredWaystone::getUses).reversed());
             case POPULARITY_ASCENDING -> list.sort(Comparator.comparing(StoredWaystone::uses));
         }
         return list;
@@ -495,4 +497,38 @@ public class WaystoneManager {
     public boolean canEdit(StoredWaystone waystone, Player player) {
         return forceMode(player) || waystone.owner().equals(player.getUniqueId());
     }
+
+
+
+    //
+    // Popularity
+    //
+
+    private final HashMap<PlayerWaystoneCombo, Long> teleportTimestamps = new HashMap<>();
+    private final ArrayList<StoredWaystone> waystonesToUpdateTeleportUses = new ArrayList<>();
+    public void addTeleport(Player player, int waystoneId) {
+        boolean countes = true;
+        if (teleportTimestamps.containsKey(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId))) {
+            if (System.currentTimeMillis() - teleportTimestamps.get(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId)) < 300000) countes = false;   // 5 * 60 * 1000 = 5 minutes
+        }
+        teleportTimestamps.put(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId), System.currentTimeMillis());
+        if (countes) {
+            StoredWaystone waystone = storage.getWaystone(waystoneId);
+            if (waystone != null) {
+                waystone.uses(waystone.uses() + 1);
+            }
+//            waystonesToUpdateTeleportUses.add(waystone);
+            storage.updateUses(waystone);
+        }
+    }
+
+//    public void updateTeleportUses() {
+//        for (StoredWaystone waystone : waystonesToUpdateTeleportUses) {
+//            storage.updateUses(waystone);
+//        }
+//        waystonesToUpdateTeleportUses.clear();
+//    }
+//    public void updateTeleportUses(StoredWaystone waystone) {
+//        if (waystonesToUpdateTeleportUses.remove(waystone)) storage.updateUses(waystone);
+//    }
 }
