@@ -169,7 +169,6 @@ public class JavaScreen {
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
             }
             List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), state.getText());
-            System.out.println(waystones.size());
             if (waystones.size() == 0) {
                 new BukkitRunnable() {
                     @Override
@@ -179,7 +178,6 @@ public class JavaScreen {
                 }.runTaskLater(plugin, 1);
                 return Collections.singletonList(AnvilGUI.ResponseAction.close());
             }
-            if (waystones.size() == 1) player.chat("/waystone tp " + waystones.get(0).id());
             else {
                 new BukkitRunnable() {
                     @Override
@@ -504,8 +502,6 @@ public class JavaScreen {
         int counter = 3;
 
         WaystoneManager manager = plugin.getManager();
-
-        System.out.println(Arrays.toString(manager.getCategories().toArray()));
 
         for (Category category : manager.getCategories()) {
 
