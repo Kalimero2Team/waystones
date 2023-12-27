@@ -277,7 +277,7 @@ public class WaystoneManager {
      * @return null if there is no waystone, whose name contains the given string
      */
     public List<StoredWaystone> getWaystones(UUID world, String term) {
-        List<StoredWaystone> result = new ArrayList<StoredWaystone>();
+        List<StoredWaystone> result = new ArrayList<>();
         for (StoredWaystone waystone : waystones.values()) {
             if (waystone.name().toLowerCase().contains(term.toLowerCase()) && waystone.world().equals(world)) result.add(waystone);
         }
@@ -347,7 +347,7 @@ public class WaystoneManager {
     public void setSortMode(Player player, SortMode sortMode) {
         sortModes.put(player, sortMode);
         storage.setSortMode(player, sortMode);
-        book.get(player).clear();
+        if (book.containsKey(player)) book.get(player).clear();
     }
 
     public List<StoredWaystone> sort(SortMode mode, List<StoredWaystone> list) {
