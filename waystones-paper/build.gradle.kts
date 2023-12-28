@@ -47,7 +47,7 @@ tasks {
 
 bukkit {
     main = "com.kalimero2.team.waystones.paper.PaperWayStones"
-    apiVersion = "1.19"
+    apiVersion = "1.20"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("byquanton", "nanoflux")
     version = "2.0.0"

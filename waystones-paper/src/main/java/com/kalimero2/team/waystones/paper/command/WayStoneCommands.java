@@ -13,6 +13,7 @@ import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
+import com.kalimero2.team.waystones.paper.ui.java.TestScreen;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.ColorUtil;
 import com.kalimero2.team.waystones.paper.util.SortMode;
@@ -21,7 +22,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -316,9 +316,9 @@ public class WayStoneCommands extends CommandHandler {
 
     private void openTestInv(CommandContext<CommandSender> context) {
         if(context.getSender() instanceof Player player) {
-            Component title = MiniMessage.miniMessage().deserialize("<white><font:klm2:waystones>b</font><reset><lang:space.-170>Edit Waystone");
-            player.openInventory(plugin.getServer().createInventory(null, 9*2, Component.translatable("space.-8").append(title)));
-
+            /*Component title = MiniMessage.miniMessage().deserialize("<white><font:klm2:waystones>b</font><reset><lang:space.-170>Edit Waystone");
+            player.openInventory(plugin.getServer().createInventory(null, 9*2, Component.translatable("space.-8").append(title)));*/
+            new TestScreen(plugin).show(player);
         }
     }
 
