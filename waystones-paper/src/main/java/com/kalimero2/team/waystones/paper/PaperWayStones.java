@@ -2,10 +2,10 @@ package com.kalimero2.team.waystones.paper;
 
 import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
-import com.kalimero2.team.waystones.paper.compat.FloodgateIntegration;
+import com.kalimero2.team.waystones.paper.compat.GeyserWaystoneHackCompat;
+import com.kalimero2.team.waystones.paper.ui.FloodgateScreens;
 import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
-import com.kalimero2.team.waystones.paper.listener.ChunkListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.util.WaystoneTimer;
@@ -13,6 +13,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,7 +26,7 @@ import java.io.File;
 import java.util.List;
 
 public class PaperWayStones extends JavaPlugin {
-    public @Nullable FloodgateIntegration floodgateIntegration;
+    public @Nullable FloodgateScreens floodgateIntegration;
     public @Nullable ClaimsIntegration claimsIntegration;
 
     public static WaystoneManager manager;
@@ -61,7 +62,7 @@ public class PaperWayStones extends JavaPlugin {
             new LegacyConverter(this).convert();
         }
 
-        // Timer to divide every waystone's usage score by 1.5 every 24h
+        // Timer to divide every waystones usage score by 1.5 every 24h
         // This is, so that recent usage will be graded higher than past usage
         new WaystoneTimer(this);
 
@@ -70,7 +71,8 @@ public class PaperWayStones extends JavaPlugin {
 
         try {
             Class.forName("org.geysermc.floodgate.api.FloodgateApi");
-            floodgateIntegration = new FloodgateIntegration(this);
+            floodgateIntegration = new FloodgateScreens(this);
+            new GeyserWaystoneHackCompat(this);
             getLogger().info("Floodgate integration enabled");
         } catch (ClassNotFoundException e) {
             floodgateIntegration = null;
@@ -90,7 +92,6 @@ public class PaperWayStones extends JavaPlugin {
         // Event Listeners
 
         new WayStonesListener( this);
-        new ChunkListener(this);
     }
 
     @Override
@@ -104,6 +105,15 @@ public class PaperWayStones extends JavaPlugin {
     public DisplayManager getDisplayManager() {
         return displayManager;
     }
+
+
+    public boolean isBedrockPlayer(Player player) {
+        if (floodgateIntegration != null) {
+            return org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
+        }
+        return false;
+    }
+
 
     public ItemStack getStatic() {
         ItemStack item = new ItemStack(Material.STONE_BRICK_WALL);

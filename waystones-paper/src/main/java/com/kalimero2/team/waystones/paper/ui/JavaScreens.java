@@ -6,7 +6,6 @@ import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.ColorUtil;
-import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -17,7 +16,10 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.wesjd.anvilgui.AnvilGUI;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,9 +27,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class JavaScreen {
+public class JavaScreens {
 
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
@@ -35,7 +39,7 @@ public class JavaScreen {
 
     private final Component anvilUIPrefix = MiniMessage.miniMessage().deserialize("<white><tr:space.-60><font:klm2:waystones>c</font><tr:space.-172>");
 
-    public JavaScreen(PaperWayStones plugin) {
+    public JavaScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = plugin.getManager();
         this.displayManager = plugin.getDisplayManager();
@@ -163,13 +167,12 @@ public class JavaScreen {
         meta.displayName(Component.text(searchTerm));
         item.setItemMeta(meta);
 
-        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(item).onClick((n, state) -> {
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemOutput(item).onClick((n, state) -> {
             if (state.getText().length() > 16) {
-                // TODO: This will break the anvilUI Prefix ...
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
             }
             List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), state.getText());
-            if (waystones.size() == 0) {
+            if (waystones.isEmpty()) {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -319,10 +322,9 @@ public class JavaScreen {
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(plugin.getStatic()).onClick((n, state) -> {
             if (state.getText().length() > 16) {
-                // TODO: This will break the anvilUI Prefix ...
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
             }
-            if (!manager.nameFree(state.getText())) {
+            if (manager.isNameUsed(state.getText())) {
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Name ist bereits vergeben!"));
             }
             new BukkitRunnable() {
@@ -332,7 +334,7 @@ public class JavaScreen {
                     plugin.getManager().createWaystone(state.getText(), player.getUniqueId(), 1, -1, location);
                     StoredWaystone waystone = plugin.getManager().getWaystone(location);
                     displayManager.updateDisplay(waystone);
-                    if (player.getGameMode().equals(GameMode.CREATIVE)) {
+                    if (!player.getGameMode().equals(GameMode.CREATIVE)) {
                         stack.setAmount(stack.getAmount() - 1);
                     }
                     visibilitySelection(player, waystone);
@@ -353,10 +355,9 @@ public class JavaScreen {
 
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
             if (state.getText().length() > 16) {
-                // TODO: This will break the anvilUI Prefix ...
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
             }
-            if (!manager.nameFree(state.getText())) {
+            if (manager.isNameUsed(state.getText())) {
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Name ist bereits vergeben!"));
             }
             new BukkitRunnable() {
@@ -383,7 +384,7 @@ public class JavaScreen {
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
 
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
-            OfflinePlayer p = Bukkit.getOfflinePlayerIfCached(state.getText());
+            OfflinePlayer p = plugin.getServer().getOfflinePlayerIfCached(state.getText());
             if (p == null) {
                 Component title2 = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.player.invalid"));
                 String jsonTitle2 = JSONComponentSerializer.json().serialize(title2);
@@ -450,7 +451,7 @@ public class JavaScreen {
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
 
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
-            OfflinePlayer p = Bukkit.getOfflinePlayerIfCached(state.getText());
+            OfflinePlayer p = plugin.getServer().getOfflinePlayerIfCached(state.getText());
             if (p == null) {
                 Component title2 = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.player.invalid"));
                 String jsonTitle2 = JSONComponentSerializer.json().serialize(title2);

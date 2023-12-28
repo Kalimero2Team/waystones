@@ -1,6 +1,7 @@
 package com.kalimero2.team.waystones.paper.listener;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.compat.GeyserWaystoneHackCompat;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
@@ -107,6 +108,9 @@ public class WayStonesListener implements Listener {
                 }
                 if (waystone != null) {
                     event.setCancelled(true);
+                    if(plugin.isBedrockPlayer(event.getPlayer())){
+                        GeyserWaystoneHackCompat.sendBedrockWaystoneBlock(event.getPlayer(), waystone);
+                    }
                     screen.menu(event.getPlayer(), waystone);
                 }
             }

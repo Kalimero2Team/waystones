@@ -168,9 +168,7 @@ public class Storage {
     }
 
     public void addWaystone(@NotNull String name, @NotNull UUID owner, int visibility, int category, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
-        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES(?,?,?,?,?,?,?,?,?);",
-                name, owner, visibility, category, (x >> 4), (z >> 4), x, y, z, world, 0
-        );
+        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, VISIBILITY, CATEGORY, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES(?,?,?,?,?,?,?,?,?,?,?);", name, owner, visibility, category, (x >> 4), (z >> 4), x, y, z, world, 0);
     }
 
     public void removeWaystone(int id) {
@@ -182,9 +180,7 @@ public class Storage {
     }
 
     public void updateWaystone(StoredWaystone waystone) {
-        executeUpdate("UPDATE WAYSTONES SET NAME = ?, OWNER_UUID = ?, VISIBILITY = ?, CATEGORY = ?, CHUNK_X = ?, CHUNK_Z = ?, BLOCK_X = ?, BLOCK_Y = ?, BLOCK_Z = ?, WORLD_UUID = ?, USES = ? WHERE ID = ?;",
-                waystone.name(), waystone.owner(), waystone.visibility().ordinal(), waystone.category().id(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses(), waystone.id()
-        );
+        executeUpdate("UPDATE WAYSTONES SET NAME = ?, OWNER_UUID = ?, VISIBILITY = ?, CATEGORY = ?, CHUNK_X = ?, CHUNK_Z = ?, BLOCK_X = ?, BLOCK_Y = ?, BLOCK_Z = ?, WORLD_UUID = ?, USES = ? WHERE ID = ?;", waystone.name(), waystone.owner(), waystone.visibility().ordinal(), waystone.category().id(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses(), waystone.id());
         display.updateDisplay(getWaystone(waystone.id()));
     }
 
@@ -229,8 +225,7 @@ public class Storage {
      * @return the waystone if it exists, otherwise returns null
      */
     public StoredWaystone getWaystone(Location location) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE BLOCK_X = ? AND BLOCK_Y = ? AND BLOCK_Z = ? AND WORLD_UUID = ?;",
-                location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID())) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE BLOCK_X = ? AND BLOCK_Y = ? AND BLOCK_Z = ? AND WORLD_UUID = ?;", location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID())) {
             if (resultSet.next()) {
                 return getWaystoneFromResultSet(resultSet);
             }

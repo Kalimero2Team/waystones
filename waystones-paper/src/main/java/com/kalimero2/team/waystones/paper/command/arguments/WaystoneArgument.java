@@ -47,13 +47,7 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
      * Create a new {@link WaystoneArgument.Builder}.
      *
      * @param name argument name
-     * @param <C>  sender typekit.entity.Player;
-    import org.jetbrains.annotations.Nullable;
-    import org.jetbrains.annotations.NotNull;
-
-    import java.util.ArrayList;
-    import java.util.List;
-    import java
+     * @param <C>  sender type;
      * @return new {@link WaystoneArgument.Builder}
      */
     @API(status = API.Status.STABLE, since = "1.8.0")

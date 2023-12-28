@@ -170,20 +170,20 @@ public class WayStoneCommands extends CommandHandler {
                 .argument(WaystoneArgument.of("waystone"))
                 .literal("add")
                 .argument(PlayerArgument.of("player"))
-                .handler(this::addPlayerToAccesslist)
+                .handler(this::addPlayerToAccessList)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("access")
                 .argument(WaystoneArgument.of("waystone"))
                 .literal("remove")
                 .argument(PlayerArgument.of("player"))
-                .handler(this::removePlayerFromAccesslist)
+                .handler(this::removePlayerFromAccessList)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("access")
                 .argument(WaystoneArgument.of("waystone"))
                 .literal("list")
-                .handler(this::listAccesslist)
+                .handler(this::showAccessList)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("display")
@@ -316,17 +316,9 @@ public class WayStoneCommands extends CommandHandler {
 
     private void openTestInv(CommandContext<CommandSender> context) {
         if(context.getSender() instanceof Player player) {
-            Component title = MiniMessage.miniMessage().deserialize("<white><font:klm2:waystones>b</font>");
+            Component title = MiniMessage.miniMessage().deserialize("<white><font:klm2:waystones>b</font><reset><lang:space.-170>Edit Waystone");
             player.openInventory(plugin.getServer().createInventory(null, 9*2, Component.translatable("space.-8").append(title)));
-            /* Now with a book
-            Book book = Book.builder()
-                    .title(Component.text("Test Book"))
-                    .author(Component.text("Test Author"))
-                    .addPage(Component.translatable("offset.-20").append(title))
-                    .build();
-            player.openBook(book);
 
-             */
         }
     }
 
@@ -460,7 +452,7 @@ public class WayStoneCommands extends CommandHandler {
         Location location = context.get("location");
         String name = context.get("name");
 
-        if (!manager.nameFree(name)) {
+        if (manager.isNameUsed(name)) {
             context.getSender().sendMessage(Component.translatable("waystones.ui.name.taken", TextColor.color(255, 73, 0), Component.text(name)));
             return;
         }
@@ -536,7 +528,7 @@ public class WayStoneCommands extends CommandHandler {
     }
 
 
-    private void addPlayerToAccesslist(CommandContext<CommandSender> context) {
+    private void addPlayerToAccessList(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSender();
 
         StoredWaystone waystone = context.get("waystone");
@@ -550,7 +542,7 @@ public class WayStoneCommands extends CommandHandler {
         sender.sendMessage(Component.translatable("waystones.access.add", ColorUtil.GREEN, player.displayName(), Component.text(waystone.id())));
     }
 
-    private void removePlayerFromAccesslist(CommandContext<CommandSender> context) {
+    private void removePlayerFromAccessList(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSender();
 
         StoredWaystone waystone = context.get("waystone");
@@ -564,7 +556,7 @@ public class WayStoneCommands extends CommandHandler {
         sender.sendMessage(Component.translatable("waystones.access.remove", ColorUtil.GREEN, player.displayName(), Component.text(waystone.id())));
     }
 
-    private void listAccesslist(CommandContext<CommandSender> context) {
+    private void showAccessList(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSender();
 
         StoredWaystone waystone = context.get("waystone");
@@ -575,7 +567,7 @@ public class WayStoneCommands extends CommandHandler {
 
         List<OfflinePlayer> list = manager.getAccess(waystone.id());
 
-        if (list.size() > 0) sender.sendMessage(Component.translatable("waystones.access.list", ColorUtil.GREEN));
+        if (!list.isEmpty()) sender.sendMessage(Component.translatable("waystones.access.list", ColorUtil.GREEN));
         else sender.sendMessage(Component.translatable("waystones.access.list.empty", ColorUtil.GREEN));
 
         for (OfflinePlayer p : list) {

@@ -1,4 +1,4 @@
-package com.kalimero2.team.waystones.paper.compat;
+package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class FloodgateIntegration {
+public class FloodgateScreens {
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
 
-    public FloodgateIntegration(PaperWayStones plugins) {
-        this.plugin = plugins;
-        this.manager = plugin.getManager();
+    public FloodgateScreens(PaperWayStones plugin) {
+        this.plugin = plugin;
+        this.manager = this.plugin.getManager();
     }
 
     public void menu(Player player) {
@@ -138,7 +138,7 @@ public class FloodgateIntegration {
 
         builder.validResultHandler(customFormResponse -> {
             String input = customFormResponse.asInput(1);
-            if (!manager.nameFree(input)) {
+            if (manager.isNameUsed(input)) {
                 create(player, location, stack, LastCreationResult.NAME_TAKEN);
                 return;
             }
@@ -261,7 +261,7 @@ public class FloodgateIntegration {
                 settingsFull(player, waystone, LastCreationResult.NAME_TAKEN);
                 return;
             }
-            if (!manager.nameFree(input) && !input.equalsIgnoreCase(waystone.name())) {
+            if (manager.isNameUsed(input) && !input.equalsIgnoreCase(waystone.name())) {
                 settingsFull(player, waystone, LastCreationResult.NAME_TAKEN);
                 return;
             }
@@ -311,7 +311,7 @@ public class FloodgateIntegration {
 
         builder.validResultHandler(customFormResponse -> {
             String input = customFormResponse.asInput(1);
-            if (!manager.nameFree(input)) {
+            if (manager.isNameUsed(input)) {
                 rename(player, waystone, LastCreationResult.NAME_TAKEN);
                 return;
             }
