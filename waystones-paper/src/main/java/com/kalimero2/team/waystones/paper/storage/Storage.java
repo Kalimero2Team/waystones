@@ -16,15 +16,17 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class Storage {
 
-    private Connection connection;
-
     private final DisplayManager display;
+    private Connection connection;
 
     public Storage(PaperWayStones plugin, File dataBase) {
         this.display = plugin.getDisplayManager();
@@ -38,34 +40,64 @@ public class Storage {
         }
     }
 
-
-    public ResultSet executeQuery(@Language(value = "SQL") String sql) {
-        try {
-            return connection.createStatement().executeQuery(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+    @NotNull
+    private static StoredWaystone getWaystoneFromResultSet(ResultSet resultSet) throws SQLException {
+        return new StoredWaystone(resultSet.getInt("ID"),
+                resultSet.getString("NAME"),
+                resultSet.getString("OWNER_UUID"),
+                resultSet.getInt("VISIBILITY"),
+                resultSet.getInt("CATEGORY"),
+                resultSet.getInt("BLOCK_X"),
+                resultSet.getInt("BLOCK_Y"),
+                resultSet.getInt("BLOCK_Z"),
+                resultSet.getString("WORLD_UUID"),
+                resultSet.getInt("USES"));
     }
 
-    public int executeUpdate(@Language(value = "SQL") String sql) {
-        try {
-            return connection.createStatement().executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
+    @NotNull
+    private List<StoredWaystone> getWaystonesFromResultSet(ResultSet resultSet) throws SQLException {
+        List<StoredWaystone> waystones = new ArrayList<>();
+        while (resultSet.next()) {
+            waystones.add(getWaystoneFromResultSet(resultSet));
         }
-        return -1;
+        return waystones;
     }
 
+    private ResultSet executeQuery(@Language(value = "SQL") String query, Object... args) {
+        // TODO: Remove Try-Catch and handle exceptions at the right places
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            for (int i = 0; i < args.length; i++) {
+                statement.setObject(i + 1, args[i]);
+            }
+            return statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private int executeUpdate(@Language(value = "SQL") String sql, Object... args) {
+        // TODO: Remove Try-Catch and handle exceptions at the right places
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                statement.setObject(i + 1, args[i]);
+            }
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 
     private void createTablesIfNotExists() {
         createCategoriesTableIfNotExists();
         createWaystonesTableIfNotExists();
-        createAccesslistTableIfNotExists();
+        createAccessListTableIfNotExists();
         createFavoriteTableIfNotExists();
         createSortModeTableIfNotExists();
     }
-
 
     private void createCategoriesTableIfNotExists() {
         // ID, NAME, PUBLIC(BOOLEAN)
@@ -98,7 +130,6 @@ public class Storage {
 
     }
 
-
     private void createFavoriteTableIfNotExists() {
         // ID, WAYSTONE, PLAYER
 
@@ -111,7 +142,11 @@ public class Storage {
     }
 
 
-    private void createAccesslistTableIfNotExists() {
+    //
+    //  WAYSTONES
+    //
+
+    private void createAccessListTableIfNotExists() {
         // ID, WAYSTONE, PLAYER
 
         executeUpdate("CREATE TABLE IF NOT EXISTS ACCESSLISTS(" +
@@ -132,85 +167,54 @@ public class Storage {
 
     }
 
-
-
-
-    //
-    //  WAYSTONES
-    //
-
     public void addWaystone(@NotNull String name, @NotNull UUID owner, int visibility, int category, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
-        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, VISIBILITY, CATEGORY, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES('" + name + "', '" + owner + "', " + visibility + ", " + category + ", " + (x >> 4) + ", " + (z >> 4) + ", " + x + ", " + y + ", " + z + ", '" + world + "', 0);");
+        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES(?,?,?,?,?,?,?,?,?);",
+                name, owner, visibility, category, (x >> 4), (z >> 4), x, y, z, world, 0
+        );
     }
 
     public void removeWaystone(int id) {
-        executeUpdate("DELETE FROM WAYSTONES WHERE ID = " + id + ";");
+        executeUpdate("DELETE FROM WAYSTONES WHERE ID = ?;", id);
     }
 
     public void renameWaystone(int id, String newName) {
-        executeUpdate("UPDATE WAYSTONES SET NAME = '" + newName + "' WHERE ID = " + id + ";");
+        executeUpdate("UPDATE WAYSTONES SET NAME = ? WHERE ID = ?;", newName, id);
     }
 
     public void updateWaystone(StoredWaystone waystone) {
-        executeUpdate("UPDATE WAYSTONES SET NAME = '" + waystone.name() + "', OWNER_UUID = '" + waystone.owner() + "', VISIBILITY = " + waystone.visibility().ordinal() + ", CATEGORY = " + waystone.category().id() + ", CHUNK_X = " + waystone.chunk_x() + ", CHUNK_Z = " + waystone.chunk_z() + ", BLOCK_X = " + waystone.block_x() + ", BLOCK_Y = " + waystone.block_y() + ", BLOCK_Z = " + waystone.block_z() + ", WORLD_UUID = '" + waystone.world() + "', USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
+        executeUpdate("UPDATE WAYSTONES SET NAME = ?, OWNER_UUID = ?, VISIBILITY = ?, CATEGORY = ?, CHUNK_X = ?, CHUNK_Z = ?, BLOCK_X = ?, BLOCK_Y = ?, BLOCK_Z = ?, WORLD_UUID = ?, USES = ? WHERE ID = ?;",
+                waystone.name(), waystone.owner(), waystone.visibility().ordinal(), waystone.category().id(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses(), waystone.id()
+        );
         display.updateDisplay(getWaystone(waystone.id()));
     }
 
-
     /**
      * Get a waystone by its id
-     * @param id ID of the requestd Waystone
+     *
+     * @param id ID of the requested Waystone
      * @return the waystone if it exists, otherwise returns null
      */
     public StoredWaystone getWaystone(int id) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE ID = " + id + ";")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE ID = ?;", id)) {
             if (resultSet.next()) {
-                return new StoredWaystone(resultSet.getInt("ID"),
-                        resultSet.getString("NAME"),
-                        resultSet.getString("OWNER_UUID"),
-                        resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CATEGORY"),
-                        resultSet.getInt("BLOCK_X"),
-                        resultSet.getInt("BLOCK_Y"),
-                        resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"),
-                        resultSet.getInt("USES"));
+                return getWaystoneFromResultSet(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
-
-
-    /**
-     * Get a waystone by its id
-     * @param id ID of the requestd Waystone
-     * @return the waystone if it exists, otherwise returns null
-     */
-    public StoredWaystone getWaystoneById(int id) {
-        return getWaystone(id);
-    }
-
 
     /**
      * Get a waystone by its name
-     * @param name Name of the requestd Waystone
+     *
+     * @param name Name of the requested Waystone
      * @return the waystone if it exists, otherwise returns null
      */
     public StoredWaystone getWaystone(String name) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE NAME = '" + name + "' ORDER BY ID ASC;")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE NAME = ? ORDER BY ID;", name)) {
             if (resultSet.next()) {
-                return new StoredWaystone(resultSet.getInt("ID"),
-                        resultSet.getString("NAME"),
-                        resultSet.getString("OWNER_UUID"),
-                        resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CATEGORY"),
-                        resultSet.getInt("BLOCK_X"),
-                        resultSet.getInt("BLOCK_Y"),
-                        resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"),
-                        resultSet.getInt("USES"));
+                return getWaystoneFromResultSet(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -218,20 +222,17 @@ public class Storage {
         return null;
     }
 
-
+    /**
+     * Get a waystone by its location
+     *
+     * @param location Location of the requested Waystone
+     * @return the waystone if it exists, otherwise returns null
+     */
     public StoredWaystone getWaystone(Location location) {
-        try (ResultSet resultSet = executeQuery("SELECT  * FROM WAYSTONES WHERE BLOCK_X = " + location.getBlockX() + " AND BLOCK_Y = " + location.getBlockY() + " AND BLOCK_Z = " + location.getBlockZ() + " AND WORLD_UUID = '"+location.getWorld().getUID()+"';")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE BLOCK_X = ? AND BLOCK_Y = ? AND BLOCK_Z = ? AND WORLD_UUID = ?;",
+                location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID())) {
             if (resultSet.next()) {
-                return new StoredWaystone(resultSet.getInt("ID"),
-                        resultSet.getString("NAME"),
-                        resultSet.getString("OWNER_UUID"),
-                        resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CATEGORY"),
-                        resultSet.getInt("BLOCK_X"),
-                        resultSet.getInt("BLOCK_Y"),
-                        resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"),
-                        resultSet.getInt("USES"));
+                return getWaystoneFromResultSet(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -249,68 +250,35 @@ public class Storage {
 
     }
 
-    @NotNull
-    private List<StoredWaystone> getWaystonesFromResultSet(ResultSet resultSet) throws SQLException {
-        List<StoredWaystone> waystones = new ArrayList<>();
-        try {
-            while (resultSet.next()) {
-                waystones.add(new StoredWaystone(resultSet.getInt("ID"),
-                        resultSet.getString("NAME"),
-                        resultSet.getString("OWNER_UUID"),
-                        resultSet.getInt("VISIBILITY"),
-                        resultSet.getInt("CATEGORY"),
-                        resultSet.getInt("BLOCK_X"),
-                        resultSet.getInt("BLOCK_Y"),
-                        resultSet.getInt("BLOCK_Z"),
-                        resultSet.getString("WORLD_UUID"),
-                        resultSet.getInt("USES"))
-                );
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return waystones;
-    }
-
-    /**
-     * @param name the requested name
-     * @return true if the name is not used by any other waystone – false if used by at least one waystone
-     */
-    public boolean nameFree(String name) {
-        return getWaystone(name) == null;
-    }
-
-
-
-
     //
-    // Accesslist
+    // Access list
     //
 
     public void setVisibility(int id, Visibility visibility) {
-        executeUpdate("UPDATE WAYSTONES SET VISIBILITY = " + visibility.ordinal() + " WHERE ID = " + id + ";");
+        executeUpdate("UPDATE WAYSTONES SET VISIBILITY = ? WHERE ID = ?;", visibility.ordinal(), id);
     }
 
-    public boolean onAccesslist(OfflinePlayer player, int id) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+    // TODO: Is this method required? It is not used anywhere
+    public boolean hasAccess(OfflinePlayer player, int id) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE PLAYER = ?;", player.getUniqueId())) {
             return resultSet.next();
-        } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {
+        }
         return false;
     }
 
     public void addAccess(OfflinePlayer player, int id) {
-        executeUpdate("INSERT INTO ACCESSLISTS(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
+        executeUpdate("INSERT INTO ACCESSLISTS(PLAYER, WAYSTONE) VALUES(?, ?);", player.getUniqueId(), id);
     }
 
     public void removeAccess(OfflinePlayer player, int id) {
-        executeUpdate("DELETE FROM ACCESSLISTS WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
+        executeUpdate("DELETE FROM ACCESSLISTS WHERE PLAYER = ? AND WAYSTONE = ?;", player.getUniqueId(), id);
     }
 
 
     public List<OfflinePlayer> getAccessList(int id) {
         List<OfflinePlayer> result = new ArrayList<>();
-        try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE WAYSTONE = "+id+";")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE WAYSTONE = ?;", id)) {
             while (resultSet.next()) {
                 result.add(Bukkit.getOfflinePlayer(UUID.fromString(resultSet.getString("PLAYER"))));
             }
@@ -321,14 +289,11 @@ public class Storage {
     }
 
 
-
-
-
     //
     // Favorites
     //
     public List<Integer> getFavorites(Player player) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM FAVORITES WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM FAVORITES WHERE PLAYER = ?;", player.getUniqueId())) {
             List<Integer> favorites = new ArrayList<>();
             while (resultSet.next()) {
                 favorites.add(resultSet.getInt("WAYSTONE"));
@@ -341,16 +306,12 @@ public class Storage {
     }
 
     public void addFavorite(Player player, int id) {
-        executeUpdate("INSERT INTO FAVORITES(PLAYER, WAYSTONE) VALUES('"+player.getUniqueId()+"', " + id + ");");
+        executeUpdate("INSERT INTO FAVORITES(PLAYER, WAYSTONE) VALUES(?, ?);", player.getUniqueId(), id);
     }
 
     public void removeFavorite(Player player, int id) {
-        executeUpdate("DELETE FROM FAVORITES WHERE PLAYER = '"+player.getUniqueId()+"' AND WAYSTONE = " + id + ";");
+        executeUpdate("DELETE FROM FAVORITES WHERE PLAYER = ? AND WAYSTONE = ?;", player.getUniqueId(), id);
     }
-
-
-
-
 
 
     //
@@ -358,7 +319,7 @@ public class Storage {
     //
 
     public SortMode getSortMode(Player player) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM SORTMODE WHERE PLAYER = '"+player.getUniqueId()+"';")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM SORTMODE WHERE PLAYER = ?;", player.getUniqueId())) {
             return SortMode.valueByNumber(resultSet.getInt("MODE"));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -367,9 +328,8 @@ public class Storage {
     }
 
     public void setSortMode(Player player, SortMode sortMode) {
-        executeUpdate("REPLACE INTO SORTMODE(PLAYER, MODE) VALUES('" + player.getUniqueId() + "', " + sortMode.ordinal() + ");");
+        executeUpdate("INSERT OR REPLACE INTO SORTMODE(PLAYER, MODE) VALUES(?, ?);", player.getUniqueId(), sortMode.ordinal());
     }
-
 
 
     //
@@ -382,8 +342,7 @@ public class Storage {
             while (resultSet.next()) {
                 result.add(new Category(resultSet.getInt("ID"), resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC")));
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         if (result.size() == 0) {
@@ -393,34 +352,34 @@ public class Storage {
     }
 
     public @Nullable Category getCategory(int id) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM CATEGORIES WHERE ID = " + id + ";")) {
+        try (ResultSet resultSet = executeQuery("SELECT * FROM CATEGORIES WHERE ID = ?;", id)) {
             if (resultSet.next()) {
                 return new Category(id, resultSet.getString("NAME"), resultSet.getBoolean("PUBLIC"));
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
     public boolean addCategory(String name, boolean isPublic) {
-        return executeUpdate("INSERT INTO CATEGORIES(NAME, PUBLIC) VALUES('"+ name + "', " + isPublic + ");") == 1;
+        return executeUpdate("INSERT INTO CATEGORIES(NAME, PUBLIC) VALUES(?, ?);", name, isPublic) == 1;
     }
 
     public void removeCategory(String name) {
-        executeUpdate("DELETE FROM CATEGORIES WHERE NAME ='"+ name + "';");
+        executeUpdate("DELETE FROM CATEGORIES WHERE NAME = ?;", name);
     }
 
     public void removeCategory(int id) {
-        executeUpdate("DELETE FROM CATEGORIES WHERE ID ='"+ id + "';");
+        executeUpdate("DELETE FROM CATEGORIES WHERE ID = ?;", id);
     }
 
 
     public void decreaseGlobalUsesScore() {
         executeUpdate("UPDATE WAYSTONES SET USES = USES / 1.5;");
     }
+
     public void updateUses(StoredWaystone waystone) {
-        executeUpdate("UPDATE WAYSTONES SET USES = '" + waystone.uses() + "' WHERE ID = " + waystone.id() + ";");
+        executeUpdate("UPDATE WAYSTONES SET USES = ? WHERE ID = ?;", waystone.uses(), waystone.id());
     }
 }

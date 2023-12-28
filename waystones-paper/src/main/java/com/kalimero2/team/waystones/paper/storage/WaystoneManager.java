@@ -208,7 +208,7 @@ public class WaystoneManager {
      */
     public boolean removeWaystone(int id) {
         boolean removed = false;
-        if (storage.getWaystoneById(id) != null) {
+        if (storage.getWaystone(id) != null) {
             storage.removeWaystone(id);
             removed = true;
         }
