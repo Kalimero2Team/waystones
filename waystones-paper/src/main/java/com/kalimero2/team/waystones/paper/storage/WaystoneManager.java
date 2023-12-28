@@ -5,6 +5,7 @@ import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.PlayerWaystoneCombo;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -12,7 +13,12 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -141,16 +147,27 @@ public class WaystoneManager {
      * Returns all waystones in the given world
      */
     public List<StoredWaystone> getWaystones(World world) {
+        return getWaystones(world.getUID());
+    }
+
+    public List<StoredWaystone> getWaystones(UUID world) {
         List<StoredWaystone> waystones = new ArrayList<>();
         for (StoredWaystone waystone : this.waystones.values()) {
             if (waystone.world().equals(world)) waystones.add(waystone);
         }
         return waystones;
     }
-    public List<StoredWaystone> getWaystones(UUID world) {
+
+
+    /**
+     * Returns all waystones in the given chunk
+     * @param chunk the chunk
+     * @return a list of waystones
+     */
+    public List<StoredWaystone> getWaystones(Chunk chunk) {
         List<StoredWaystone> waystones = new ArrayList<>();
         for (StoredWaystone waystone : this.waystones.values()) {
-            if (waystone.world().equals(world)) waystones.add(waystone);
+            if (waystone.location().getChunk().equals(chunk)) waystones.add(waystone);
         }
         return waystones;
     }
@@ -183,8 +200,8 @@ public class WaystoneManager {
      * Checks if a name is free
      * @return true if the name is free, false if the name is already taken
      */
-    public boolean nameFree(String newName) {
-        return getWaystone(newName) == null;
+    public boolean isNameUsed(String newName) {
+        return getWaystone(newName) != null;
     }
 
     /**
@@ -195,7 +212,7 @@ public class WaystoneManager {
      * @return null if the name is already taken, else the created waystone
      */
     public StoredWaystone createWaystone(String name, UUID owner, int visibility, int category, Location location) {
-        if (!nameFree(name)) return null;
+        if (isNameUsed(name)) return null;
         storage.addWaystone(name, owner, visibility, category, location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID());
         return getWaystone(location);
     }
@@ -222,7 +239,7 @@ public class WaystoneManager {
      * @return true if the waystone was renamed successfully, false if the newName is already taken
      */
     public boolean renameWaystone(int id, String newName) {
-        if (!nameFree(newName)) return false;
+        if (isNameUsed(newName)) return false;
         storage.renameWaystone(id, newName);
         waystones.put(id, storage.getWaystone(id));
         waystoneLocations.put(waystones.get(id).location(), waystones.get(id));
@@ -443,7 +460,7 @@ public class WaystoneManager {
 
     /**
      * Checks whether the player is in force mode
-     * @param player
+     * @param player the Player
      * @return true if player is in force mode
      */
     public boolean forceMode(Player player) {
@@ -506,6 +523,7 @@ public class WaystoneManager {
 
     private final HashMap<PlayerWaystoneCombo, Long> teleportTimestamps = new HashMap<>();
 //    private final ArrayList<StoredWaystone> waystonesToUpdateTeleportUses = new ArrayList<>();
+
     public void addTeleport(Player player, int waystoneId) {
         boolean countes = true;
         if (teleportTimestamps.containsKey(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId))) {
