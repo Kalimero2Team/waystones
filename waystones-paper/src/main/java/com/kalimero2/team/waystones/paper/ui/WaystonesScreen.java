@@ -3,6 +3,7 @@ package com.kalimero2.team.waystones.paper.ui;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.ui.java.WaystoneEditScreen;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -55,7 +56,10 @@ public class WaystonesScreen {
             else floodgateIntegration.menu(player);
         }
         else {
-            java.menu(player, waystone);
+            if (player.isSneaking() && waystone != null) {
+                new WaystoneEditScreen(plugin, waystone).show(player);
+            }
+            else java.menu(player, waystone);
         }
     }
 
