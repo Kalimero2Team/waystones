@@ -110,7 +110,7 @@ public class DisplayManager {
 
         List<StoredWaystone> waystones = manager.getWaystones().stream().toList();
 
-        plugin.getLogger().info("Updating " + waystones.size() + " waystones with a batch size of " + batchSize + ".. This will take " + Math.ceil(waystones.size() / batchSize) + " ticks");
+        plugin.getLogger().info("Updating " + waystones.size() + " waystones with a batch size of " + batchSize + ".. This will take " + Math.ceil((double) waystones.size() / batchSize) + " ticks");
 
         for (int i = 0; i <= waystones.size(); i++) {
 

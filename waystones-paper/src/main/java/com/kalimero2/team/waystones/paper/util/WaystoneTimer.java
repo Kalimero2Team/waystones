@@ -9,12 +9,12 @@ public class WaystoneTimer {
 
     public WaystoneTimer(PaperWayStones plugin) {
         this.plugin = plugin;
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::check, 0, 288000); // 4h * 60m * 60s * 20t
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::check, 0, 20*60*60*4); // 4h
     }
 
     public void check() {
         long last = plugin.getConfig().getLong("last-uses-decrement", 0);
-        if (System.currentTimeMillis() - last < 86400000) { // 24h * 60m * 60s * 1000ms
+        if (System.currentTimeMillis() - last < 1000*60*60*24) { // 24h
             return;
         }
         plugin.getLogger().info("Decreasing waystone use scores... \n This action may take a while");

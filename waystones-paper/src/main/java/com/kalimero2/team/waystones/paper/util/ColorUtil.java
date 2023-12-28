@@ -4,8 +4,8 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class ColorUtil {
 
-    public static  TextColor RED = TextColor.color(255, 0, 0);
-    public static TextColor ORANGE = TextColor.color(255, 73, 0);
-    public static TextColor GREEN = TextColor.color(18, 255, 36);
-    public static TextColor WHITE = TextColor.color(255, 255, 255);
+    public static final TextColor RED = TextColor.color(255, 0, 0);
+    public static final TextColor ORANGE = TextColor.color(255, 73, 0);
+    public static final TextColor GREEN = TextColor.color(18, 255, 36);
+    public static final TextColor WHITE = TextColor.color(255, 255, 255);
 }
