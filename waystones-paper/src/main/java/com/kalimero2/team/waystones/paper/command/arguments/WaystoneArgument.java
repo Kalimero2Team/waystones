@@ -1,4 +1,4 @@
-package com.kalimero2.team.waystones.paper.command;
+package com.kalimero2.team.waystones.paper.command.arguments;
 
 import cloud.commandframework.ArgumentDescription;
 import cloud.commandframework.arguments.CommandArgument;

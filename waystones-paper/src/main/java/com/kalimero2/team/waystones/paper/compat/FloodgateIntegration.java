@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 
 public class FloodgateIntegration {
@@ -69,7 +69,7 @@ public class FloodgateIntegration {
 
         List<StoredWaystone> waystones = plugin.getManager().getWaystones(player.getWorld().getUID(), search);
 
-        if (waystones.size() == 0) {
+        if (waystones.isEmpty()) {
             builder.content("Es konnten keine Waystones gefunden werden, dessen Name '" + search + "' enthält.");
         }
 
@@ -464,7 +464,7 @@ public class FloodgateIntegration {
         SimpleForm.Builder builder = SimpleForm.builder().title("Waystone " + waystone.id()).content("Zugriffsliste");
 
         for (OfflinePlayer p : manager.getAccess(waystone.id())) {
-            builder.button(p.getName());
+            builder.button(Objects.requireNonNullElse(p.getName(), p.getUniqueId().toString())); // TODO: Fetch name from Mojang API?
         }
 
         builder.validResultHandler(simpleFormResponse -> {});

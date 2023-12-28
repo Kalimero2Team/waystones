@@ -37,7 +37,6 @@ public class PaperWayStones extends JavaPlugin {
         //WayStonesApiHolder.setApi(this);
 
         // Claims Compat
-
         try {
             Class.forName("com.kalimero2.team.claims.api.ClaimsApi");
             claimsIntegration = new ClaimsIntegration();
@@ -46,8 +45,6 @@ public class PaperWayStones extends JavaPlugin {
             claimsIntegration = null;
             getLogger().info("Claims not found, disabling Claims integration");
         }
-
-
 
         // Display Manager
 

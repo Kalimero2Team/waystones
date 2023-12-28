@@ -8,7 +8,6 @@ import com.kalimero2.team.waystones.paper.util.Visibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -23,14 +22,11 @@ import java.util.*;
 
 public class Storage {
 
-    private final PaperWayStones plugin;
     private Connection connection;
-    private List<Player> forceMode = new ArrayList<>();
 
-    private DisplayManager display;
+    private final DisplayManager display;
 
     public Storage(PaperWayStones plugin, File dataBase) {
-        this.plugin = plugin;
         this.display = plugin.getDisplayManager();
 
         try {

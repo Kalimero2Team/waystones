@@ -8,6 +8,7 @@ import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.bukkit.parsers.location.LocationArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.command.arguments.WaystoneArgument;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
@@ -27,7 +28,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.UUID;
 
 public class WayStoneCommands extends CommandHandler {
 

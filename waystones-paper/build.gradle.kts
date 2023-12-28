@@ -30,7 +30,7 @@ dependencies {
 
 tasks {
     runServer {
-        minecraftVersion("1.20.2")
+        minecraftVersion("1.20.1")
 
         downloadPlugins {
             url("https://mitochondrium.kalimero2.com/plugins/resource-pack-loader-1.0.0.jar")

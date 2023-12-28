@@ -70,7 +70,7 @@ public class WaystoneManager {
      * @return The object stored in the cache / the database
      */
     private <K, T> T getOrCreateCacheObject(K key, @NotNull HashMap<K, T> cache, Function<K, T> function) {
-        T object = (T) cache.get(key);
+        T object = cache.get(key);
         if (object == null) {
             object = function.apply(key);
             if (object != null) cache.put(key, object);
@@ -88,7 +88,7 @@ public class WaystoneManager {
      * @return The list of objects stored in the cache / the database
      */
     private <K, T> List<T> getOrCreateCacheList(K key, HashMap<K, List<T>> cache, Function<K, List<T>> function) {
-        List<T> list = (List<T>) cache.get(key);
+        List<T> list = cache.get(key);
         if (list == null) {
             list = function.apply(key);
             if (list != null) cache.put(key, list);
@@ -125,9 +125,9 @@ public class WaystoneManager {
     // Waystones
     //
 
-    private HashMap<Integer, StoredWaystone> waystones = new HashMap<>();
-    private HashMap<Location, StoredWaystone> waystoneLocations = new HashMap<>();
-    private HashMap<String, StoredWaystone> waystoneNames = new HashMap<>();
+    private final HashMap<Integer, StoredWaystone> waystones = new HashMap<>();
+    private final HashMap<Location, StoredWaystone> waystoneLocations = new HashMap<>();
+    private final HashMap<String, StoredWaystone> waystoneNames = new HashMap<>();
 
 
     /**
@@ -265,7 +265,7 @@ public class WaystoneManager {
     // Waystone List for Player
     //
 
-    private HashMap<Player, HashMap<UUID, List<StoredWaystone>>> book = new HashMap<>();
+    private final HashMap<Player, HashMap<UUID, List<StoredWaystone>>> book = new HashMap<>();
 
     public List<StoredWaystone> getWaystones(Player player) {
         return getOrCreateCacheListMap(player, player.getWorld().getUID(), book, this::internalGetWaystones);
@@ -304,7 +304,7 @@ public class WaystoneManager {
     // Categories
     //
 
-    private HashMap<Integer, Category> categories = new HashMap<>();
+    private final HashMap<Integer, Category> categories = new HashMap<>();
 
     public Collection<Category> getCategories() {
         return categories.values();
@@ -340,7 +340,7 @@ public class WaystoneManager {
     // Sort Modes
     //
 
-    private HashMap<Player, SortMode> sortModes = new HashMap<>();
+    private final HashMap<Player, SortMode> sortModes = new HashMap<>();
 
     public SortMode getSortMode(Player player) {
         return getOrCreateCacheObject(player, sortModes, storage::getSortMode);
@@ -369,7 +369,7 @@ public class WaystoneManager {
     // Favorites
     //
 
-    private HashMap<Player, List<Integer>> favorites = new HashMap<>();
+    private final HashMap<Player, List<Integer>> favorites = new HashMap<>();
 
     public List<Integer> getFavorites(Player player) {
         return getOrCreateCacheList(player, favorites, storage::getFavorites);
@@ -390,7 +390,7 @@ public class WaystoneManager {
     // Access
     //
 
-    private HashMap<Integer, List<OfflinePlayer>> access = new HashMap<>();
+    private final HashMap<Integer, List<OfflinePlayer>> access = new HashMap<>();
 
     /**
      * Gets the list of players who have access to a waystone
@@ -438,7 +438,7 @@ public class WaystoneManager {
     // Force Mode
     //
 
-    private List<Player> forceMode = new ArrayList<>();
+    private final List<Player> forceMode = new ArrayList<>();
 
 
     /**

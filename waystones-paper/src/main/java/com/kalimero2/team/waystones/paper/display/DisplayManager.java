@@ -4,7 +4,10 @@ import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
@@ -13,23 +16,19 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Collection;
 import java.util.List;
 
 public class DisplayManager {
+    public final NamespacedKey WAYSTONE_KEY;
 
-
-    public static NamespacedKey key;
-
-
-    private WaystoneManager manager;
-    private PaperWayStones plugin;
+    private final WaystoneManager manager;
+    private final PaperWayStones plugin;
 
 
     public DisplayManager(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = plugin.getManager();
-        key = new NamespacedKey(plugin, "waystone");
+        WAYSTONE_KEY = new NamespacedKey(plugin, "waystone");
     }
 
 
@@ -50,7 +49,7 @@ public class DisplayManager {
         itemDisplay.setItemStack(plugin.getStatic());
 
         PersistentDataContainer itemDataContainer = itemDisplay.getPersistentDataContainer();
-        itemDataContainer.set(key, PersistentDataType.BOOLEAN, true);
+        itemDataContainer.set(WAYSTONE_KEY, PersistentDataType.BOOLEAN, true);
 
         Location textDisplayLocation = topLocation.clone().add(0, 0.75, 0);
         TextDisplay textDisplay = world.spawn(textDisplayLocation, TextDisplay.class);
@@ -59,7 +58,7 @@ public class DisplayManager {
         textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
 
         PersistentDataContainer textDataContainer = textDisplay.getPersistentDataContainer();
-        textDataContainer.set(key, PersistentDataType.BOOLEAN, true);
+        textDataContainer.set(WAYSTONE_KEY, PersistentDataType.BOOLEAN, true);
     }
     public void clearDisplay(StoredWaystone waystone) {
         Location location = waystone.location();
@@ -75,12 +74,12 @@ public class DisplayManager {
         Location textDisplayLocation = topLocation.clone().add(0, 0.75, 0);
 
         for (ItemDisplay display : world.getNearbyEntitiesByType(ItemDisplay.class, centerLocation, 0.3)) {
-            if (display.getPersistentDataContainer().has(key)) {
+            if (display.getPersistentDataContainer().has(WAYSTONE_KEY)) {
                 display.remove();
             }
         }
         for (TextDisplay display : world.getNearbyEntitiesByType(TextDisplay.class, textDisplayLocation, 0.3)) {
-            if (display.getPersistentDataContainer().has(key)) {
+            if (display.getPersistentDataContainer().has(WAYSTONE_KEY)) {
                 display.remove();
             }
         }
@@ -88,14 +87,14 @@ public class DisplayManager {
 
 
     public void removeAll() {
-        for (World world : Bukkit.getWorlds()) {
+        for (World world : plugin.getServer().getWorlds()) {
             for (ItemDisplay display : world.getEntitiesByClass(ItemDisplay.class)) {
-                if (display.getPersistentDataContainer().has(key)) {
+                if (display.getPersistentDataContainer().has(WAYSTONE_KEY)) {
                     display.remove();
                 }
             }
             for (TextDisplay display : world.getEntitiesByClass(TextDisplay.class)) {
-                if (display.getPersistentDataContainer().has(key)) {
+                if (display.getPersistentDataContainer().has(WAYSTONE_KEY)) {
                     display.remove();
                 }
             }
