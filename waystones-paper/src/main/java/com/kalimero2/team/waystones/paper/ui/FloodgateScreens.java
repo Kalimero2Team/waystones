@@ -30,7 +30,7 @@ public class FloodgateScreens {
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
 
-    public FloodgateScreens(PaperWayStones plugin) {
+    public  FloodgateScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = this.plugin.getManager();
     }
@@ -190,7 +190,8 @@ public class FloodgateScreens {
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-        floodgatePlayer.sendForm(builder.build());
+        SimpleForm build = builder.build();
+        floodgatePlayer.sendForm(build);
 
     }
 
