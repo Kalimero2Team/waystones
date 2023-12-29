@@ -9,7 +9,9 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 
@@ -36,11 +38,15 @@ public class FloodgateButtonScreen implements GenericScreen {
         builder.title(title);
         builder.content(buttonScreen.getLabel());
 
-        buttonScreen.getButtons().forEach((button, consumer) -> {
-            ButtonComponent buttonComponent = ButtonComponent.of(compomentToString(button.name()));
-            buttons.put(buttonComponent, consumer);
-            builder.button(buttonComponent);
-        });
+        buttonScreen.getButtons().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(ButtonScreen.Button::slot)))
+                .forEach(entry -> {
+                    ButtonScreen.Button button = entry.getKey();
+                    Consumer<Player> consumer = entry.getValue();
+                    ButtonComponent buttonComponent = ButtonComponent.of(compomentToString(button.name()));
+                    buttons.put(buttonComponent, consumer);
+                    builder.button(buttonComponent);
+                });
 
 
         builder.validResultHandler((simpleForm, simpleFormResponse) -> {
