@@ -3,8 +3,8 @@ package com.kalimero2.team.waystones.paper.listener;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.compat.GeyserWaystoneHackCompat;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
-import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -38,7 +38,6 @@ public class WayStonesListener implements Listener {
         this.screen = new WaystonesScreen(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
-
 
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -91,11 +90,11 @@ public class WayStonesListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        try {
-            if (event.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
-                screen.menu(event.getPlayer(), null);
-            }
-        } catch (NullPointerException ignored) {}
+        if(event.getItem() == null) return;
+
+        if (event.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
+            screen.menu(event.getPlayer(), null);
+        }
 
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             Block clickedBlock = event.getClickedBlock();
@@ -108,10 +107,15 @@ public class WayStonesListener implements Listener {
                 }
                 if (waystone != null) {
                     event.setCancelled(true);
-                    if(plugin.isBedrockPlayer(event.getPlayer())){
+                    if (plugin.isBedrockPlayer(event.getPlayer())) {
                         GeyserWaystoneHackCompat.sendBedrockWaystoneBlock(event.getPlayer(), waystone);
                     }
-                    screen.menu(event.getPlayer(), waystone);
+
+                    if (event.getPlayer().isSneaking()) {
+                        screen.settings(event.getPlayer(), waystone);
+                    } else {
+                        screen.menu(event.getPlayer(), waystone);
+                    }
                 }
             }
         }

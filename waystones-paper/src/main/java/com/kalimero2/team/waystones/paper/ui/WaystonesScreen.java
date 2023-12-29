@@ -49,20 +49,10 @@ public class WaystonesScreen {
 
     public void menu(Player player, @Nullable StoredWaystone waystone) {
         if (plugin.isBedrockPlayer(player)) {
-            if (player.isSneaking() && waystone != null) {
-                settings(player, waystone);
-            }
-            else floodgateIntegration.menu(player);
+            floodgateIntegration.menu(player);
         }
         else {
-            if (player.isSneaking() && waystone != null) {
-
-
-
-
-
-            }
-            else java.menu(player, waystone);
+            java.menu(player, waystone);
         }
     }
 

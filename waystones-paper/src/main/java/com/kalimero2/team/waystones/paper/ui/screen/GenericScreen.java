@@ -1,4 +1,4 @@
-package com.kalimero2.team.waystones.paper.ui;
+package com.kalimero2.team.waystones.paper.ui.screen;
 
 import org.bukkit.entity.Player;
 

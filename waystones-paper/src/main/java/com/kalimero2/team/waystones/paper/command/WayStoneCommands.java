@@ -12,7 +12,7 @@ import com.kalimero2.team.waystones.paper.command.arguments.WaystoneArgument;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
-import com.kalimero2.team.waystones.paper.ui.ButtonScreen;
+import com.kalimero2.team.waystones.paper.ui.screen.ButtonScreen;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.ColorUtil;

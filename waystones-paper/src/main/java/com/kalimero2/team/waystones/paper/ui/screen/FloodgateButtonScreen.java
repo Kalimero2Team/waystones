@@ -1,4 +1,4 @@
-package com.kalimero2.team.waystones.paper.ui;
+package com.kalimero2.team.waystones.paper.ui.screen;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
