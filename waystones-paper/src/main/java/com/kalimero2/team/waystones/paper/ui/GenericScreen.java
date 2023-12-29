@@ -4,6 +4,6 @@ import org.bukkit.entity.Player;
 
 public interface GenericScreen {
 
-    void show(Player player);
+    void open(Player player);
 
 }

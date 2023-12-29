@@ -12,8 +12,8 @@ import com.kalimero2.team.waystones.paper.command.arguments.WaystoneArgument;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
+import com.kalimero2.team.waystones.paper.ui.ButtonScreen;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
-import com.kalimero2.team.waystones.paper.ui.java.TestScreen;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.ColorUtil;
 import com.kalimero2.team.waystones.paper.util.SortMode;
@@ -316,9 +316,16 @@ public class WayStoneCommands extends CommandHandler {
 
     private void openTestInv(CommandContext<CommandSender> context) {
         if(context.getSender() instanceof Player player) {
-            /*Component title = MiniMessage.miniMessage().deserialize("<white><font:klm2:waystones>b</font><reset><lang:space.-170>Edit Waystone");
-            player.openInventory(plugin.getServer().createInventory(null, 9*2, Component.translatable("space.-8").append(title)));*/
-            new TestScreen(plugin).show(player);
+            ButtonScreen.Builder builder = ButtonScreen.builder();
+            builder.plugin(plugin);
+            builder.title(Component.text("Test"));
+            builder.content("Only Visible to Bedrock");
+            builder.button(new ButtonScreen.Button(Component.text("Test Button"), 0), player1 -> player1.sendMessage("Test"));
+            builder.button(new ButtonScreen.Button(Component.text("Test Button 2"), 2), player1 -> player1.sendMessage("Test 2"));
+            builder.button(new ButtonScreen.Button(Component.text("Test Button 3"), 4), player1 -> player1.sendMessage("Test 3"));
+
+            ButtonScreen screen = builder.build();
+            screen.open(player);
         }
     }
 
