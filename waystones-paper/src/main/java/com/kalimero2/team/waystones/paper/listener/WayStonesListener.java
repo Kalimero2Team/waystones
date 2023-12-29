@@ -90,9 +90,7 @@ public class WayStonesListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if(event.getItem() == null) return;
-
-        if (event.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
+        if (event.getItem() != null && event.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
             screen.menu(event.getPlayer(), null);
         }
 
