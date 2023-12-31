@@ -18,8 +18,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
