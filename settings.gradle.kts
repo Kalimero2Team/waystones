@@ -4,7 +4,7 @@ dependencyResolutionManagement{
             // Core
             plugin("shadow","com.github.johnrengelman.shadow").version("7.1.2")
 
-            version("floodgate-api","2.2.0-SNAPSHOT")
+            version("floodgate-api","2.2.2-SNAPSHOT")
             version("geyser-geyserApi","2.2.0-SNAPSHOT")
             version("geyser-geyserCore","2.2.0-SNAPSHOT")
             version("sqlite","3.40.0.0")

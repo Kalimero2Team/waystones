@@ -25,8 +25,8 @@ public class FloodgateButtonScreen implements GenericScreen {
     }
 
     @NotNull
-    private static String compomentToString(Component title1) {
-        return PlainTextComponentSerializer.plainText().serialize(title1);
+    private static String compomentToString(Component title) {
+        return PlainTextComponentSerializer.plainText().serialize(title);
     }
 
     @Override
