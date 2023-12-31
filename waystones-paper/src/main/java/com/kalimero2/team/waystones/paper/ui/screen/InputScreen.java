@@ -16,6 +16,7 @@ public class InputScreen implements GenericScreen {
     private final Component title;
     private final String label;
     private final Input input;
+
     private InputScreen(PaperWayStones plugin, Component title, String label, Input input) {
         this.plugin = plugin;
         this.title = title;
@@ -85,13 +86,14 @@ public class InputScreen implements GenericScreen {
         }
     }
 
-    public record Input(Component title, String placeholder, ItemStack itemLeft, ItemStack itemResult, BiFunction<Player, String, InputValidation> onSubmitted) {
+    public record Input(Component title, String placeholder, ItemStack itemLeft, ItemStack itemResult,
+                        BiFunction<Player, String, InputValidation> onSubmitted) {
         public Input(Component title, String placeholder, BiFunction<Player, String, InputValidation> onSubmitted) {
             this(title, placeholder, null, null, onSubmitted);
         }
     }
 
-    public record InputValidation(boolean valid, String message){
+    public record InputValidation(boolean valid, String message) {
     }
 
 }

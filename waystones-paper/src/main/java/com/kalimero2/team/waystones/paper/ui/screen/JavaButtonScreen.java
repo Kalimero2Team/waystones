@@ -27,17 +27,12 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     protected JavaButtonScreen(ButtonScreen buttonScreen) {
         this.plugin = buttonScreen.getPlugin();
         Component inventoryOverlay = MiniMessage.miniMessage().deserialize("<white><lang:space.-8><font:klm2:waystones>b</font><reset><lang:space.-170>");
-        this.inventory = plugin.getServer().createInventory(null, 9*2, inventoryOverlay.append(buttonScreen.getTitle()));
+        this.inventory = plugin.getServer().createInventory(null, 9 * 2, inventoryOverlay.append(buttonScreen.getTitle()));
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         buttonScreen.getButtons().forEach((button, consumer) -> {
             createButton(button.slot(), button.name(), consumer, button.modelData(), button.material());
         });
-    }
-
-    protected void createButton(int slot, Component name, Consumer<Player> onClick, int modelData, Material material) {
-        ItemStack blankButton = getButton(name, modelData, material);
-        setSlot(slot, blankButton, onClick);
     }
 
     @NotNull
@@ -50,8 +45,13 @@ public class JavaButtonScreen implements GenericScreen, Listener {
         return blankButton;
     }
 
-    public static ItemStack getBlankButton(Component name){
+    public static ItemStack getBlankButton(Component name) {
         return getButton(name, 0, Material.PAPER);
+    }
+
+    protected void createButton(int slot, Component name, Consumer<Player> onClick, int modelData, Material material) {
+        ItemStack blankButton = getButton(name, modelData, material);
+        setSlot(slot, blankButton, onClick);
     }
 
     protected void setSlot(int slot, ItemStack item, Consumer<Player> onClick) {
@@ -79,7 +79,7 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     }
 
     @EventHandler
-    public void onItemMove(InventoryMoveItemEvent event){
+    public void onItemMove(InventoryMoveItemEvent event) {
         if (event.getDestination() == inventory) {
             event.setCancelled(true);
         }

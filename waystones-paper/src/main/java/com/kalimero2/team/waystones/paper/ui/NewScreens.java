@@ -7,6 +7,7 @@ import com.kalimero2.team.waystones.paper.ui.screen.ButtonScreen;
 import com.kalimero2.team.waystones.paper.ui.screen.InputScreen;
 import com.kalimero2.team.waystones.paper.util.ColorUtil;
 import net.kyori.adventure.text.Component;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +17,7 @@ public class NewScreens {
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
 
-    public NewScreens(PaperWayStones plugin){
+    public NewScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = this.plugin.getManager();
     }
@@ -24,7 +25,8 @@ public class NewScreens {
 
     /**
      * Opens the edit menu for the player
-     * @param player Player that wants to edit the waystone
+     *
+     * @param player   Player that wants to edit the waystone
      * @param waystone Waystone to edit
      */
     public void settings(@NotNull Player player, @NotNull StoredWaystone waystone) {
@@ -35,7 +37,9 @@ public class NewScreens {
 
     /**
      * Opens the Waystone rename menu for the player
-     * @param player The player that wants to rename the waystone
+     *
+     * @param player   The player that wants to rename the waystone
+     * @param waystone The waystone to rename
      */
     public void rename(@NotNull Player player, @NotNull StoredWaystone waystone) {
         if (!waystone.checkTeleport(player)) {
@@ -48,7 +52,38 @@ public class NewScreens {
         build.open(player);
     }
 
-    private InputScreen createRenameScreen(StoredWaystone waystone) {
+
+    /**
+     * Opens a confirm screen for the player to delete the waystone
+     *
+     * @param player   Player that wants to delete the waystone
+     * @param waystone Waystone to delete
+     */
+    public void delete(Player player, StoredWaystone waystone) {
+        ButtonScreen build = createDeleteScreen(waystone);
+        build.open(player);
+    }
+
+    private ButtonScreen createDeleteScreen(@NotNull StoredWaystone waystone) {
+        ButtonScreen.Builder builder = ButtonScreen.builder().title(Component.text("Waystone " + waystone.name())).content("Waystone löschen");
+        builder.plugin(plugin);
+
+        builder.button(new ButtonScreen.Button(Component.text("Löschen"), 14, 5), player -> {
+            plugin.getDisplayManager().clearDisplay(waystone);
+            if (manager.removeWaystone(waystone.id())) {
+                player.sendMessage(Component.text("Waystone wurde entfernt!", ColorUtil.GREEN));
+                player.getInventory().addItem(plugin.getStatic());
+            } else {
+                player.sendMessage(Component.text("Waystone konnte nicht entfernt werden.", ColorUtil.RED));
+            }
+            player.closeInventory();
+        });
+        builder.button(new ButtonScreen.Button(Component.text("Abbrechen"), 12, 4), HumanEntity::closeInventory);
+
+        return builder.build();
+    }
+
+    private InputScreen createRenameScreen(@NotNull StoredWaystone waystone) {
         InputScreen.Builder builder = InputScreen.builder().title(Component.text("Waystone " + waystone.name())).plugin(plugin);
         builder.content("Nenne den Waystone um");
         builder.input(new InputScreen.Input(Component.text("Waystone Name"), waystone.name(), (player, input) -> {
@@ -72,25 +107,24 @@ public class NewScreens {
         return builder.build();
     }
 
-
     private ButtonScreen createSettingsScreen(@NotNull StoredWaystone waystone) {
         ButtonScreen.Builder builder = ButtonScreen.builder().title(Component.text("Waystone " + waystone.name())).content("Waystone bearbeiten");
         builder.plugin(plugin);
 
-        builder.button(new ButtonScreen.Button(Component.text("Umbenennen"),0,3), player -> {
+        builder.button(new ButtonScreen.Button(Component.text("Umbenennen"), 0, 3), player -> {
             rename(player, waystone);
         });
-        builder.button(new ButtonScreen.Button(Component.text("Zugriff verwalten"), 2,1), player -> {
-
+        builder.button(new ButtonScreen.Button(Component.text("Zugriff verwalten"), 2, 1), player -> {
+            plugin.getScreen().accessSettings(player, waystone);
         });
-        builder.button(new ButtonScreen.Button(Component.text("Eigentümer ändern"),4,0), player -> {
-
+        builder.button(new ButtonScreen.Button(Component.text("Eigentümer ändern"), 4, 0), player -> {
+            plugin.getScreen().transferOwnership(player, waystone);
         });
-        builder.button(new ButtonScreen.Button(Component.text("Kategorie ändern"),6,0), player -> {
-
+        builder.button(new ButtonScreen.Button(Component.text("Kategorie ändern"), 6, 0), player -> {
+            plugin.getScreen().category(player, waystone);
         });
-        builder.button(new ButtonScreen.Button(Component.text("Löschen"),8,2), player -> {
-
+        builder.button(new ButtonScreen.Button(Component.text("Löschen"), 8, 2), player -> {
+            delete(player, waystone);
         });
 
         return builder.build();

@@ -26,9 +26,11 @@ import java.util.UUID;
 public class Storage {
 
     private final DisplayManager display;
+    private final PaperWayStones plugin;
     private Connection connection;
 
     public Storage(PaperWayStones plugin, File dataBase) {
+        this.plugin = plugin;
         this.display = plugin.getDisplayManager();
 
         try {
@@ -41,12 +43,12 @@ public class Storage {
     }
 
     @NotNull
-    private static StoredWaystone getWaystoneFromResultSet(ResultSet resultSet) throws SQLException {
+    private StoredWaystone getWaystoneFromResultSet(ResultSet resultSet) throws SQLException {
         return new StoredWaystone(resultSet.getInt("ID"),
                 resultSet.getString("NAME"),
                 resultSet.getString("OWNER_UUID"),
                 resultSet.getInt("VISIBILITY"),
-                resultSet.getInt("CATEGORY"),
+                plugin.getManager().getCategory(resultSet.getInt("CATEGORY")),
                 resultSet.getInt("BLOCK_X"),
                 resultSet.getInt("BLOCK_Y"),
                 resultSet.getInt("BLOCK_Z"),

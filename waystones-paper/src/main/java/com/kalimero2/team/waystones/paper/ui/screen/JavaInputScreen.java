@@ -28,14 +28,14 @@ public class JavaInputScreen implements GenericScreen, Listener {
 
     @Override
     public void open(Player player) {
-        ItemStack left = Objects.requireNonNullElse(inputScreen.getInput().itemLeft(), JavaButtonScreen.getButton(Component.text("Cancel"),4, Material.PAPER));
+        ItemStack left = Objects.requireNonNullElse(inputScreen.getInput().itemLeft(), JavaButtonScreen.getButton(Component.text("Cancel"), 4, Material.PAPER));
         ItemStack result = Objects.requireNonNullElse(inputScreen.getInput().itemResult(), JavaButtonScreen.getButton(Component.text("Confirm"), 5, Material.PAPER));
 
         Component title = anvilUIPrefix.append(inputScreen.getTitle());
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
 
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(left).itemOutput(result).text(inputScreen.getInput().placeholder()).onClick((n, state) -> {
-            if (n == 0){
+            if (n == 0) {
                 return Collections.singletonList(AnvilGUI.ResponseAction.close());
             } else if (n == 1) {
                 player.sendActionBar(Component.text("Wie hast du diesen Knopf gefunden?"));
