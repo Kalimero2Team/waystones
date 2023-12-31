@@ -1,8 +1,8 @@
 package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import com.kalimero2.team.waystones.paper.util.SortMode;
@@ -30,7 +30,7 @@ public class FloodgateScreens {
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
 
-    public  FloodgateScreens(PaperWayStones plugin) {
+    public FloodgateScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = this.plugin.getManager();
     }
@@ -92,10 +92,11 @@ public class FloodgateScreens {
 
     /**
      * Opens the Waystone name selection menu for the player
-     * @param player The player that placed the waystone
+     *
+     * @param player   The player that placed the waystone
      * @param location The location where the player placed the waystone
-     * @param stack The waystone item
-     * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
+     * @param stack    The waystone item
+     * @param lcr      Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
     public void create(Player player, Location location, ItemStack stack, LastCreationResult lcr) {
 
@@ -167,39 +168,10 @@ public class FloodgateScreens {
 
 
     /**
-     * Opens the edit menu for the player
-     * @param player Player that wants to edit the waystone
-     * @param waystone Waystone to edit
-     */
-    public void settings(@NotNull Player player, @NotNull StoredWaystone waystone) {
-
-        SimpleForm.Builder builder = SimpleForm.builder().title("Waystone " + waystone.id()).content("Waystone bearbeiten");
-
-        builder.button("Umbenennen");
-        builder.button("Kategorie ändern");
-        builder.button("Sichtbarkeit ändern");
-        builder.button("Zugriff verwalten");
-
-        builder.validResultHandler(simpleFormResponse -> {
-            switch (simpleFormResponse.clickedButtonId()) {
-                case 0 -> rename(player, waystone, LastCreationResult.FIRST_CALL);
-                case 1 -> setCategory(player, waystone, LastCreationResult.FIRST_CALL);
-                case 2 -> setVisibility(player, waystone, LastCreationResult.FIRST_CALL);
-                case 3 -> accessSettings(player, waystone);
-            }
-        });
-
-        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-        SimpleForm build = builder.build();
-        floodgatePlayer.sendForm(build);
-    }
-
-
-
-    /**
      * Opens the Waystone settings menu for the player
+     *
      * @param player The player that wants to edit the waystone
-     * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
+     * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
     public void settingsFull(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
@@ -208,7 +180,7 @@ public class FloodgateScreens {
             return;
         }
 
-        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.id());
+        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.name());
 
         switch (lcr) {
             case NAME_TAKEN -> {
@@ -241,17 +213,14 @@ public class FloodgateScreens {
         DropdownComponent.Builder dropdownBuilder2 = DropdownComponent.builder();
         dropdownBuilder2.text("Kategorie");
 
-        System.out.println("DEFAULT: " + waystone.category().name() + ": " + waystone.category().id());
 
         List<Category> list = new ArrayList<Category>();
         for (Category c : manager.getCategories()) {
             dropdownBuilder2.option(c.name());
             list.add(c);
-            System.out.println("Adding category:   " + c.name() + ": " + c.id());
         }
         int defaultOption = list.indexOf(waystone.category());
-        System.out.println(defaultOption);
-        if(defaultOption == -1) defaultOption = 0;
+        if (defaultOption == -1) defaultOption = 0;
         dropdownBuilder2.defaultOption(defaultOption);
         builder.dropdown(dropdownBuilder2);
 
@@ -285,49 +254,10 @@ public class FloodgateScreens {
     }
 
     /**
-     * Opens the Waystone rename menu for the player
-     * @param player The player that wants to rename the waystone
-     * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
-     */
-    public void rename(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-
-        if (!waystone.checkTeleport(player)) {
-            player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
-            return;
-        }
-
-        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.id());
-
-        switch (lcr) {
-            case NAME_TAKEN -> {
-                builder.label("Dieser Name ist bereits vergeben! Bitte wähle einen anderen Namen.");
-            }
-            default -> {
-                builder.label("Nenne den Waystone um");
-            }
-        }
-
-        builder.input("Waystone Name", "Waystone Namen hier eingeben", waystone.name());
-
-        builder.validResultHandler(customFormResponse -> {
-            String input = customFormResponse.asInput(1);
-            if (manager.isNameUsed(input)) {
-                rename(player, waystone, LastCreationResult.NAME_TAKEN);
-                return;
-            }
-
-            manager.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
-        });
-
-        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-        floodgatePlayer.sendForm(builder.build());
-    }
-
-
-    /**
-     * Opens the Waystone rename menu for the player
-     * @param player The player that wants to rename the waystone
-     * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
+     * Opens the Waystone visibility menu for the player
+     *
+     * @param player The player that wants to edit the waystone
+     *               * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
     public void setVisibility(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
@@ -364,8 +294,9 @@ public class FloodgateScreens {
 
     /**
      * Opens the Waystone rename menu for the player
+     *
      * @param player The player that wants to rename the waystone
-     * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
+     * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
     public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
 
@@ -403,7 +334,7 @@ public class FloodgateScreens {
             list.add(c);
         }
         int defaultOption = list.indexOf(waystone.category());
-        if(defaultOption == -1) defaultOption = 0;
+        if (defaultOption == -1) defaultOption = 0;
         dropdownBuilder2.defaultOption(defaultOption);
         builder.dropdown(dropdownBuilder2);
 
@@ -427,10 +358,10 @@ public class FloodgateScreens {
     }
 
 
-
     /**
      * Opens the accesslist edit menu for the player
-     * @param player Player that wants to edit the waystone
+     *
+     * @param player   Player that wants to edit the waystone
      * @param waystone Waystone to edit
      */
     public void accessSettings(@NotNull Player player, @NotNull StoredWaystone waystone) {
@@ -456,7 +387,8 @@ public class FloodgateScreens {
 
     /**
      * Opens the accesslist of a waystone
-     * @param player Player that wants to see the list
+     *
+     * @param player   Player that wants to see the list
      * @param waystone Waystone the list is requested from
      */
     public void accessView(@NotNull Player player, @NotNull StoredWaystone waystone) {
@@ -467,7 +399,8 @@ public class FloodgateScreens {
             builder.button(Objects.requireNonNullElse(p.getName(), p.getUniqueId().toString())); // TODO: Fetch name from Mojang API?
         }
 
-        builder.validResultHandler(simpleFormResponse -> {});
+        builder.validResultHandler(simpleFormResponse -> {
+        });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
         floodgatePlayer.sendForm(builder.build());
@@ -476,7 +409,8 @@ public class FloodgateScreens {
 
     /**
      * Opens the menu to add a player to the accesslist
-     * @param player Player that wants to edit the list
+     *
+     * @param player   Player that wants to edit the list
      * @param waystone Waystone the list should be changed of
      */
     public void accessAdd(@NotNull Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
@@ -522,7 +456,8 @@ public class FloodgateScreens {
 
     /**
      * Opens the menu to remove a player from the accesslist
-     * @param player Player that wants to edit the list
+     *
+     * @param player   Player that wants to edit the list
      * @param waystone Waystone the list should be changed of
      */
     public void accessRemove(@NotNull Player player, @NotNull StoredWaystone waystone) {

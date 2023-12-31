@@ -1,6 +1,8 @@
 package com.kalimero2.team.waystones.paper.ui.screen;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.util.TextUtil;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -13,8 +15,11 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
@@ -27,7 +32,14 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     protected JavaButtonScreen(ButtonScreen buttonScreen) {
         this.plugin = buttonScreen.getPlugin();
         Component inventoryOverlay = MiniMessage.miniMessage().deserialize("<white><lang:space.-8><font:klm2:waystones>b</font><reset><lang:space.-170>");
-        this.inventory = plugin.getServer().createInventory(null, 9 * 2, inventoryOverlay.append(buttonScreen.getTitle()));
+        MinecraftFont minecraftFont = MinecraftFont.Font;
+        int titleWidth = minecraftFont.getWidth(TextUtil.compomentToString(buttonScreen.getTitle()));
+        Component negativeSpace = Component.translatable("space.-"+(titleWidth+1));
+        Component secondLine = Component.text(buttonScreen.getLabel()).font(Key.key("klm2", "second_line"));
+        this.inventory = plugin.getServer().createInventory(null, 9 * 2, inventoryOverlay
+                .append(buttonScreen.getTitle())
+                .append(negativeSpace)
+                .append(secondLine));
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         buttonScreen.getButtons().forEach((button, consumer) -> {
@@ -55,8 +67,8 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     }
 
     protected void setSlot(int slot, ItemStack item, Consumer<Player> onClick) {
-        slotMapping.put(slot, onClick);
-        inventory.setItem(slot, item);
+        slotMapping.put(slot+9, onClick);
+        inventory.setItem(slot+9, item);
     }
 
 

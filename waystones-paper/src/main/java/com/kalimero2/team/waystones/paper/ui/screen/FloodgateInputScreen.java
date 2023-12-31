@@ -1,5 +1,6 @@
 package com.kalimero2.team.waystones.paper.ui.screen;
 
+import com.kalimero2.team.waystones.paper.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
@@ -16,10 +17,6 @@ public class FloodgateInputScreen implements GenericScreen {
         this.inputScreen = inputScreen;
     }
 
-    @NotNull
-    private static String compomentToString(Component title) {
-        return PlainTextComponentSerializer.plainText().serialize(title);
-    }
 
     @Override
     public void open(Player player) {
@@ -27,7 +24,7 @@ public class FloodgateInputScreen implements GenericScreen {
     }
 
     private void open(Player player, InputScreen.InputValidation lastValidation) {
-        CustomForm.Builder builder = CustomForm.builder().title(compomentToString(inputScreen.getTitle()));
+        CustomForm.Builder builder = CustomForm.builder().title(TextUtil.compomentToString(inputScreen.getTitle()));
 
         builder.input(inputScreen.getLabel(), inputScreen.getInput().placeholder(), inputScreen.getInput().placeholder());
         if (lastValidation != null) {

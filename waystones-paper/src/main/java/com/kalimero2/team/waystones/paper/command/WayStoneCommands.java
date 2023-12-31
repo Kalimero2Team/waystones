@@ -15,7 +15,7 @@ import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.screen.ButtonScreen;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.Category;
-import com.kalimero2.team.waystones.paper.util.ColorUtil;
+import com.kalimero2.team.waystones.paper.util.TextUtil;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import com.kalimero2.team.waystones.paper.util.Visibility;
 import net.kyori.adventure.text.Component;
@@ -308,9 +308,9 @@ public class WayStoneCommands extends CommandHandler {
     private void forceMode(CommandContext<CommandSender> context) {
         Player player = (Player) context.getSender();
         if (manager.toggleForceMode(player)) {
-            player.sendMessage(Component.translatable("waystones.force.on", ColorUtil.GREEN));
+            player.sendMessage(Component.translatable("waystones.force.on", TextUtil.GREEN));
         }
-        else player.sendMessage(Component.translatable("waystones.force.off", ColorUtil.GREEN));
+        else player.sendMessage(Component.translatable("waystones.force.off", TextUtil.GREEN));
 
     }
 
@@ -319,7 +319,7 @@ public class WayStoneCommands extends CommandHandler {
             ButtonScreen.Builder builder = ButtonScreen.builder();
             builder.plugin(plugin);
             builder.title(Component.text("Test"));
-            builder.content("Only Visible to Bedrock");
+            builder.content("Second Line");
             builder.button(new ButtonScreen.Button(Component.text("Test Button"), 0), player1 -> player1.sendMessage("Test"));
             builder.button(new ButtonScreen.Button(Component.text("Test Button 2"), 2), player1 -> player1.sendMessage("Test 2"));
             builder.button(new ButtonScreen.Button(Component.text("Test Button 3"), 4), player1 -> player1.sendMessage("Test 3"));
@@ -353,7 +353,7 @@ public class WayStoneCommands extends CommandHandler {
                                 teleportAllowed = true;
                             }
                             else {
-                                player.sendMessage(Component.translatable("waystones.teleport.noxp", ColorUtil.ORANGE));
+                                player.sendMessage(Component.translatable("waystones.teleport.noxp", TextUtil.ORANGE));
                                 return;
                             }
                         }
@@ -362,7 +362,7 @@ public class WayStoneCommands extends CommandHandler {
             }
 
             if (!teleportAllowed) {
-                player.sendMessage(Component.translatable("waystones.teleport.nowaystone", ColorUtil.ORANGE));
+                player.sendMessage(Component.translatable("waystones.teleport.nowaystone", TextUtil.ORANGE));
                 return;
             }
 
@@ -394,11 +394,11 @@ public class WayStoneCommands extends CommandHandler {
 
         if (manager.renameWaystone(waystone.id(), newName)) {
             display.updateDisplay(waystone);
-            sender.sendMessage(Component.translatable("waystones.ui.name.rename", ColorUtil.GREEN, Component.text(waystone.id()), Component.text(waystone.name()), Component.text(newName)));
+            sender.sendMessage(Component.translatable("waystones.ui.name.rename", TextUtil.GREEN, Component.text(waystone.id()), Component.text(waystone.name()), Component.text(newName)));
         }
 
         else {
-            context.getSender().sendMessage(Component.translatable("waystones.create.name.taken", ColorUtil.ORANGE, Component.text(newName)));
+            context.getSender().sendMessage(Component.translatable("waystones.create.name.taken", TextUtil.ORANGE, Component.text(newName)));
         }
     }
 
@@ -471,7 +471,7 @@ public class WayStoneCommands extends CommandHandler {
 
         display.updateDisplay(waystone);
 
-        context.getSender().sendMessage(Component.translatable("waystones.ui.create", ColorUtil.GREEN, Component.text(location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()), Component.text(name), Component.text(waystone.id())));
+        context.getSender().sendMessage(Component.translatable("waystones.ui.create", TextUtil.GREEN, Component.text(location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()), Component.text(name), Component.text(waystone.id())));
     }
 
 
@@ -546,7 +546,7 @@ public class WayStoneCommands extends CommandHandler {
         }
 
         manager.addAccess(player, waystone.id());
-        sender.sendMessage(Component.translatable("waystones.access.add", ColorUtil.GREEN, player.displayName(), Component.text(waystone.id())));
+        sender.sendMessage(Component.translatable("waystones.access.add", TextUtil.GREEN, player.displayName(), Component.text(waystone.id())));
     }
 
     private void removePlayerFromAccessList(CommandContext<CommandSender> context) {
@@ -560,7 +560,7 @@ public class WayStoneCommands extends CommandHandler {
         }
 
         manager.removeAccess(player, waystone.id());
-        sender.sendMessage(Component.translatable("waystones.access.remove", ColorUtil.GREEN, player.displayName(), Component.text(waystone.id())));
+        sender.sendMessage(Component.translatable("waystones.access.remove", TextUtil.GREEN, player.displayName(), Component.text(waystone.id())));
     }
 
     private void showAccessList(CommandContext<CommandSender> context) {
@@ -574,8 +574,8 @@ public class WayStoneCommands extends CommandHandler {
 
         List<OfflinePlayer> list = manager.getAccess(waystone.id());
 
-        if (!list.isEmpty()) sender.sendMessage(Component.translatable("waystones.access.list", ColorUtil.GREEN));
-        else sender.sendMessage(Component.translatable("waystones.access.list.empty", ColorUtil.GREEN));
+        if (!list.isEmpty()) sender.sendMessage(Component.translatable("waystones.access.list", TextUtil.GREEN));
+        else sender.sendMessage(Component.translatable("waystones.access.list.empty", TextUtil.GREEN));
 
         for (OfflinePlayer p : list) {
             sender.sendMessage(Component.text(p.getName()).hoverEvent(HoverEvent.showText(Component.text(p.getUniqueId().toString()))));
@@ -586,17 +586,17 @@ public class WayStoneCommands extends CommandHandler {
     private void reloadDisplay(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
         display.updateDisplay(waystone);
-        context.getSender().sendMessage(Component.translatable("waystones.display.reload.waystone", ColorUtil.GREEN, Component.text(waystone.id())));
+        context.getSender().sendMessage(Component.translatable("waystones.display.reload.waystone", TextUtil.GREEN, Component.text(waystone.id())));
     }
 
     private void reloadAllDisplays(CommandContext<CommandSender> context) {
         display.updateAll();
-        context.getSender().sendMessage(Component.translatable("waystones.display.reload.all", ColorUtil.GREEN));
+        context.getSender().sendMessage(Component.translatable("waystones.display.reload.all", TextUtil.GREEN));
     }
 
     private void clearDisplays(CommandContext<CommandSender> context) {
         display.removeAll();
-        context.getSender().sendMessage(Component.translatable("waystones.display.clear", ColorUtil.GREEN));
+        context.getSender().sendMessage(Component.translatable("waystones.display.clear", TextUtil.GREEN));
     }
 
 
@@ -604,7 +604,7 @@ public class WayStoneCommands extends CommandHandler {
         if (manager.addCategory(context.get("name"), context.get("public")) != null) {
             String type = "restricted";
             if (context.get("public")) type = "public";
-            context.getSender().sendMessage(Component.translatable("waystones.category.add." + type, ColorUtil.GREEN, Component.text(context.get("name").toString()).color(TextColor.color(255, 255, 255))));
+            context.getSender().sendMessage(Component.translatable("waystones.category.add." + type, TextUtil.GREEN, Component.text(context.get("name").toString()).color(TextColor.color(255, 255, 255))));
         }
         else {
             context.getSender().sendMessage(Component.translatable("waystones.category.nametaken", Component.text(context.get("name").toString())));
@@ -613,7 +613,7 @@ public class WayStoneCommands extends CommandHandler {
 
     private void removeCategory(CommandContext<CommandSender> context) {
         manager.addCategory(context.get("name"), context.get("public"));
-        context.getSender().sendMessage(Component.translatable("waystones.category.remove", ColorUtil.GREEN,  Component.text(context.get("name").toString()).color(TextColor.color(255, 255, 255))));
+        context.getSender().sendMessage(Component.translatable("waystones.category.remove", TextUtil.GREEN,  Component.text(context.get("name").toString()).color(TextColor.color(255, 255, 255))));
     }
 
     private void setCategory(CommandContext<CommandSender> context) {
@@ -625,15 +625,15 @@ public class WayStoneCommands extends CommandHandler {
                 return;
             }
             manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), category, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
-            context.getSender().sendMessage(Component.translatable("waystones.category.set", ColorUtil.GREEN, Component.text(waystone.name()), Component.text(category.name())));
+            context.getSender().sendMessage(Component.translatable("waystones.category.set", TextUtil.GREEN, Component.text(waystone.name()), Component.text(category.name())));
             return;
         }
-        context.getSender().sendMessage(Component.translatable("waystones.permission.edit", ColorUtil.RED, Component.text(context.get("name").toString()).color(ColorUtil.WHITE)));
+        context.getSender().sendMessage(Component.translatable("waystones.permission.edit", TextUtil.RED, Component.text(context.get("name").toString()).color(TextUtil.WHITE)));
     }
 
     private void buttonRemoveWaystone(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
-        context.getSender().sendMessage(Component.translatable("waystones.remove.ask", ColorUtil.RED, Component.text(waystone.name())));
+        context.getSender().sendMessage(Component.translatable("waystones.remove.ask", TextUtil.RED, Component.text(waystone.name())));
         context.getSender().sendMessage(Component.translatable("waystones.remove.confirm").clickEvent(ClickEvent.runCommand("/waystone remove " + waystone.id())));
     }
 

@@ -17,7 +17,7 @@ public class JavaInputScreen implements GenericScreen, Listener {
 
     private final PaperWayStones plugin;
     private final InputScreen inputScreen;
-    private final Component anvilUIPrefix = MiniMessage.miniMessage().deserialize("<white><tr:space.-60><font:klm2:waystones>c</font><tr:space.-172>");
+    private final Component anvilUIPrefix = MiniMessage.miniMessage().deserialize("<white><tr:space.-60><font:klm2:waystones>c</font><tr:space.-172><reset>");
 
 
     protected JavaInputScreen(InputScreen inputScreen) {

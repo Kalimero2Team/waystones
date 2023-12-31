@@ -1,5 +1,6 @@
 package com.kalimero2.team.waystones.paper.ui.screen;
 
+import com.kalimero2.team.waystones.paper.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
@@ -24,17 +25,13 @@ public class FloodgateButtonScreen implements GenericScreen {
         this.buttonScreen = buttonScreen;
     }
 
-    @NotNull
-    private static String compomentToString(Component title) {
-        return PlainTextComponentSerializer.plainText().serialize(title);
-    }
 
     @Override
     // TODO: Change to new Cumulus API?
     @SuppressWarnings("deprecation")
     public void open(Player player) {
         SimpleForm.Builder builder = SimpleForm.builder();
-        String title = compomentToString(buttonScreen.getTitle());
+        String title = TextUtil.compomentToString(buttonScreen.getTitle());
         builder.title(title);
         builder.content(buttonScreen.getLabel());
 
@@ -43,7 +40,7 @@ public class FloodgateButtonScreen implements GenericScreen {
                 .forEach(entry -> {
                     ButtonScreen.Button button = entry.getKey();
                     Consumer<Player> consumer = entry.getValue();
-                    ButtonComponent buttonComponent = ButtonComponent.of(compomentToString(button.name()));
+                    ButtonComponent buttonComponent = ButtonComponent.of(TextUtil.compomentToString(button.name()));
                     buttons.put(buttonComponent, consumer);
                     builder.button(buttonComponent);
                 });

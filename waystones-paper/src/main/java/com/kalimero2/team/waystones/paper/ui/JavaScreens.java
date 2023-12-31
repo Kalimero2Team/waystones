@@ -5,7 +5,7 @@ import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.Category;
-import com.kalimero2.team.waystones.paper.util.ColorUtil;
+import com.kalimero2.team.waystones.paper.util.TextUtil;
 import com.kalimero2.team.waystones.paper.util.SortMode;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -261,62 +261,6 @@ public class JavaScreens {
     }
 
 
-    public void settings(Player player, StoredWaystone waystone) {
-        List<Component> pages = new ArrayList<>();
-        Component current_page = Component.empty();
-
-        int id = waystone.id();
-
-        current_page = current_page.append(Component.text(waystone.name()).decorate(TextDecoration.BOLD).color(TextColor.color(0, 100, 180)));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.text("ID: " + waystone.id()).color(TextColor.color(0, 100, 130)));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.edit.rename").clickEvent(ClickEvent.runCommand("/waystone internal button rename " + id)));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.edit.remove").clickEvent(ClickEvent.runCommand("/waystone internal button remove " + id)));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.edit.transferownership").clickEvent(ClickEvent.runCommand("/waystone internal button transferownership " + id)));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.edit.category").clickEvent(ClickEvent.runCommand("/waystone internal button category " + id)));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
-
-        switch (waystone.visibility()) {
-            case PUBLIC -> {
-                current_page = current_page.append(Component.translatable("waystones.ui.visibility.private").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " private")));
-                current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.translatable("waystones.ui.visibility.unlisted").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " unlisted")));
-            }
-            case UNLISTED -> {
-                current_page = current_page.append(Component.translatable("waystones.ui.visibility.public").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " public")));
-                current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.translatable("waystones.ui.visibility.private").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " private")));
-                current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.translatable("waystones.access.edit").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " edit")));
-            }
-            case PRIVATE -> {
-                current_page = current_page.append(Component.translatable("waystones.ui.visibility.public").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " public")));
-                current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.translatable("waystones.ui.visibility.unlisted").clickEvent(ClickEvent.runCommand("/waystone internal visibility " + id + " unlisted")));
-                current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.newline());
-                current_page = current_page.append(Component.text("waystones.access.edit").clickEvent(ClickEvent.runCommand("/waystone access " + id + " edit")));
-            }
-            default ->
-                    current_page = current_page.append(Component.text("ERROR: Cannot resolve visibility code " + waystone.visibility()));
-        }
-
-        pages.add(current_page);
-
-        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
-
-    }
-
     public void create(Player player, Location location, ItemStack stack) {
         Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.name"));
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
@@ -342,34 +286,6 @@ public class JavaScreens {
             }.runTask(plugin);
             return Collections.singletonList(AnvilGUI.ResponseAction.close());
         }).preventClose().plugin(plugin).open(player);
-    }
-
-    public void rename(Player player, StoredWaystone waystone) {
-        ItemStack stack = plugin.getStatic().clone();
-        ItemMeta meta = stack.getItemMeta();
-        meta.displayName(Component.text(waystone.name()));
-        stack.setItemMeta(meta);
-
-        Component title = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.name"));
-        String jsonTitle = JSONComponentSerializer.json().serialize(title);
-
-        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
-            if (state.getText().length() > 16) {
-                return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
-            }
-            if (manager.isNameUsed(state.getText())) {
-                return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Name ist bereits vergeben!"));
-            }
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    StoredWaystone newWaystone = new StoredWaystone(waystone.id(), state.getText(), waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses());
-                    manager.updateWaystone(newWaystone);
-                }
-            }.runTask(plugin);
-            return Collections.singletonList(AnvilGUI.ResponseAction.close());
-        }).preventClose().plugin(plugin).open(player);
-
     }
 
 
@@ -427,7 +343,7 @@ public class JavaScreens {
             }
 
             String name = p.getName();
-            current_page = current_page.append(Component.text("[X] ").color(ColorUtil.RED).clickEvent(ClickEvent.runCommand("/waystone access " + waystone.id() + " remove " + name))).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.access.remove")));
+            current_page = current_page.append(Component.text("[X] ").color(TextUtil.RED).clickEvent(ClickEvent.runCommand("/waystone access " + waystone.id() + " remove " + name))).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.access.remove")));
             current_page = current_page.append(Component.text(name));
             current_page = current_page.append(Component.newline());
 
@@ -439,6 +355,7 @@ public class JavaScreens {
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
 
     }
+
 
     public void setOwner(Player player, StoredWaystone waystone) {
         if (!waystone.checkPermission(player)) return;
@@ -469,6 +386,7 @@ public class JavaScreens {
 
     }
 
+    // TODO: Make this use a ButtonScreen
     public void visibilitySelection(Player player, StoredWaystone waystone) {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.empty();

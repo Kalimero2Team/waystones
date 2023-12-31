@@ -5,10 +5,12 @@ import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.screen.ButtonScreen;
 import com.kalimero2.team.waystones.paper.ui.screen.InputScreen;
-import com.kalimero2.team.waystones.paper.util.ColorUtil;
+import com.kalimero2.team.waystones.paper.util.TextUtil;
 import net.kyori.adventure.text.Component;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -22,6 +24,17 @@ public class NewScreens {
         this.manager = this.plugin.getManager();
     }
 
+    /**
+     * Opens the owner change menu for the player
+     * @param player Player (old Owner that wants to change the owner
+     * @param waystone Waystone to change the owner
+     */
+    public void changeOwner(Player player, StoredWaystone waystone) {
+        if (!waystone.checkPermission(player)) return;
+        InputScreen screen = createChangeOwnerScreen(waystone);
+        screen.open(player);
+    }
+
 
     /**
      * Opens the edit menu for the player
@@ -30,6 +43,7 @@ public class NewScreens {
      * @param waystone Waystone to edit
      */
     public void settings(@NotNull Player player, @NotNull StoredWaystone waystone) {
+        if (!waystone.checkPermission(player)) return;
         ButtonScreen build = createSettingsScreen(waystone);
         build.open(player);
     }
@@ -42,12 +56,12 @@ public class NewScreens {
      * @param waystone The waystone to rename
      */
     public void rename(@NotNull Player player, @NotNull StoredWaystone waystone) {
+        if (!waystone.checkPermission(player)) return;
         if (!waystone.checkTeleport(player)) {
             // TODO: Change Message to-far-away or something
-            player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(ColorUtil.RED));
+            player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextUtil.RED));
             return;
         }
-
         InputScreen build = createRenameScreen(waystone);
         build.open(player);
     }
@@ -60,6 +74,7 @@ public class NewScreens {
      * @param waystone Waystone to delete
      */
     public void delete(Player player, StoredWaystone waystone) {
+        if (!waystone.checkPermission(player)) return;
         ButtonScreen build = createDeleteScreen(waystone);
         build.open(player);
     }
@@ -68,17 +83,17 @@ public class NewScreens {
         ButtonScreen.Builder builder = ButtonScreen.builder().title(Component.text("Waystone " + waystone.name())).content("Waystone löschen");
         builder.plugin(plugin);
 
-        builder.button(new ButtonScreen.Button(Component.text("Löschen"), 14, 5), player -> {
+        builder.button(new ButtonScreen.Button(Component.text("Löschen"), 5, 5), player -> {
             plugin.getDisplayManager().clearDisplay(waystone);
             if (manager.removeWaystone(waystone.id())) {
-                player.sendMessage(Component.text("Waystone wurde entfernt!", ColorUtil.GREEN));
+                player.sendMessage(Component.text("Waystone wurde entfernt!", TextUtil.GREEN));
                 player.getInventory().addItem(plugin.getStatic());
             } else {
-                player.sendMessage(Component.text("Waystone konnte nicht entfernt werden.", ColorUtil.RED));
+                player.sendMessage(Component.text("Waystone konnte nicht entfernt werden.", TextUtil.RED));
             }
             player.closeInventory();
         });
-        builder.button(new ButtonScreen.Button(Component.text("Abbrechen"), 12, 4), HumanEntity::closeInventory);
+        builder.button(new ButtonScreen.Button(Component.text("Abbrechen"), 3, 4), HumanEntity::closeInventory);
 
         return builder.build();
     }
@@ -130,5 +145,31 @@ public class NewScreens {
         return builder.build();
     }
 
+    private InputScreen createChangeOwnerScreen(@NotNull StoredWaystone waystone) {
+        InputScreen.Builder builder = InputScreen.builder().title(Component.text("Waystone " + waystone.name())).plugin(plugin);
+        builder.content("Ändere den Eigentümer");
+        builder.input(new InputScreen.Input(Component.text("Neuer Eigentümer"), "", (player, input) -> {
+            if (input == null || input.isEmpty()) {
+                return new InputScreen.InputValidation(false, "Der Name darf nicht leer sein!");
+            }
+            OfflinePlayer target = plugin.getServer().getOfflinePlayerIfCached(input);
+            if (target == null) {
+                return new InputScreen.InputValidation(false, "Dieser Spieler existiert nicht!");
+            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    StoredWaystone newWaystone = new StoredWaystone(waystone.id(), waystone.name(), target.getUniqueId(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses());
+                    manager.updateWaystone(newWaystone);
+                }
+            }.runTask(plugin);
+
+
+            return new InputScreen.InputValidation(true, null);
+        }));
+
+
+        return builder.build();
+    }
 
 }

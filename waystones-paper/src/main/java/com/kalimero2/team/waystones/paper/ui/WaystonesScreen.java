@@ -70,12 +70,7 @@ public class WaystonesScreen {
     }
 
     public void rename(Player player, StoredWaystone waystone) {
-        if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.rename(player, waystone, LastCreationResult.FIRST_CALL);
-        }
-        else {
-            java.rename(player, waystone);
-        }
+        newScreens.rename(player, waystone);
     }
 
     public void category(Player player, @NotNull StoredWaystone waystone) {
@@ -105,11 +100,6 @@ public class WaystonesScreen {
     }
 
     public void transferOwnership(Player player, StoredWaystone waystone) {
-        if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.settings(player, waystone);
-        }
-        else {
-            java.setOwner(player, waystone);
-        }
+        newScreens.changeOwner(player, waystone);
     }
 }
