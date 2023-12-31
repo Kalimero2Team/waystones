@@ -156,7 +156,7 @@ public class FloodgateScreens {
 
             manager.createWaystone(input, player.getUniqueId(), visibility, category, location);
             StoredWaystone waystone = plugin.getManager().getWaystone(location);
-            PaperWayStones.displayManager.updateDisplay(waystone);
+            plugin.getDisplayManager().updateDisplay(waystone);
             stack.setAmount(stack.getAmount() - 1);
             player.sendMessage(Component.text(""));
         });
@@ -192,7 +192,6 @@ public class FloodgateScreens {
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
         SimpleForm build = builder.build();
         floodgatePlayer.sendForm(build);
-
     }
 
 

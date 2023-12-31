@@ -28,14 +28,12 @@ public class WayStonesListener implements Listener {
 
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
-    private final DisplayManager display;
     private final WaystonesScreen screen;
 
     public WayStonesListener(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = plugin.getManager();
-        this.display = new DisplayManager(plugin);
-        this.screen = new WaystonesScreen(plugin);
+        this.screen = plugin.getScreen();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 

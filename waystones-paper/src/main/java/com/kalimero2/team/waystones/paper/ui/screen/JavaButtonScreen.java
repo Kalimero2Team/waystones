@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -35,12 +36,22 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     }
 
     protected void createButton(int slot, Component name, Consumer<Player> onClick, int modelData, Material material) {
+        ItemStack blankButton = getButton(name, modelData, material);
+        setSlot(slot, blankButton, onClick);
+    }
+
+    @NotNull
+    public static ItemStack getButton(Component name, int modelData, Material material) {
         ItemStack blankButton = new ItemStack(material);
         ItemMeta itemMeta = blankButton.getItemMeta();
         itemMeta.displayName(name.decoration(TextDecoration.ITALIC, false));
         itemMeta.setCustomModelData(modelData);
         blankButton.setItemMeta(itemMeta);
-        setSlot(slot, blankButton, onClick);
+        return blankButton;
+    }
+
+    public static ItemStack getBlankButton(Component name){
+        return getButton(name, 0, Material.PAPER);
     }
 
     protected void setSlot(int slot, ItemStack item, Consumer<Player> onClick) {

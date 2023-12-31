@@ -8,6 +8,7 @@ import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
+import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.WaystoneTimer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -29,8 +30,9 @@ public class PaperWayStones extends JavaPlugin {
     public @Nullable FloodgateScreens floodgateIntegration;
     public @Nullable ClaimsIntegration claimsIntegration;
 
-    public static WaystoneManager manager;
-    public static DisplayManager displayManager;
+    private WaystoneManager manager;
+    private DisplayManager displayManager;
+    private WaystonesScreen screen;
 
     @Override
     public void onEnable() {
@@ -50,6 +52,10 @@ public class PaperWayStones extends JavaPlugin {
         // Display Manager
 
         displayManager = new DisplayManager(this);
+
+        // Screens
+
+        screen = new WaystonesScreen(this);
 
 
         // Storage
@@ -99,6 +105,9 @@ public class PaperWayStones extends JavaPlugin {
 
     }
 
+    public WaystonesScreen getScreen() {
+        return screen;
+    }
     public WaystoneManager getManager() {
         return manager;
     }

@@ -14,17 +14,17 @@ import javax.annotation.Nullable;
 public class WaystonesScreen {
 
     private final PaperWayStones plugin;
-    private final WaystoneManager manager;
 
 
+    private final NewScreens newScreens;
     private final JavaScreens java;
     private final FloodgateScreens floodgateIntegration;
 
 
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
-        this.manager = plugin.getManager();
         this.java = new JavaScreens(plugin);
+        this.newScreens = new NewScreens(plugin);
         floodgateIntegration = plugin.floodgateIntegration;
     }
 
@@ -57,12 +57,7 @@ public class WaystonesScreen {
     }
 
     public void settings(Player player, @NotNull StoredWaystone waystone) {
-        if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.settings(player, waystone);
-        }
-        else {
-            java.settings(player, waystone);
-        }
+        newScreens.settings(player, waystone);
     }
 
     public void create(Player player, Location location, ItemStack stack) {

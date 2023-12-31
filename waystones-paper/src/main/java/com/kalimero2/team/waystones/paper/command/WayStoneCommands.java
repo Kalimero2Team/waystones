@@ -38,7 +38,7 @@ public class WayStoneCommands extends CommandHandler {
 
     public WayStoneCommands(PaperWayStones plugin, CommandManager commandManager) {
         super(plugin, commandManager);
-        screen = new WaystonesScreen(plugin);
+        screen = plugin.getScreen();
         display = new DisplayManager(plugin);
         manager = plugin.getManager();
     }
