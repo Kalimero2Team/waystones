@@ -1,8 +1,6 @@
 package com.kalimero2.team.waystones.paper.ui.screen;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.util.TextUtil;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -11,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.map.MinecraftFont;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -35,12 +32,7 @@ public class JavaInputScreen implements GenericScreen, Listener {
         ItemStack result = Objects.requireNonNullElse(inputScreen.getInput().itemResult(), JavaButtonScreen.getButton(Component.text("Confirm"), 5, Material.PAPER));
 
         Component title = anvilUIPrefix.append(inputScreen.getTitle());
-        MinecraftFont minecraftFont = MinecraftFont.Font;
-        int titleWidth = minecraftFont.getWidth(TextUtil.compomentToString(inputScreen.getTitle()));
-        Component negativeSpace = Component.translatable("space.-"+(titleWidth+1));
-        Component secondLine = Component.text(inputScreen.getLabel()).font(Key.key("klm2", "second_line"));
-
-        String jsonTitle = JSONComponentSerializer.json().serialize(title.append(negativeSpace).append(secondLine));
+        String jsonTitle = JSONComponentSerializer.json().serialize(title);
 
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(left).itemOutput(result).text(inputScreen.getInput().placeholder()).onClick((n, state) -> {
             if (n == 0) {
