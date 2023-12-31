@@ -8,12 +8,8 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
-@SuppressWarnings({"unused","UnusedReturnValue"})
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class ButtonScreen implements GenericScreen {
-
-    public static ButtonScreen.Builder builder() {
-        return new ButtonScreen.Builder();
-    }
 
     private final PaperWayStones plugin;
     private final JavaButtonScreen javaScreen;
@@ -22,7 +18,6 @@ public class ButtonScreen implements GenericScreen {
     private final String label;
     private final HashMap<Button, Consumer<Player>> buttons;
 
-
     private ButtonScreen(PaperWayStones plugin, Component title, String label, HashMap<Button, Consumer<Player>> buttons) {
         this.plugin = plugin;
         this.title = title;
@@ -30,6 +25,10 @@ public class ButtonScreen implements GenericScreen {
         this.buttons = buttons;
         this.javaScreen = new JavaButtonScreen(this);
         this.floodgateScreen = new FloodgateButtonScreen(this);
+    }
+
+    public static ButtonScreen.Builder builder() {
+        return new ButtonScreen.Builder();
     }
 
     protected PaperWayStones getPlugin() {
@@ -58,10 +57,10 @@ public class ButtonScreen implements GenericScreen {
     }
 
     public static class Builder {
+        private final HashMap<ButtonScreen.Button, Consumer<Player>> buttons = new HashMap<>();
         private PaperWayStones plugin;
         private Component title;
         private String content;
-        private final HashMap<ButtonScreen.Button, Consumer<Player>> buttons = new HashMap<>();
 
         public Builder plugin(PaperWayStones plugin) {
             this.plugin = plugin;

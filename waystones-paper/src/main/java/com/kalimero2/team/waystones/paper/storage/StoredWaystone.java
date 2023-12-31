@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.kalimero2.team.waystones.paper.PaperWayStones.manager;
-
 public final class StoredWaystone {
     private final int id;
     private String name;
@@ -63,8 +61,8 @@ public final class StoredWaystone {
         this.uses = uses;
     }
 
-    public StoredWaystone(int id, String name, String owner_uuid, int visibility, int category, int x, int y, int z, String world_uuid, int uses) {
-        this(id, name, UUID.fromString(owner_uuid), Visibility.valueByNumber(visibility), manager.getCategory(category), x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
+    public StoredWaystone(int id, String name, String owner_uuid, int visibility, Category category, int x, int y, int z, String world_uuid, int uses) {
+        this(id, name, UUID.fromString(owner_uuid), Visibility.valueByNumber(visibility), category, x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
     public Location location() {

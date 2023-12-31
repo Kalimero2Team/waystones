@@ -30,7 +30,7 @@ public class FloodgateInputScreen implements GenericScreen {
         CustomForm.Builder builder = CustomForm.builder().title(compomentToString(inputScreen.getTitle()));
 
         builder.input(inputScreen.getLabel(), inputScreen.getInput().placeholder(), inputScreen.getInput().placeholder());
-        if(lastValidation != null){
+        if (lastValidation != null) {
             builder.label(lastValidation.message());
         }
 

@@ -3,11 +3,11 @@ package com.kalimero2.team.waystones.paper;
 import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
 import com.kalimero2.team.waystones.paper.compat.GeyserWaystoneHackCompat;
-import com.kalimero2.team.waystones.paper.ui.FloodgateScreens;
 import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
+import com.kalimero2.team.waystones.paper.ui.FloodgateScreens;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.WaystoneTimer;
 import net.kyori.adventure.text.Component;
@@ -53,11 +53,6 @@ public class PaperWayStones extends JavaPlugin {
 
         displayManager = new DisplayManager(this);
 
-        // Screens
-
-        screen = new WaystonesScreen(this);
-
-
         // Storage
 
         getDataFolder().mkdirs();
@@ -86,6 +81,11 @@ public class PaperWayStones extends JavaPlugin {
         }
 
 
+        // Screens
+
+        screen = new WaystonesScreen(this);
+
+
         // Commands
 
         try {
@@ -97,20 +97,18 @@ public class PaperWayStones extends JavaPlugin {
 
         // Event Listeners
 
-        new WayStonesListener( this);
-    }
-
-    @Override
-    public void onDisable() {
+        new WayStonesListener(this);
 
     }
 
     public WaystonesScreen getScreen() {
         return screen;
     }
+
     public WaystoneManager getManager() {
         return manager;
     }
+
     public DisplayManager getDisplayManager() {
         return displayManager;
     }
