@@ -10,33 +10,34 @@ import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.parsing.NoInputProvidedException;
 import cloud.commandframework.exceptions.parsing.ParserException;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.apiguardian.api.API;
 import org.bukkit.command.CommandSender;
-
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.BiFunction;
 
+/**
+ * Argument that parses into a {@link StoredWaystone} <br>
+ * Deprecated, use {@link cloud.commandframework.arguments.standard.IntegerArgument} with {@link WaystoneManager#getWaystone(Integer)} instead. <br>
+ * (Maybe this will be reconsidered in the future) <br>
+ * @param <C> Command sender type
+ */
+@Deprecated
 public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone> {
-
-
     private static WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
 
     private WaystoneArgument(
             final boolean required,
             final @NotNull String name,
             final @NotNull String defaultValue,
-            final @Nullable BiFunction<@NotNull CommandContext<C>, @NotNull String,
-                    @NotNull List<@NotNull String>> suggestionsProvider,
+            final @Nullable BiFunction<@NotNull CommandContext<C>, @NotNull String, @NotNull List<@NotNull String>> suggestionsProvider,
             final @NotNull ArgumentDescription defaultDescription
     ) {
         super(required, name, new WaystoneArgument.WaystoneParser<>(), defaultValue, StoredWaystone.class, suggestionsProvider, defaultDescription);
@@ -79,7 +80,6 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
     }
 
 
-
     public static final class Builder<C> extends CommandArgument.Builder<C, StoredWaystone> {
 
         private Builder(final @NotNull String name) {
@@ -102,6 +102,7 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
             );
         }
     }
+
     public static final class WaystoneParser<C> implements ArgumentParser<C, StoredWaystone> {
 
         @Override
@@ -114,10 +115,8 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
             StoredWaystone waystone = null;
             try {
                 waystone = manager.getWaystone(Integer.parseInt(input));
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
 
-            if (waystone == null) {
-                waystone = manager.getWaystone(input.replaceAll("–", " "));
             }
 
             if (waystone == null) {
@@ -130,24 +129,8 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
         }
 
         @Override
-        public @NotNull List<@NotNull String> suggestions(
-                final @NotNull CommandContext<C> commandContext,
-                final @NotNull String input
-        ) {
-            List<String> output = new ArrayList<>();
-
-            if (commandContext.getSender() instanceof Player player) {
-                for (StoredWaystone waystone : manager.getWaystones(player)) {
-                    output.add(String.valueOf(waystone.name()).replaceAll(" ", "–"));
-                }
-            }
-            else {
-                for (StoredWaystone waystone : manager.getWaystones()) {
-                    output.add(String.valueOf(waystone.name()).replaceAll(" ", "–"));
-                }
-            }
-
-            return output;
+        public @NotNull List<@NotNull String> suggestions(final @NotNull CommandContext<C> commandContext, final @NotNull String input) {
+            return List.of();
         }
     }
 
@@ -177,7 +160,7 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
             this.input = input;
 
             if (!context.isSuggestions()) {
-                ((CommandSender) context.getSender()).sendMessage(Component.text("No Waystone with ID or name " + input + " exists.").color(TextColor.color(255, 78, 0)));
+                ((CommandSender) context.getSender()).sendMessage(Component.text("No Waystone with ID " + input + " exists.").color(TextColor.color(255, 78, 0)));
             }
         }
 

@@ -7,11 +7,15 @@ import com.kalimero2.team.waystones.paper.ui.screen.ButtonScreen;
 import com.kalimero2.team.waystones.paper.ui.screen.InputScreen;
 import com.kalimero2.team.waystones.paper.util.TextUtil;
 import net.kyori.adventure.text.Component;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 public class NewScreens {
@@ -25,8 +29,22 @@ public class NewScreens {
     }
 
     /**
+     * Opens the setup menu for the player
+     *
+     * @param player   Player that wants to set up the waystone
+     * @param location Location of the waystone
+     * @param stack    ItemStack that was used to create the waystone
+     */
+    public void setup(@NotNull Player player, @NotNull Location location, @NotNull ItemStack stack) {
+        InputScreen screen = createSetupScreen(location, stack);
+        screen.open(player);
+    }
+
+
+    /**
      * Opens the owner change menu for the player
-     * @param player Player (old Owner that wants to change the owner
+     *
+     * @param player   Player (old Owner that wants to change the owner
      * @param waystone Waystone to change the owner
      */
     public void changeOwner(Player player, StoredWaystone waystone) {
@@ -57,11 +75,6 @@ public class NewScreens {
      */
     public void rename(@NotNull Player player, @NotNull StoredWaystone waystone) {
         if (!waystone.checkPermission(player)) return;
-        if (!waystone.checkTeleport(player)) {
-            // TODO: Change Message to-far-away or something
-            player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextUtil.RED));
-            return;
-        }
         InputScreen build = createRenameScreen(waystone);
         build.open(player);
     }
@@ -77,6 +90,28 @@ public class NewScreens {
         if (!waystone.checkPermission(player)) return;
         ButtonScreen build = createDeleteScreen(waystone);
         build.open(player);
+    }
+
+
+    private InputScreen createSetupScreen(@NotNull Location location, ItemStack stack) {
+        InputScreen.Builder builder = InputScreen.builder().title(Component.text("Waystones")).plugin(plugin);
+        builder.content("Name des Waystones");
+        builder.input(new InputScreen.Input(Component.text("Name des Waystones"), "", (player, input) -> {
+
+            InputScreen.InputValidation nameValidation = validateWaystoneName(input);
+            if (nameValidation != null) return nameValidation;
+
+            plugin.getManager().createWaystone(input, player.getUniqueId(), 1, -1, location);
+            StoredWaystone waystone = plugin.getManager().getWaystone(location);
+            plugin.getDisplayManager().updateDisplay(waystone);
+            if (!player.getGameMode().equals(GameMode.CREATIVE)) {
+                stack.setAmount(stack.getAmount() - 1);
+            }
+
+            return new InputScreen.InputValidation(true, null);
+        }));
+
+        return builder.build();
     }
 
     private ButtonScreen createDeleteScreen(@NotNull StoredWaystone waystone) {
@@ -103,17 +138,8 @@ public class NewScreens {
         builder.content("Nenne den Waystone um");
         builder.input(new InputScreen.Input(Component.text("Waystone Name"), waystone.name(), (player, input) -> {
 
-            if (input == null || input.isEmpty()) {
-                return new InputScreen.InputValidation(false, "Der Name darf nicht leer sein!");
-            }
-
-            if (input.length() > 16) {
-                return new InputScreen.InputValidation(false, "Der Name darf nicht länger als 16 Zeichen sein!");
-            }
-
-            if (manager.isNameUsed(input)) {
-                return new InputScreen.InputValidation(false, "Dieser Name wird bereits verwendet!");
-            }
+            InputScreen.InputValidation nameValidation = validateWaystoneName(input);
+            if (nameValidation != null) return nameValidation;
 
             manager.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
             return new InputScreen.InputValidation(true, null);
@@ -170,6 +196,22 @@ public class NewScreens {
 
 
         return builder.build();
+    }
+
+    @Nullable
+    private InputScreen.InputValidation validateWaystoneName(String input) {
+        if (input == null || input.isEmpty()) {
+            return new InputScreen.InputValidation(false, "Der Name darf nicht leer sein!");
+        }
+
+        if (input.length() > 16) {
+            return new InputScreen.InputValidation(false, "Der Name darf nicht länger als 16 Zeichen sein!");
+        }
+
+        if (manager.isNameUsed(input)) {
+            return new InputScreen.InputValidation(false, "Dieser Name wird bereits verwendet!");
+        }
+        return null;
     }
 
 }

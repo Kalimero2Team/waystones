@@ -27,7 +27,7 @@ import java.io.File;
 import java.util.List;
 
 public class PaperWayStones extends JavaPlugin {
-    public @Nullable FloodgateScreens floodgateIntegration;
+    public boolean floodgateIntegration = false;
     public @Nullable ClaimsIntegration claimsIntegration;
 
     private WaystoneManager manager;
@@ -72,11 +72,10 @@ public class PaperWayStones extends JavaPlugin {
 
         try {
             Class.forName("org.geysermc.floodgate.api.FloodgateApi");
-            floodgateIntegration = new FloodgateScreens(this);
+            floodgateIntegration = true;
             new GeyserWaystoneHackCompat(this);
             getLogger().info("Floodgate integration enabled");
         } catch (ClassNotFoundException e) {
-            floodgateIntegration = null;
             getLogger().info("Floodgate not found, disabling Floodgate integration");
         }
 
@@ -115,7 +114,7 @@ public class PaperWayStones extends JavaPlugin {
 
 
     public boolean isBedrockPlayer(Player player) {
-        if (floodgateIntegration != null) {
+        if (floodgateIntegration) {
             return org.geysermc.floodgate.api.FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
         }
         return false;

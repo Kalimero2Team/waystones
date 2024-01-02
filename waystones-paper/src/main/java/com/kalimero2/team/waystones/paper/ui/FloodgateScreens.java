@@ -10,10 +10,8 @@ import com.kalimero2.team.waystones.paper.util.Visibility;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.geysermc.cumulus.component.DropdownComponent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.SimpleForm;
@@ -36,7 +34,6 @@ public class FloodgateScreens {
     }
 
     public void menu(Player player) {
-
         CustomForm.Builder builder = CustomForm.builder().title("Waystones").label("Wähle einen Waystone aus!");
 
         builder.input("Suchen", "Waystone Namen hier eingeben", "");
@@ -63,7 +60,6 @@ public class FloodgateScreens {
     }
 
     public void list(Player player, String search) {
-
         SimpleForm.Builder builder = SimpleForm.builder().title("Waystones").content("Wähle einen Waystone aus!");
 
 
@@ -89,84 +85,6 @@ public class FloodgateScreens {
 
     }
 
-
-    /**
-     * Opens the Waystone name selection menu for the player
-     *
-     * @param player   The player that placed the waystone
-     * @param location The location where the player placed the waystone
-     * @param stack    The waystone item
-     * @param lcr      Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
-     */
-    public void create(Player player, Location location, ItemStack stack, LastCreationResult lcr) {
-
-        CustomForm.Builder builder = CustomForm.builder().title("Waystones");
-
-        switch (lcr) {
-            case NAME_TAKEN -> {
-                builder.label("Dieser Name ist bereits vergeben! Bitte wähle einen anderen Namen.");
-            }
-            case CATEGORY_PRIVATE -> {
-                builder.label("Diese Kategorie ist nur für Teammitglieder verfügbar! Bitte wähle eine andere Kategorie.");
-            }
-            case CATEGORY_INVALID -> {
-                builder.label("Diese Kategorie existiert nicht! Bitte wähle eine andere Kategorie.");
-            }
-            default -> {
-                builder.label("Erstelle einen Waystone");
-            }
-        }
-
-        builder.input("Waystone Name", "Waystone Namen hier eingeben", "");
-
-        DropdownComponent.Builder dropdownBuilder = DropdownComponent.builder();
-        dropdownBuilder.text("Sichtbarkeit");
-        dropdownBuilder.option("Öffentlich");
-        dropdownBuilder.option("Ungelistet");
-        dropdownBuilder.option("Privat");
-        dropdownBuilder.defaultOption(0);
-        builder.dropdown(dropdownBuilder);
-
-        DropdownComponent.Builder dropdownBuilder2 = DropdownComponent.builder();
-        dropdownBuilder2.text("Kategorie");
-        List<Category> list = new ArrayList<>();
-        for (Category c : manager.getCategories()) {
-            dropdownBuilder2.option(c.name());
-            list.add(c);
-        }
-        dropdownBuilder2.defaultOption(0);
-        builder.dropdown(dropdownBuilder2);
-
-        builder.validResultHandler(customFormResponse -> {
-            String input = customFormResponse.asInput(1);
-            if (manager.isNameUsed(input)) {
-                create(player, location, stack, LastCreationResult.NAME_TAKEN);
-                return;
-            }
-            int visibility = customFormResponse.asDropdown(2);
-            int category = customFormResponse.asDropdown(3);
-            Category storedCategory = list.get(category);
-            if (storedCategory == null) {
-                create(player, location, stack, LastCreationResult.CATEGORY_INVALID);
-                return;
-            }
-            if (!storedCategory.isPublic() && !manager.forceMode(player) && !player.hasPermission("waystones.category")) {
-                create(player, location, stack, LastCreationResult.CATEGORY_PRIVATE);
-                return;
-            }
-
-            manager.createWaystone(input, player.getUniqueId(), visibility, category, location);
-            StoredWaystone waystone = plugin.getManager().getWaystone(location);
-            plugin.getDisplayManager().updateDisplay(waystone);
-            stack.setAmount(stack.getAmount() - 1);
-            player.sendMessage(Component.text(""));
-        });
-
-        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-        floodgatePlayer.sendForm(builder.build());
-    }
-
-
     /**
      * Opens the Waystone settings menu for the player
      *
@@ -174,8 +92,7 @@ public class FloodgateScreens {
      * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
     public void settingsFull(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-
-        if (!waystone.checkTeleport(player)) {
+        if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -259,9 +176,8 @@ public class FloodgateScreens {
      * @param player The player that wants to edit the waystone
      *               * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
-    public void setVisibility(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-
-        if (!waystone.checkTeleport(player)) {
+    public void changeVisibility(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
+        if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -299,8 +215,7 @@ public class FloodgateScreens {
      * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
     public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-
-        if (!waystone.checkTeleport(player)) {
+        if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -359,13 +274,12 @@ public class FloodgateScreens {
 
 
     /**
-     * Opens the accesslist edit menu for the player
+     * Opens the access list edit menu for the player
      *
      * @param player   Player that wants to edit the waystone
      * @param waystone Waystone to edit
      */
     public void accessSettings(@NotNull Player player, @NotNull StoredWaystone waystone) {
-
         SimpleForm.Builder builder = SimpleForm.builder().title("Waystone " + waystone.id()).content("Waystone bearbeiten");
 
         builder.button("Zugriffsliste ansehen");
@@ -386,7 +300,7 @@ public class FloodgateScreens {
     }
 
     /**
-     * Opens the accesslist of a waystone
+     * Opens the access list of a waystone
      *
      * @param player   Player that wants to see the list
      * @param waystone Waystone the list is requested from
@@ -408,14 +322,13 @@ public class FloodgateScreens {
     }
 
     /**
-     * Opens the menu to add a player to the accesslist
+     * Opens the menu to add a player to the access list
      *
      * @param player   Player that wants to edit the list
      * @param waystone Waystone the list should be changed of
      */
     public void accessAdd(@NotNull Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-
-        if (!waystone.checkTeleport(player)) {
+        if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -461,7 +374,6 @@ public class FloodgateScreens {
      * @param waystone Waystone the list should be changed of
      */
     public void accessRemove(@NotNull Player player, @NotNull StoredWaystone waystone) {
-
         if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;

@@ -1,6 +1,7 @@
 package com.kalimero2.team.waystones.paper.display;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.compat.GeyserWaystoneHackCompat;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import net.kyori.adventure.text.Component;
@@ -59,7 +60,16 @@ public class DisplayManager {
 
         PersistentDataContainer textDataContainer = textDisplay.getPersistentDataContainer();
         textDataContainer.set(WAYSTONE_KEY, PersistentDataType.BOOLEAN, true);
+
+        if (plugin.floodgateIntegration) {
+            plugin.getServer().getOnlinePlayers().forEach(player -> {
+                if (plugin.isBedrockPlayer(player)) {
+                    GeyserWaystoneHackCompat.sendBedrockWaystoneBlock(player, waystone);
+                }
+            });
+        }
     }
+
     public void clearDisplay(StoredWaystone waystone) {
         Location location = waystone.location();
         World world = location.getWorld();
@@ -122,10 +132,8 @@ public class DisplayManager {
                     }
                 };
 
-                runnable.runTaskLater(plugin, Math.floorDiv(i, batchSize)+1);
-            }
-
-            else {
+                runnable.runTaskLater(plugin, Math.floorDiv(i, batchSize) + 1);
+            } else {
                 StoredWaystone waystone = waystones.get(i);
                 BukkitRunnable runnable = new BukkitRunnable() {
                     @Override

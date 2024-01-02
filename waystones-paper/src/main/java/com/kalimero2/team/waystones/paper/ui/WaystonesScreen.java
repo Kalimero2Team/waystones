@@ -1,15 +1,14 @@
 package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
-import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 
 public class WaystonesScreen {
 
@@ -18,40 +17,37 @@ public class WaystonesScreen {
 
     private final NewScreens newScreens;
     private final JavaScreens java;
-    private final FloodgateScreens floodgateIntegration;
+    private final FloodgateScreens floodgateScreens;
 
 
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
         this.java = new JavaScreens(plugin);
         this.newScreens = new NewScreens(plugin);
-        floodgateIntegration = plugin.floodgateIntegration;
+        this.floodgateScreens = new FloodgateScreens(plugin);
     }
 
 
     public void search(Player player) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.menu(player);
-        }
-        else {
+            floodgateScreens.menu(player);
+        } else {
             java.search(player, null);
         }
     }
 
     public void list(Player player, String search) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.list(player, search);
-        }
-        else {
+            floodgateScreens.list(player, search);
+        } else {
             java.list(player, search);
         }
     }
 
     public void menu(Player player, @Nullable StoredWaystone waystone) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.menu(player);
-        }
-        else {
+            floodgateScreens.menu(player);
+        } else {
             java.menu(player, waystone);
         }
     }
@@ -60,13 +56,8 @@ public class WaystonesScreen {
         newScreens.settings(player, waystone);
     }
 
-    public void create(Player player, Location location, ItemStack stack) {
-        if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.create(player, location, stack, LastCreationResult.FIRST_CALL);
-        }
-        else {
-            java.create(player, location, stack);
-        }
+    public void setup(Player player, Location location, ItemStack stack) {
+        newScreens.setup(player, location, stack);
     }
 
     public void rename(Player player, StoredWaystone waystone) {
@@ -75,26 +66,24 @@ public class WaystonesScreen {
 
     public void category(Player player, @NotNull StoredWaystone waystone) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.setCategory(player, waystone, LastCreationResult.FIRST_CALL);
-        }
-        else {
+            floodgateScreens.setCategory(player, waystone, LastCreationResult.FIRST_CALL);
+        } else {
             java.categorySelection(player, waystone);
         }
     }
 
     public void accessSettings(Player player, StoredWaystone waystone) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.accessSettings(player, waystone);
-        }
-        else {
+            floodgateScreens.accessSettings(player, waystone);
+        } else {
             java.accessSettings(player, waystone);
         }
     }
+
     public void addAccess(Player player, StoredWaystone waystone) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateIntegration.accessAdd(player, waystone, LastCreationResult.FIRST_CALL);
-        }
-        else {
+            floodgateScreens.accessAdd(player, waystone, LastCreationResult.FIRST_CALL);
+        } else {
             java.addAccess(player, waystone);
         }
     }

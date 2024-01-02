@@ -37,11 +37,9 @@ public class GeyserWaystoneHackCompat implements Listener {
     }
 
     public static void sendBedrockWaystoneBlock(Player player, StoredWaystone waystone){
-        if(waystone.visibleTo(player)) {
-            Slab blockData = (Slab) Material.PETRIFIED_OAK_SLAB.createBlockData();
-            blockData.setType(Slab.Type.DOUBLE);
-            player.sendBlockChange(waystone.location(), blockData);
-        }
+        Slab blockData = (Slab) Material.PETRIFIED_OAK_SLAB.createBlockData();
+        blockData.setType(Slab.Type.DOUBLE);
+        player.sendBlockChange(waystone.location(), blockData);
     }
 
 

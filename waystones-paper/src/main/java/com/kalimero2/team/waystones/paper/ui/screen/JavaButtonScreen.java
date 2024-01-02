@@ -77,6 +77,10 @@ public class JavaButtonScreen implements GenericScreen, Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        if (event.isShiftClick()){
+            event.setCancelled(true);
+            return;
+        }
         if (event.getClickedInventory() != inventory) return;
         event.setCancelled(true);
 

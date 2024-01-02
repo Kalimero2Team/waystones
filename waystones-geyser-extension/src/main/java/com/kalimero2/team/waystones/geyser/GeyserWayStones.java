@@ -1,7 +1,6 @@
 package com.kalimero2.team.waystones.geyser;
 
 import org.geysermc.event.subscribe.Subscribe;
-import org.geysermc.geyser.api.GeyserApi;
 import org.geysermc.geyser.api.block.custom.CustomBlockData;
 import org.geysermc.geyser.api.block.custom.component.BoxComponent;
 import org.geysermc.geyser.api.block.custom.component.CustomBlockComponents;
@@ -31,25 +30,10 @@ public class GeyserWayStones implements Extension {
                         .build())
                 .build();
 
-        CustomBlockData portableWaystoneData = CustomBlockData.builder()
-                .name("portable_waystone")
-                .components(CustomBlockComponents.builder()
-                        .collisionBox(waystoneBox)
-                        .selectionBox(waystoneBox)
-                        .geometry(new GeyserGeometryComponent.GeometryComponentBuilder()
-                                .identifier("geometry.portable_waystone")
-                                .build())
-                        .materialInstance("*", MaterialInstance.builder().texture("kalimero2team_portable_waystone").renderMethod("alpha_test").build())
-                        .build())
-                .build();
 
         event.register(waystoneData);
-        event.register(portableWaystoneData);
 
         event.registerOverride("minecraft:petrified_oak_slab[type=double,waterlogged=false]", waystoneData.blockStateBuilder().build());
-        event.registerOverride("minecraft:petrified_oak_slab[type=top,waterlogged=false]", portableWaystoneData.blockStateBuilder().build());
-
-        System.out.println("Registered custom waystone block");
     }
 
     @Subscribe
@@ -58,26 +42,26 @@ public class GeyserWayStones implements Extension {
                 .customModelData(2)
                 .build();
         CustomItemData data = CustomItemData.builder()
-                .name("waystone")
+                .name("static_waystone")
+                .icon("static_waystone_icon")
                 .displayName("Waystone")
+                .textureSize(32)
                 .customItemOptions(itemOptions)
                 .build();
 
         event.register("minecraft:stone_brick_wall", data);
 
-
         CustomItemOptions portable = CustomItemOptions.builder()
                 .customModelData(3)
                 .build();
         CustomItemData portableData = CustomItemData.builder()
-                .name("portable_waystone")
+                .name("portable_waystone_something")
+                .icon("portable_waystone_icon")
                 .displayName("Portable Waystone")
+                .textureSize(32)
                 .customItemOptions(portable)
                 .build();
-
         event.register("minecraft:clock", portableData);
-
-        System.out.println("Registered custom waystone item");
     }
 
 }
