@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public final class StoredWaystone {
-    private final int id;
+    private final UUID id;
     private String name;
     private UUID owner;
     private Visibility visibility;
@@ -25,7 +25,7 @@ public final class StoredWaystone {
     private final UUID world;
     private int uses;
 
-    public StoredWaystone(int id, String name, UUID owner, Visibility visibility, Category category, int chunk_x, int chunk_z, int block_x, int block_y, int block_z, UUID world, int uses) {
+    public StoredWaystone(UUID id, String name, UUID owner, Visibility visibility, Category category, int chunk_x, int chunk_z, int block_x, int block_y, int block_z, UUID world, int uses) {
         if (name == null) {
             throw new IllegalArgumentException("name cannot be null");
         }
@@ -61,7 +61,7 @@ public final class StoredWaystone {
         this.uses = uses;
     }
 
-    public StoredWaystone(int id, String name, String owner_uuid, int visibility, Category category, int x, int y, int z, String world_uuid, int uses) {
+    public StoredWaystone(UUID id, String name, String owner_uuid, int visibility, Category category, int x, int y, int z, String world_uuid, int uses) {
         this(id, name, UUID.fromString(owner_uuid), Visibility.valueByNumber(visibility), category, x >> 4, z >> 4, x, y, z, UUID.fromString(world_uuid), uses);
     }
 
@@ -94,7 +94,7 @@ public final class StoredWaystone {
         return manager.hasAccess(player, id);
     }
 
-    public int id() {
+    public UUID id() {
         return id;
     }
 

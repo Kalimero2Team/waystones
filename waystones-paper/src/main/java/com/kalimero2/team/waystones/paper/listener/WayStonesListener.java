@@ -22,6 +22,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.UUID;
+
 public class WayStonesListener implements Listener {
 
 
@@ -79,7 +81,7 @@ public class WayStonesListener implements Listener {
             waystone = plugin.getManager().getWaystone(blockBelow.getLocation());
         }
         if (waystone != null) {
-            int waystoneID = waystone.id();
+            UUID                                                                                                                                                                                                                                                                                                                                                                                                                               waystoneID = waystone.id();
             event.getPlayer().sendMessage(Component.text("Click here to remove the waystone!").clickEvent(ClickEvent.suggestCommand("/waystone remove " + waystoneID)));
             event.setCancelled(true);
         }
