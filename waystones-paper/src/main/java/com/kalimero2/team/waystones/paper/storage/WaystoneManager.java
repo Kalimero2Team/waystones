@@ -131,7 +131,7 @@ public class WaystoneManager {
     // Waystones
     //
 
-    private final HashMap<Integer, StoredWaystone> waystones = new HashMap<>();
+    private final HashMap<UUID, StoredWaystone> waystones = new HashMap<>();
     private final HashMap<Location, StoredWaystone> waystoneLocations = new HashMap<>();
     private final HashMap<String, StoredWaystone> waystoneNames = new HashMap<>();
 
@@ -176,7 +176,7 @@ public class WaystoneManager {
      * Returns the waystone with the given id
      * @return null if there is no waystone with the given id
      */
-    public StoredWaystone getWaystone(Integer id) {
+    public StoredWaystone getWaystone(UUID id) {
         return getOrCreateCacheObject(id, waystones, storage::getWaystone);
     }
 
@@ -223,7 +223,7 @@ public class WaystoneManager {
      * @param id the ID of the waystone to be removed
      * @return true if the waystone was removed successfully, false if the waystone does not exist
      */
-    public boolean removeWaystone(int id) {
+    public boolean removeWaystone(UUID id) {
         boolean removed = false;
         if (storage.getWaystone(id) != null) {
             storage.removeWaystone(id);
@@ -238,7 +238,7 @@ public class WaystoneManager {
      * @param newName the new name of the waystone
      * @return true if the waystone was renamed successfully, false if the newName is already taken
      */
-    public boolean renameWaystone(int id, String newName) {
+    public boolean renameWaystone(UUID id, String newName) {
         if (isNameUsed(newName)) return false;
         storage.renameWaystone(id, newName);
         waystones.put(id, storage.getWaystone(id));
@@ -268,7 +268,7 @@ public class WaystoneManager {
      * @param id The ID of the waystone
      * @param visibility the new visibility of the waystone
      */
-    public void setVisibility(int id, Visibility visibility) {
+    public void setVisibility(UUID id, Visibility visibility) {
         storage.setVisibility(id, visibility);
         StoredWaystone waystone = storage.getWaystone(id);
         waystones.put(id, waystone);
@@ -304,7 +304,7 @@ public class WaystoneManager {
     }
 
     private List<StoredWaystone> internalGetWaystones(Player player, UUID world) {
-        List<Integer> favIds = getFavorites(player);
+        List<UUID> favIds = getFavorites(player);
         List<StoredWaystone> result = sort(getSortMode(player), getWaystones(world));
         List<StoredWaystone> favs = new ArrayList<>();
         for (StoredWaystone waystone : result) {
@@ -386,19 +386,19 @@ public class WaystoneManager {
     // Favorites
     //
 
-    private final HashMap<Player, List<Integer>> favorites = new HashMap<>();
+    private final HashMap<Player, List<UUID>> favorites = new HashMap<>();
 
-    public List<Integer> getFavorites(Player player) {
+    public List<UUID> getFavorites(Player player) {
         return getOrCreateCacheList(player, favorites, storage::getFavorites);
     }
 
-    public void addFavorite(Player player, int id) {
+    public void addFavorite(Player player, UUID id) {
         getFavorites(player).add(id);
         storage.addFavorite(player, id);
     }
 
-    public void removeFavorite(Player player, int id) {
-        getFavorites(player).remove((Integer) id);
+    public void removeFavorite(Player player, UUID id) {
+        getFavorites(player).remove(id);
         storage.addFavorite(player, id);
     }
 
@@ -407,14 +407,14 @@ public class WaystoneManager {
     // Access
     //
 
-    private final HashMap<Integer, List<OfflinePlayer>> access = new HashMap<>();
+    private final HashMap<UUID, List<OfflinePlayer>> access = new HashMap<>();
 
     /**
      * Gets the list of players who have access to a waystone
      * @param id the ID of the waystone
      * @return the list of players
      */
-    public List<OfflinePlayer> getAccess(Integer id) {
+    public List<OfflinePlayer> getAccess(UUID id) {
         return getOrCreateCacheList(id, access, storage::getAccessList);
     }
 
@@ -424,7 +424,7 @@ public class WaystoneManager {
      * @param player the player
      * @param id the ID of the waystone
      */
-    public void addAccess(OfflinePlayer player, int id) {
+    public void addAccess(OfflinePlayer player, UUID id) {
         getAccess(id).add(player);
         storage.addAccess(player, id);
     }
@@ -434,7 +434,7 @@ public class WaystoneManager {
      * @param player the player
      * @param id the ID of the waystone
      */
-    public void removeAccess(OfflinePlayer player, int id) {
+    public void removeAccess(OfflinePlayer player, UUID id) {
         getAccess(id).remove(player);
         storage.addAccess(player, id);
     }
@@ -445,7 +445,7 @@ public class WaystoneManager {
      * @param id the ID of the waystone
      * @return true if player has access
      */
-    public boolean hasAccess(OfflinePlayer player, int id) {
+    public boolean hasAccess(OfflinePlayer player, UUID id) {
         return getAccess(id).contains(player);
     }
 
@@ -524,7 +524,7 @@ public class WaystoneManager {
     private final HashMap<PlayerWaystoneCombo, Long> teleportTimestamps = new HashMap<>();
 //    private final ArrayList<StoredWaystone> waystonesToUpdateTeleportUses = new ArrayList<>();
 
-    public void addTeleport(Player player, int waystoneId) {
+    public void addTeleport(Player player, UUID waystoneId) {
         boolean countes = true;
         if (teleportTimestamps.containsKey(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId))) {
             if (System.currentTimeMillis() - teleportTimestamps.get(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId)) < 300000) countes = false;   // 5 * 60 * 1000 = 5 minutes

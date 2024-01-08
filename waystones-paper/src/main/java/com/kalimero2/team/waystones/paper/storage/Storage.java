@@ -44,7 +44,7 @@ public class Storage {
 
     @NotNull
     private StoredWaystone getWaystoneFromResultSet(ResultSet resultSet) throws SQLException {
-        return new StoredWaystone(resultSet.getInt("ID"),
+        return new StoredWaystone(UUID.fromString(resultSet.getString("ID")),
                 resultSet.getString("NAME"),
                 resultSet.getString("OWNER_UUID"),
                 resultSet.getInt("VISIBILITY"),
@@ -116,7 +116,7 @@ public class Storage {
         // ID, NAME, Owner(UUID), VISIBILITY, CATEGORY, CHUNK_X, CHUNK_Z , X, Y, Z, WORLD(UUID), USES
 
         executeUpdate("CREATE TABLE IF NOT EXISTS WAYSTONES(" +
-                "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "ID VARCHAR(36) PRIMARY KEY," +
                 "NAME TEXT NOT NULL," +
                 "OWNER_UUID VARCHAR(36) NOT NULL," +
                 "VISIBILITY TINYINT NOT NULL," +
@@ -170,14 +170,14 @@ public class Storage {
     }
 
     public void addWaystone(@NotNull String name, @NotNull UUID owner, int visibility, int category, @NotNull int x, @NotNull int y, @NotNull int z, @NotNull UUID world) {
-        executeUpdate("INSERT INTO WAYSTONES(NAME, OWNER_UUID, VISIBILITY, CATEGORY, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES(?,?,?,?,?,?,?,?,?,?,?);", name, owner, visibility, category, (x >> 4), (z >> 4), x, y, z, world, 0);
+        executeUpdate("INSERT INTO WAYSTONES(ID, NAME, OWNER_UUID, VISIBILITY, CATEGORY, CHUNK_X, CHUNK_Z, BLOCK_X, BLOCK_Y, BLOCK_Z, WORLD_UUID, USES) VALUES(?,?,?,?,?,?,?,?,?,?,?,?);", UUID.randomUUID(), name, owner, visibility, category, (x >> 4), (z >> 4), x, y, z, world, 0);
     }
 
-    public void removeWaystone(int id) {
+    public void removeWaystone(UUID id) {
         executeUpdate("DELETE FROM WAYSTONES WHERE ID = ?;", id);
     }
 
-    public void renameWaystone(int id, String newName) {
+    public void renameWaystone(UUID id, String newName) {
         executeUpdate("UPDATE WAYSTONES SET NAME = ? WHERE ID = ?;", newName, id);
     }
 
@@ -192,7 +192,7 @@ public class Storage {
      * @param id ID of the requested Waystone
      * @return the waystone if it exists, otherwise returns null
      */
-    public StoredWaystone getWaystone(int id) {
+    public StoredWaystone getWaystone(UUID id) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM WAYSTONES WHERE ID = ?;", id)) {
             if (resultSet.next()) {
                 return getWaystoneFromResultSet(resultSet);
@@ -251,12 +251,12 @@ public class Storage {
     // Access list
     //
 
-    public void setVisibility(int id, Visibility visibility) {
+    public void setVisibility(UUID id, Visibility visibility) {
         executeUpdate("UPDATE WAYSTONES SET VISIBILITY = ? WHERE ID = ?;", visibility.ordinal(), id);
     }
 
     // TODO: Is this method required? It is not used anywhere
-    public boolean hasAccess(OfflinePlayer player, int id) {
+    public boolean hasAccess(OfflinePlayer player, UUID id) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE PLAYER = ?;", player.getUniqueId())) {
             return resultSet.next();
         } catch (SQLException ignored) {
@@ -264,16 +264,16 @@ public class Storage {
         return false;
     }
 
-    public void addAccess(OfflinePlayer player, int id) {
+    public void addAccess(OfflinePlayer player, UUID id) {
         executeUpdate("INSERT INTO ACCESSLISTS(PLAYER, WAYSTONE) VALUES(?, ?);", player.getUniqueId(), id);
     }
 
-    public void removeAccess(OfflinePlayer player, int id) {
+    public void removeAccess(OfflinePlayer player, UUID id) {
         executeUpdate("DELETE FROM ACCESSLISTS WHERE PLAYER = ? AND WAYSTONE = ?;", player.getUniqueId(), id);
     }
 
 
-    public List<OfflinePlayer> getAccessList(int id) {
+    public List<OfflinePlayer> getAccessList(UUID id) {
         List<OfflinePlayer> result = new ArrayList<>();
         try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE WAYSTONE = ?;", id)) {
             while (resultSet.next()) {
@@ -289,11 +289,11 @@ public class Storage {
     //
     // Favorites
     //
-    public List<Integer> getFavorites(Player player) {
+    public List<UUID> getFavorites(Player player) {
         try (ResultSet resultSet = executeQuery("SELECT * FROM FAVORITES WHERE PLAYER = ?;", player.getUniqueId())) {
-            List<Integer> favorites = new ArrayList<>();
+            List<UUID> favorites = new ArrayList<>();
             while (resultSet.next()) {
-                favorites.add(resultSet.getInt("WAYSTONE"));
+                favorites.add(UUID.fromString(resultSet.getString("WAYSTONE")));
             }
             return favorites;
         } catch (SQLException e) {
@@ -302,11 +302,11 @@ public class Storage {
         return new ArrayList<>();
     }
 
-    public void addFavorite(Player player, int id) {
+    public void addFavorite(Player player, UUID id) {
         executeUpdate("INSERT INTO FAVORITES(PLAYER, WAYSTONE) VALUES(?, ?);", player.getUniqueId(), id);
     }
 
-    public void removeFavorite(Player player, int id) {
+    public void removeFavorite(Player player, UUID id) {
         executeUpdate("DELETE FROM FAVORITES WHERE PLAYER = ? AND WAYSTONE = ?;", player.getUniqueId(), id);
     }
 
@@ -367,7 +367,7 @@ public class Storage {
         executeUpdate("DELETE FROM CATEGORIES WHERE NAME = ?;", name);
     }
 
-    public void removeCategory(int id) {
+    public void removeCategory(UUID id) {
         executeUpdate("DELETE FROM CATEGORIES WHERE ID = ?;", id);
     }
 

@@ -21,15 +21,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 /**
  * Argument that parses into a {@link StoredWaystone} <br>
- * Deprecated, use {@link cloud.commandframework.arguments.standard.IntegerArgument} with {@link WaystoneManager#getWaystone(Integer)} instead. <br>
- * (Maybe this will be reconsidered in the future) <br>
  * @param <C> Command sender type
  */
-@Deprecated
 public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone> {
     private static WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
 
@@ -114,8 +112,8 @@ public final class WaystoneArgument<C> extends CommandArgument<C, StoredWaystone
 
             StoredWaystone waystone = null;
             try {
-                waystone = manager.getWaystone(Integer.parseInt(input));
-            } catch (NumberFormatException ignored) {
+                waystone = manager.getWaystone(UUID.fromString(input));
+            } catch (IllegalArgumentException ignored) {
 
             }
 
