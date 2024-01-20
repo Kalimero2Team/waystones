@@ -56,7 +56,7 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     }
 
     public static ItemStack getBlankButton(Component name) {
-        return getButton(name, 0, Material.PAPER);
+        return getButton(name, 99, Material.PAPER);
     }
 
     protected void createButton(int slot, Component name, Consumer<Player> onClick, int modelData, Material material) {
