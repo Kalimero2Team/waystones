@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class JavaScreens {
 
@@ -269,7 +270,7 @@ public class JavaScreens {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.empty();
 
-        int id = waystone.id();
+        UUID id = waystone.id();
 
         current_page = current_page.append(Component.translatable("waystones.ui.visibility.title").decorate(TextDecoration.BOLD));
         current_page = current_page.append(Component.newline());
