@@ -117,7 +117,7 @@ public class JavaScreens {
             waystoneColor = NamedTextColor.BLACK;
 
             if (originWaystone != null){
-                if (waystone.id() == originWaystone.id()){
+                if (waystone.id().equals(originWaystone.id())){
                     waystoneColor = NamedTextColor.GREEN;
                 }
             }
@@ -154,7 +154,6 @@ public class JavaScreens {
     }
 
     public void search(Player player, @Nullable String searchTerm) {
-
         Component title = anvilUIPrefix.append(Component.text(searchTerm == null ? "Name des Waystones oder Teile des Namen" : "Es gibt keinen Waystone dessen Name '" + searchTerm + "' enthält."));
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
 
