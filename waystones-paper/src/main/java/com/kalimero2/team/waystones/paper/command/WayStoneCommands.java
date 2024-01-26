@@ -25,6 +25,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -90,7 +91,7 @@ public class WayStoneCommands extends CommandHandler {
                 .literal("favorite")
                 .literal("add")
                 .senderType(Player.class)
-                .argument(IntegerArgument.of("id"))
+                .argument(WaystoneArgument.of("waystone"))
                 .handler(this::addFavorite)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
@@ -98,7 +99,7 @@ public class WayStoneCommands extends CommandHandler {
                 .literal("favorite")
                 .literal("remove")
                 .senderType(Player.class)
-                .argument(IntegerArgument.of("id"))
+                .argument(WaystoneArgument.of("waystone"))
                 .handler(this::removeFavorite)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
@@ -312,7 +313,30 @@ public class WayStoneCommands extends CommandHandler {
             }
 
             if (waystone.checkTeleport(player) || manager.forceMode(player)) {
-                player.teleport(waystone.location());
+                Location location = waystone.location();
+                Location safeLocation = null;
+
+                for (int x = -1; x <= 1; x++) {
+                    for (int z = -1; z <= 1; z++) {
+                        Block block = location.clone().add(x, 0, z).getBlock();
+                        Block upperBlock = location.clone().add(x, 1, z).getBlock();
+                        Block lowerBlock = location.clone().add(x, -1, z).getBlock();
+                        if(block.isEmpty() && upperBlock.isEmpty() && lowerBlock.isSolid()){
+                            safeLocation = block.getLocation().toCenterLocation();
+                            break;
+                        }
+                    }
+                    if(safeLocation != null){
+                        break;
+                    }
+                }
+
+                if(safeLocation == null){
+                    player.sendMessage(Component.translatable("waystones.teleport.nospace", TextUtil.ORANGE)); // TODO: Add String to translations
+                    return;
+                }
+
+                player.teleportAsync(safeLocation);
                 manager.addTeleport(player, waystone.id());
             }
         }
@@ -327,27 +351,6 @@ public class WayStoneCommands extends CommandHandler {
         }
     }
 
-    private void renameWayStone(CommandContext<CommandSender> context) {
-        CommandSender sender = context.getSender();
-
-        StoredWaystone waystone = context.get("waystone");
-        String newName = context.get("newname");
-
-        if (sender instanceof Player player) {
-            if (!waystone.owner().equals(player.getUniqueId()) && !manager.forceMode(player)) return;
-        }
-
-        if (manager.renameWaystone(waystone.id(), newName)) {
-            display.updateDisplay(waystone);
-            sender.sendMessage(Component.translatable("waystones.ui.name.rename", TextUtil.GREEN, Component.text(waystone.id().toString()), Component.text(waystone.name()), Component.text(newName)));
-        }
-
-        else {
-            context.getSender().sendMessage(Component.translatable("waystones.create.name.taken", TextUtil.ORANGE, Component.text(newName)));
-        }
-    }
-
-
     private void searchWayStone(CommandContext<CommandSender> context) {
         screen.search((Player) context.getSender());
     }
@@ -359,12 +362,14 @@ public class WayStoneCommands extends CommandHandler {
     }
 
     private void addFavorite(CommandContext<CommandSender> context) {
-        manager.addFavorite((Player) context.getSender(), context.get("id"));
+        StoredWaystone waystone = context.get("waystone");
+        manager.addFavorite((Player) context.getSender(), waystone.id());
         screen.menu((Player) context.getSender(), null);
     }
 
     private void removeFavorite(CommandContext<CommandSender> context) {
-        manager.removeFavorite((Player) context.getSender(), context.get("id"));
+        StoredWaystone waystone = context.get("waystone");
+        manager.removeFavorite((Player) context.getSender(), waystone.id());
         screen.menu((Player) context.getSender(), null);
     }
 
@@ -411,9 +416,7 @@ public class WayStoneCommands extends CommandHandler {
 
         Player player = (Player) context.getSender();
 
-        manager.createWaystone(name, player.getUniqueId(), 1, -1, location);
-        StoredWaystone waystone = manager.getWaystone(location);
-
+        StoredWaystone waystone = manager.createWaystone(name, player.getUniqueId(), 1, -1, location);
         display.updateDisplay(waystone);
 
         context.getSender().sendMessage(Component.translatable("waystones.ui.create", TextUtil.GREEN, Component.text(location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()), Component.text(name), Component.text(waystone.id().toString())));

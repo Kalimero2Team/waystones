@@ -101,9 +101,9 @@ public class NewScreens {
             InputScreen.InputValidation nameValidation = validateWaystoneName(input);
             if (nameValidation != null) return nameValidation;
 
-            plugin.getManager().createWaystone(input, player.getUniqueId(), 1, -1, location);
-            StoredWaystone waystone = plugin.getManager().getWaystone(location);
+            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), 1, -1, location);
             plugin.getDisplayManager().updateDisplay(waystone);
+
             if (!player.getGameMode().equals(GameMode.CREATIVE)) {
                 stack.setAmount(stack.getAmount() - 1);
             }
@@ -141,7 +141,15 @@ public class NewScreens {
             InputScreen.InputValidation nameValidation = validateWaystoneName(input);
             if (nameValidation != null) return nameValidation;
 
-            manager.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), waystone.visibility(), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            boolean renamed = manager.renameWaystone(waystone.id(), input);
+
+            if(!renamed){
+                // This shouldn't happen, because we already check the name above ...
+                return new InputScreen.InputValidation(false, ":( Es ist ein Fehler aufgetreten!");
+            }
+
+            plugin.getDisplayManager().updateDisplay(manager.getWaystone(waystone.id()));
+
             return new InputScreen.InputValidation(true, null);
         }));
 

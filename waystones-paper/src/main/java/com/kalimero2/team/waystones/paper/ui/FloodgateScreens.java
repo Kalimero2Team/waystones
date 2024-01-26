@@ -6,7 +6,6 @@ import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import com.kalimero2.team.waystones.paper.util.SortMode;
-import com.kalimero2.team.waystones.paper.util.Visibility;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -85,128 +84,6 @@ public class FloodgateScreens {
 
     }
 
-    /**
-     * Opens the Waystone settings menu for the player
-     *
-     * @param player The player that wants to edit the waystone
-     * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
-     */
-    public void settingsFull(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-        if (!waystone.checkPermission(player)) {
-            player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
-            return;
-        }
-
-        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.name());
-
-        switch (lcr) {
-            case NAME_TAKEN -> {
-                builder.label("Dieser Name ist bereits vergeben! Bitte wähle einen anderen Namen.");
-            }
-            case CATEGORY_PRIVATE -> {
-                builder.label("Diese Kategorie ist nur für Teammitglieder verfügbar! Bitte wähle eine andere Kategorie.");
-            }
-            case CATEGORY_INVALID -> {
-                builder.label("Diese Kategorie existiert nicht! Bitte wähle eine andere Kategorie.");
-            }
-            case PLAYER_INVALID -> {
-                builder.label("Dieser Spieler existiert nicht.");
-            }
-            default -> {
-                builder.label("Erstelle einen Waystone");
-            }
-        }
-
-        builder.input("Waystone Name", "Waystone Namen hier eingeben", waystone.name());
-
-        DropdownComponent.Builder dropdownBuilder = DropdownComponent.builder();
-        dropdownBuilder.text("Sichtbarkeit");
-        dropdownBuilder.option("Öffentlich");
-        dropdownBuilder.option("Ungelistet");
-        dropdownBuilder.option("Privat");
-        dropdownBuilder.defaultOption(waystone.visibility().ordinal());
-        builder.dropdown(dropdownBuilder);
-
-        DropdownComponent.Builder dropdownBuilder2 = DropdownComponent.builder();
-        dropdownBuilder2.text("Kategorie");
-
-
-        List<Category> list = new ArrayList<Category>();
-        for (Category c : manager.getCategories()) {
-            dropdownBuilder2.option(c.name());
-            list.add(c);
-        }
-        int defaultOption = list.indexOf(waystone.category());
-        if (defaultOption == -1) defaultOption = 0;
-        dropdownBuilder2.defaultOption(defaultOption);
-        builder.dropdown(dropdownBuilder2);
-
-        builder.validResultHandler(customFormResponse -> {
-            String input = customFormResponse.asInput(1);
-            if (input == null) {
-                settingsFull(player, waystone, LastCreationResult.NAME_TAKEN);
-                return;
-            }
-            if (manager.isNameUsed(input) && !input.equalsIgnoreCase(waystone.name())) {
-                settingsFull(player, waystone, LastCreationResult.NAME_TAKEN);
-                return;
-            }
-            int visibility = customFormResponse.asDropdown(2);
-            int category = customFormResponse.asDropdown(3);
-            Category storedCategory = manager.getCategory(category);
-            if (storedCategory == null) {
-                settingsFull(player, waystone, LastCreationResult.CATEGORY_INVALID);
-                return;
-            }
-            if (!storedCategory.isPublic() && !manager.forceMode(player) && !player.hasPermission("waystones.category")) {
-                settingsFull(player, waystone, LastCreationResult.CATEGORY_PRIVATE);
-                return;
-            }
-
-            manager.updateWaystone(new StoredWaystone(waystone.id(), input, waystone.owner(), Visibility.valueByNumber(visibility), storedCategory, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
-        });
-
-        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-        floodgatePlayer.sendForm(builder.build());
-    }
-
-    /**
-     * Opens the Waystone visibility menu for the player
-     *
-     * @param player The player that wants to edit the waystone
-     *               * @param lcr Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
-     */
-    public void changeVisibility(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-        if (!waystone.checkPermission(player)) {
-            player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
-            return;
-        }
-
-        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.id());
-
-        switch (lcr) {
-            default -> {
-                builder.label("Bearbeite die Sichtbarkeit des Waystones");
-            }
-        }
-
-        DropdownComponent.Builder dropdownBuilder = DropdownComponent.builder();
-        dropdownBuilder.text("Sichtbarkeit");
-        dropdownBuilder.option("Öffentlich");
-        dropdownBuilder.option("Ungelistet");
-        dropdownBuilder.option("Privat");
-        dropdownBuilder.defaultOption(waystone.visibility().ordinal());
-        builder.dropdown(dropdownBuilder);
-
-        builder.validResultHandler(customFormResponse -> {
-            int visibility = customFormResponse.asDropdown();
-            manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), Visibility.valueByNumber(visibility), waystone.category(), waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
-        });
-
-        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-        floodgatePlayer.sendForm(builder.build());
-    }
-
 
     /**
      * Opens the Waystone rename menu for the player
@@ -257,11 +134,9 @@ public class FloodgateScreens {
             int category = customFormResponse.asDropdown() + 1;
             Category storedCategory = manager.getCategory(category);
             if (storedCategory == null) {
-                settingsFull(player, waystone, LastCreationResult.CATEGORY_INVALID);
                 return;
             }
             if (!storedCategory.isPublic() && !manager.forceMode(player) && !player.hasPermission("waystones.category")) {
-                settingsFull(player, waystone, LastCreationResult.CATEGORY_PRIVATE);
                 return;
             }
 

@@ -213,8 +213,16 @@ public class WaystoneManager {
      */
     public StoredWaystone createWaystone(String name, UUID owner, int visibility, int category, Location location) {
         if (isNameUsed(name)) return null;
+
         storage.addWaystone(name, owner, visibility, category, location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID());
-        return getWaystone(location);
+        StoredWaystone waystone = getWaystone(location);
+
+        waystones.put(waystone.id(), waystone);
+        waystoneLocations.put(waystone.location(), waystone);
+        waystoneNames.put(waystone.name(), waystone);
+        book.clear();
+
+        return waystone;
     }
 
 
@@ -225,7 +233,14 @@ public class WaystoneManager {
      */
     public boolean removeWaystone(UUID id) {
         boolean removed = false;
-        if (storage.getWaystone(id) != null) {
+        StoredWaystone waystone = storage.getWaystone(id);
+        if (waystone != null) {
+
+            waystones.remove(id);
+            waystoneLocations.remove(waystone.location());
+            waystoneNames.remove(waystone.name());
+            book.clear();
+
             storage.removeWaystone(id);
             removed = true;
         }
@@ -241,9 +256,13 @@ public class WaystoneManager {
     public boolean renameWaystone(UUID id, String newName) {
         if (isNameUsed(newName)) return false;
         storage.renameWaystone(id, newName);
-        waystones.put(id, storage.getWaystone(id));
-        waystoneLocations.put(waystones.get(id).location(), waystones.get(id));
-        waystoneNames.put(waystones.get(id).name(), waystones.get(id));
+        StoredWaystone waystone = storage.getWaystone(id);
+
+        waystones.put(id, waystone);
+        waystoneLocations.put(waystone.location(), waystone);
+        waystoneNames.put(waystone.name(), waystone);
+        book.clear();
+
         return true;
     }
 
@@ -258,9 +277,11 @@ public class WaystoneManager {
      */
     public void updateWaystone(StoredWaystone waystone) {
         storage.updateWaystone(waystone);
+
         waystones.put(waystone.id(), waystone);
         waystoneLocations.put(waystone.location(), waystone);
         waystoneNames.put(waystone.name(), waystone);
+        book.clear();
     }
 
     /**
@@ -271,9 +292,11 @@ public class WaystoneManager {
     public void setVisibility(UUID id, Visibility visibility) {
         storage.setVisibility(id, visibility);
         StoredWaystone waystone = storage.getWaystone(id);
+
         waystones.put(id, waystone);
         waystoneLocations.put(waystone.location(), waystone);
         waystoneNames.put(waystone.name(), waystone);
+        book.clear();
     }
 
 
@@ -285,8 +308,9 @@ public class WaystoneManager {
     private final HashMap<Player, HashMap<UUID, List<StoredWaystone>>> book = new HashMap<>();
 
     public List<StoredWaystone> getWaystones(Player player) {
-        return getOrCreateCacheListMap(player, player.getWorld().getUID(), book, this::internalGetWaystones);
+        return getWaystones(player, player.getWorld().getUID());
     }
+
     public List<StoredWaystone> getWaystones(Player player, UUID world) {
         return getOrCreateCacheListMap(player, world, book, this::internalGetWaystones);
     }
@@ -522,7 +546,6 @@ public class WaystoneManager {
     //
 
     private final HashMap<PlayerWaystoneCombo, Long> teleportTimestamps = new HashMap<>();
-//    private final ArrayList<StoredWaystone> waystonesToUpdateTeleportUses = new ArrayList<>();
 
     public void addTeleport(Player player, UUID waystoneId) {
         boolean countes = true;
@@ -535,20 +558,10 @@ public class WaystoneManager {
             if (waystone != null) {
                 waystone.uses(waystone.uses() + 1);
             }
-//            waystonesToUpdateTeleportUses.add(waystone);
             storage.updateUses(waystone);
         }
     }
 
-//    public void updateTeleportUses() {
-//        for (StoredWaystone waystone : waystonesToUpdateTeleportUses) {
-//            storage.updateUses(waystone);
-//        }
-//        waystonesToUpdateTeleportUses.clear();
-//    }
-//    public void updateTeleportUses(StoredWaystone waystone) {
-//        if (waystonesToUpdateTeleportUses.remove(waystone)) storage.updateUses(waystone);
-//    }
 
     public void decreaseGlobalUsesScore() {
         storage.decreaseGlobalUsesScore();
