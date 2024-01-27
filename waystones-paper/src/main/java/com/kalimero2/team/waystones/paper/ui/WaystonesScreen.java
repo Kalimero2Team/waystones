@@ -73,11 +73,7 @@ public class WaystonesScreen {
     }
 
     public void accessSettings(Player player, StoredWaystone waystone) {
-        if (plugin.isBedrockPlayer(player)) {
-            floodgateScreens.accessSettings(player, waystone);
-        } else {
-            java.accessSettings(player, waystone);
-        }
+        newScreens.accessSettings(player, waystone);
     }
 
     public void addAccess(Player player, StoredWaystone waystone) {
@@ -85,6 +81,14 @@ public class WaystonesScreen {
             floodgateScreens.accessAdd(player, waystone, LastCreationResult.FIRST_CALL);
         } else {
             java.addAccess(player, waystone);
+        }
+    }
+
+    public void removeAccess(Player player, StoredWaystone waystone) {
+        if (plugin.isBedrockPlayer(player)) {
+            floodgateScreens.accessRemove(player, waystone);
+        } else {
+            java.accessSettings(player, waystone);
         }
     }
 

@@ -76,7 +76,8 @@ public class JavaScreens {
 
 
     public void menu(Player player, @Nullable StoredWaystone waystone) {
-        List<StoredWaystone> waystones = manager.getWaystones(player, player.getWorld().getUID());
+        // When the Player opens the Waystone Menu, we check if the Waystone is visible to them (unlisted are not shown)
+        List<StoredWaystone> waystones = manager.getWaystones(player, player.getWorld().getUID()).stream().filter(w -> w.visibleTo(player)).toList();
         List<Component> pages = generateWaystonePages(player, waystone, waystones);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
     }
@@ -164,7 +165,7 @@ public class JavaScreens {
         meta.displayName(Component.text(searchTerm));
         item.setItemMeta(meta);
 
-        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemOutput(item).onClick((n, state) -> {
+        new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(item).itemOutput(item).onClick((n, state) -> {
             if (state.getText().length() > 16) {
                 return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Maximal 16 Zeichen!"));
             }
@@ -192,7 +193,8 @@ public class JavaScreens {
 
 
     public void list(Player player, String search) {
-        List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), search);
+        // When the Player searches for a Waystone, we only check if they can teleport (unlisted are shown)
+        List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), search).stream().filter(w -> w.checkTeleport(player)).toList();
         List<Component> pages = generateWaystonePages(player, null, waystones);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
     }
@@ -208,6 +210,10 @@ public class JavaScreens {
         String jsonTitle = JSONComponentSerializer.json().serialize(title);
 
         new AnvilGUI.Builder().jsonTitle(jsonTitle).itemLeft(stack).onClick((n, state) -> {
+            if(n == 0 || n == 1){
+                return Collections.singletonList(AnvilGUI.ResponseAction.close());
+            }
+
             OfflinePlayer p = plugin.getServer().getOfflinePlayerIfCached(state.getText());
             if (p == null) {
                 Component title2 = anvilUIPrefix.append(Component.translatable("waystones.ui.anvil.player.invalid"));
@@ -221,7 +227,7 @@ public class JavaScreens {
                 }
             }.runTask(plugin);
             return Collections.singletonList(AnvilGUI.ResponseAction.close());
-        }).preventClose().plugin(plugin).open(player);
+        }).plugin(plugin).open(player);
 
     }
 
@@ -257,33 +263,6 @@ public class JavaScreens {
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));
         }
-
-        pages.add(current_page);
-
-        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
-
-    }
-
-    // TODO: Make this use a ButtonScreen
-    public void changeVisibility(Player player, StoredWaystone waystone) {
-        List<Component> pages = new ArrayList<>();
-        Component current_page = Component.empty();
-
-        UUID id = waystone.id();
-
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.title").decorate(TextDecoration.BOLD));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
-
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.public").clickEvent(ClickEvent.runCommand("/waystone internal creation visibility " + id + " public")));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.unlisted").clickEvent(ClickEvent.runCommand("/waystone internal creation visibility " + id + " unlisted")));
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.private").clickEvent(ClickEvent.runCommand("/waystone internal creation visibility " + id + " private")));
-
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.translatable("waystones.ui.visibility.info").decorate(TextDecoration.BOLD));
 
         pages.add(current_page);
 

@@ -8,8 +8,12 @@ import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.WaystoneTimer;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.TranslationRegistry;
+import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -23,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class PaperWayStones extends JavaPlugin {
     public boolean floodgateIntegration = false;
@@ -36,6 +42,11 @@ public class PaperWayStones extends JavaPlugin {
     public void onEnable() {
         //TODO: API
         //WayStonesApiHolder.setApi(this);
+
+        TranslationRegistry registry = TranslationRegistry.create(Key.key("klm2:waystones"));
+        ResourceBundle bundle = ResourceBundle.getBundle("waystones", Locale.GERMANY, UTF8ResourceBundleControl.get());
+        registry.registerAll(Locale.GERMANY, bundle, true);
+        GlobalTranslator.translator().addSource(registry);
 
         // Claims Compat
         try {
@@ -61,7 +72,6 @@ public class PaperWayStones extends JavaPlugin {
         // Timer to divide every waystones usage score by 1.5 every 24h
         // This is, so that recent usage will be graded higher than past usage
         new WaystoneTimer(this);
-
 
         // Floodgate Compat
 

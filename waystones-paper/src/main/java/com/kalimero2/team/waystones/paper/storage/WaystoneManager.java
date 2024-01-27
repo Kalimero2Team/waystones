@@ -460,7 +460,7 @@ public class WaystoneManager {
      */
     public void removeAccess(OfflinePlayer player, UUID id) {
         getAccess(id).remove(player);
-        storage.addAccess(player, id);
+        storage.removeAccess(player, id);
     }
 
     /**
@@ -540,7 +540,6 @@ public class WaystoneManager {
     }
 
 
-
     //
     // Popularity
     //
@@ -568,5 +567,6 @@ public class WaystoneManager {
         waystones.clear();
         waystoneNames.clear();
         waystoneLocations.clear();
+        book.clear();
     }
 }

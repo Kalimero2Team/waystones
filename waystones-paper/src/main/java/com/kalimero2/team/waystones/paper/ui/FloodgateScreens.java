@@ -61,8 +61,13 @@ public class FloodgateScreens {
     public void list(Player player, String search) {
         SimpleForm.Builder builder = SimpleForm.builder().title("Waystones").content("Wähle einen Waystone aus!");
 
-
-        List<StoredWaystone> waystones = plugin.getManager().getWaystones(player.getWorld().getUID(), search);
+        List<StoredWaystone> allWaystones = plugin.getManager().getWaystones(player.getWorld().getUID(), search);;
+        final List<StoredWaystone> waystones;
+        if(search == null || search.isEmpty() || search.isBlank()){
+            waystones = allWaystones.stream().filter(waystone -> waystone.visibleTo(player)).toList();
+        }else {
+            waystones = allWaystones.stream().filter(waystone -> waystone.checkTeleport(player)).toList();
+        }
 
         if (waystones.isEmpty()) {
             builder.content("Es konnten keine Waystones gefunden werden, dessen Name '" + search + "' enthält.");
@@ -74,7 +79,6 @@ public class FloodgateScreens {
 
         builder.validResultHandler(simpleFormResponse -> {
             int clickedButtonId = simpleFormResponse.clickedButtonId();
-            System.out.println(clickedButtonId);
             StoredWaystone waystone = waystones.get(clickedButtonId);
             player.chat("/waystone tp " + waystone.id());
         });
@@ -97,7 +101,7 @@ public class FloodgateScreens {
             return;
         }
 
-        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.id());
+        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.name());
 
         switch (lcr) {
             case NAME_TAKEN -> {
@@ -149,40 +153,13 @@ public class FloodgateScreens {
 
 
     /**
-     * Opens the access list edit menu for the player
-     *
-     * @param player   Player that wants to edit the waystone
-     * @param waystone Waystone to edit
-     */
-    public void accessSettings(@NotNull Player player, @NotNull StoredWaystone waystone) {
-        SimpleForm.Builder builder = SimpleForm.builder().title("Waystone " + waystone.id()).content("Waystone bearbeiten");
-
-        builder.button("Zugriffsliste ansehen");
-        builder.button("Spieler hinzufügen");
-        builder.button("Spieler entfernen");
-
-        builder.validResultHandler(simpleFormResponse -> {
-            switch (simpleFormResponse.clickedButtonId()) {
-                case 0 -> accessView(player, waystone);
-                case 1 -> accessAdd(player, waystone, LastCreationResult.FIRST_CALL);
-                case 2 -> accessRemove(player, waystone);
-            }
-        });
-
-        FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
-        floodgatePlayer.sendForm(builder.build());
-
-    }
-
-    /**
      * Opens the access list of a waystone
      *
      * @param player   Player that wants to see the list
      * @param waystone Waystone the list is requested from
      */
     public void accessView(@NotNull Player player, @NotNull StoredWaystone waystone) {
-
-        SimpleForm.Builder builder = SimpleForm.builder().title("Waystone " + waystone.id()).content("Zugriffsliste");
+        SimpleForm.Builder builder = SimpleForm.builder().title("Waystone " + waystone.name()).content("Zugriffsliste");
 
         for (OfflinePlayer p : manager.getAccess(waystone.id())) {
             builder.button(Objects.requireNonNullElse(p.getName(), p.getUniqueId().toString())); // TODO: Fetch name from Mojang API?
@@ -208,7 +185,7 @@ public class FloodgateScreens {
             return;
         }
 
-        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.id());
+        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.name());
 
         switch (lcr) {
             case PLAYER_INVALID -> {
@@ -254,7 +231,7 @@ public class FloodgateScreens {
             return;
         }
 
-        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.id());
+        CustomForm.Builder builder = CustomForm.builder().title("Waystone " + waystone.name());
 
         DropdownComponent.Builder dropdownBuilder = DropdownComponent.builder();
         dropdownBuilder.text("Spieler zum Entfernen");
@@ -267,6 +244,7 @@ public class FloodgateScreens {
         builder.dropdown(dropdownBuilder);
 
         builder.validResultHandler(customFormResponse -> {
+            if(list.isEmpty()) return;
             OfflinePlayer p = list.get(customFormResponse.asDropdown());
             manager.removeAccess(p, waystone.id());
         });

@@ -139,27 +139,6 @@ public class WayStoneCommands extends CommandHandler {
                 .handler(this::removeWaystone)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("internal")
-                .literal("visibility")
-                .argument(WaystoneArgument.of("waystone"))
-                .literal("public")
-                .handler(this::changeVisibilityToPublic)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("internal")
-                .literal("visibility")
-                .argument(WaystoneArgument.of("waystone"))
-                .literal("unlisted")
-                .handler(this::changeVisibilityToUnlisted)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("internal")
-                .literal("visibility")
-                .argument(WaystoneArgument.of("waystone"))
-                .literal("private")
-                .handler(this::changeVisibilityToPrivate)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("access")
                 .argument(WaystoneArgument.of("waystone"))
                 .literal("add")
@@ -226,49 +205,11 @@ public class WayStoneCommands extends CommandHandler {
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("internal")
                 .literal("button")
-                .literal("remove")
-                .argument(WaystoneArgument.of("waystone"))
-                .senderType(Player.class)
-                .handler(this::buttonRemoveWaystone)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("internal")
-                .literal("button")
-                .literal("rename")
-                .argument(WaystoneArgument.of("waystone"))
-                .senderType(Player.class)
-                .handler(this::buttonRenameWaystone)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("internal")
-                .literal("button")
                 .literal("access")
                 .literal("add")
                 .argument(WaystoneArgument.of("waystone"))
                 .senderType(Player.class)
                 .handler(this::buttonAddAccess)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("internal")
-                .literal("button")
-                .literal("transferownership")
-                .argument(WaystoneArgument.of("waystone"))
-                .senderType(Player.class)
-                .handler(this::buttonTransferOwnership)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("internal")
-                .literal("button")
-                .literal("category")
-                .argument(WaystoneArgument.of("waystone"))
-                .senderType(Player.class)
-                .handler(this::categorySelection)
-        );
-        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
-                .literal("access")
-                .literal("edit")
-                .argument(WaystoneArgument.of("waystone"))
-                .handler(this::buttonEditAccesslist)
         );
     }
 
@@ -277,13 +218,11 @@ public class WayStoneCommands extends CommandHandler {
         if (manager.toggleForceMode(player)) {
             player.sendMessage(Component.translatable("waystones.force.on", TextUtil.GREEN));
         } else player.sendMessage(Component.translatable("waystones.force.off", TextUtil.GREEN));
-
     }
 
     private void menu(CommandContext<CommandSender> context) {
         screen.menu((Player) context.getSender(), null);
     }
-
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
         if (context.getSender() instanceof Player player) {
@@ -416,7 +355,8 @@ public class WayStoneCommands extends CommandHandler {
 
         Player player = (Player) context.getSender();
 
-        StoredWaystone waystone = manager.createWaystone(name, player.getUniqueId(), 1, -1, location);
+        StoredWaystone waystone = manager.createWaystone(name, player.getUniqueId(), Visibility.PUBLIC.id(), -1, location);
+
         display.updateDisplay(waystone);
 
         context.getSender().sendMessage(Component.translatable("waystones.ui.create", TextUtil.GREEN, Component.text(location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()), Component.text(name), Component.text(waystone.id().toString())));
@@ -445,37 +385,6 @@ public class WayStoneCommands extends CommandHandler {
         sender.sendMessage(Component.translatable("waystones.remove", TextColor.color(255, 73, 0), Component.text(waystone.id().toString())));
     }
 
-    private void changeVisibility(CommandContext<CommandSender> context, Visibility visibility) {
-        CommandSender sender = context.getSender();
-
-        StoredWaystone waystone = context.get("waystone");
-
-        if (sender instanceof Player player) {
-            if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.remove")) return;
-        }
-
-        manager.setVisibility(waystone.id(), visibility);
-
-        sender.sendMessage(Component.translatable("waystones.visibility.set", TextColor.color(255, 73, 0), Component.text(waystone.id().toString()), visibility.text()));
-    }
-
-    private void changeVisibilityToPublic(CommandContext<CommandSender> context) {
-        changeVisibility(context, Visibility.PUBLIC);
-    }
-
-    private void changeVisibilityToUnlisted(CommandContext<CommandSender> context) {
-        changeVisibility(context, Visibility.UNLISTED);
-    }
-
-    private void changeVisibilityToPrivate(CommandContext<CommandSender> context) {
-        changeVisibility(context, Visibility.PRIVATE);
-    }
-
-    private void categorySelection(CommandContext<CommandSender> context) {
-        StoredWaystone waystone = context.get("waystone");
-        screen.category((Player) context.getSender(), waystone);
-    }
-
 
     private void addPlayerToAccessList(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSender();
@@ -502,7 +411,7 @@ public class WayStoneCommands extends CommandHandler {
         }
 
         manager.removeAccess(player, waystone.id());
-        sender.sendMessage(Component.translatable("waystones.access.remove", TextUtil.GREEN, player.displayName(), Component.text(waystone.id().toString())));
+        sender.sendMessage(Component.translatable("waystones.access.remove", TextUtil.GREEN, player.displayName(), Component.text(waystone.name())));
     }
 
     private void showAccessList(CommandContext<CommandSender> context) {
@@ -572,30 +481,9 @@ public class WayStoneCommands extends CommandHandler {
         context.getSender().sendMessage(Component.translatable("waystones.permission.edit", TextUtil.RED, Component.text(context.get("name").toString()).color(TextUtil.WHITE)));
     }
 
-    private void buttonRemoveWaystone(CommandContext<CommandSender> context) {
-        StoredWaystone waystone = context.get("waystone");
-        context.getSender().sendMessage(Component.translatable("waystones.remove.ask", TextUtil.RED, Component.text(waystone.name())));
-        context.getSender().sendMessage(Component.translatable("waystones.remove.confirm").clickEvent(ClickEvent.runCommand("/waystone remove " + waystone.id())));
-    }
-
-    private void buttonRenameWaystone(CommandContext<CommandSender> context) {
-        StoredWaystone waystone = context.get("waystone");
-        screen.rename((Player) context.getSender(), waystone);
-    }
-
     private void buttonAddAccess(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
         screen.addAccess((Player) context.getSender(), waystone);
     }
 
-
-    private void buttonEditAccesslist(CommandContext<CommandSender> context) {
-        StoredWaystone waystone = context.get("waystone");
-        screen.accessSettings((Player) context.getSender(), waystone);
-    }
-
-    private void buttonTransferOwnership(CommandContext<CommandSender> context) {
-        StoredWaystone waystone = context.get("waystone");
-        screen.transferOwnership((Player) context.getSender(), waystone);
-    }
 }

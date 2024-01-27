@@ -5,8 +5,11 @@ import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.screen.ButtonScreen;
 import com.kalimero2.team.waystones.paper.ui.screen.InputScreen;
+import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.TextUtil;
+import com.kalimero2.team.waystones.paper.util.Visibility;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -93,6 +96,19 @@ public class NewScreens {
     }
 
 
+    /**
+     * Opens the access settings menu for the player
+     *
+     * @param player   Player that wants to change the access settings
+     * @param waystone Waystone to change the access settings
+     */
+    public void accessSettings(Player player, StoredWaystone waystone) {
+        if (!waystone.checkPermission(player)) return;
+        ButtonScreen build = createAccessSettings(waystone);
+        build.open(player);
+    }
+
+
     private InputScreen createSetupScreen(@NotNull Location location, ItemStack stack) {
         InputScreen.Builder builder = InputScreen.builder().title(Component.text("Waystones")).plugin(plugin);
         builder.content("Name des Waystones");
@@ -101,7 +117,7 @@ public class NewScreens {
             InputScreen.InputValidation nameValidation = validateWaystoneName(input);
             if (nameValidation != null) return nameValidation;
 
-            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), 1, -1, location);
+            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.PUBLIC.id(), Category.NONE.id(), location);
             plugin.getDisplayManager().updateDisplay(waystone);
 
             if (!player.getGameMode().equals(GameMode.CREATIVE)) {
@@ -143,7 +159,7 @@ public class NewScreens {
 
             boolean renamed = manager.renameWaystone(waystone.id(), input);
 
-            if(!renamed){
+            if (!renamed) {
                 // This shouldn't happen, because we already check the name above ...
                 return new InputScreen.InputValidation(false, ":( Es ist ein Fehler aufgetreten!");
             }
@@ -161,20 +177,62 @@ public class NewScreens {
         builder.plugin(plugin);
 
         builder.button(new ButtonScreen.Button(Component.text("Umbenennen"), 0, 3), player -> {
-            rename(player, waystone);
+            plugin.getScreen().rename(player, waystone);
         });
         builder.button(new ButtonScreen.Button(Component.text("Zugriff verwalten"), 2, 1), player -> {
             plugin.getScreen().accessSettings(player, waystone);
         });
-        builder.button(new ButtonScreen.Button(Component.text("Eigentümer ändern"), 4, 0), player -> {
+        builder.button(new ButtonScreen.Button(Component.text("Eigentümer ändern"), 4, 9), player -> {
             plugin.getScreen().transferOwnership(player, waystone);
         });
-        builder.button(new ButtonScreen.Button(Component.text("Kategorie ändern"), 6, 0), player -> {
+        builder.button(new ButtonScreen.Button(Component.text("Kategorie ändern"), 6, 8), player -> {
             plugin.getScreen().category(player, waystone);
         });
         builder.button(new ButtonScreen.Button(Component.text("Löschen"), 8, 2), player -> {
             delete(player, waystone);
         });
+
+        return builder.build();
+    }
+
+    private ButtonScreen createAccessSettings(@NotNull StoredWaystone waystone) {
+        ButtonScreen.Builder builder = ButtonScreen.builder().title(Component.text("Waystone " + waystone.name())).content("Zugriff Verwalten");
+        builder.plugin(plugin);
+
+        Visibility visibility = waystone.visibility();
+        Visibility nextVisibility;
+        String name;
+        int modelData;
+
+        if (visibility == Visibility.PRIVATE) {
+            name = "Privat";
+            nextVisibility = Visibility.PUBLIC;
+            modelData = 10;
+        } else if (visibility == Visibility.UNLISTED) {
+            name = "Nicht gelistet";
+            nextVisibility = Visibility.PRIVATE;
+            modelData = 12;
+        } else {
+            name = "Öffentlich";
+            nextVisibility = Visibility.UNLISTED;
+            modelData = 11;
+        }
+
+        builder.button(new ButtonScreen.Button(Component.text("Sichtbarkeit: " + name), 0, modelData), player -> {
+            manager.setVisibility(waystone.id(), nextVisibility);
+            player.sendMessage(Component.translatable("waystones.visibility.set", TextColor.color(255, 73, 0), Component.text(waystone.name()), nextVisibility.text()));
+            accessSettings(player, manager.getWaystone(waystone.id()));
+        });
+
+        if (!visibility.equals(Visibility.PUBLIC)) {
+            builder.button(new ButtonScreen.Button(Component.text("Spieler hinzufügen"), 2, 6), player -> {
+                plugin.getScreen().addAccess(player, waystone);
+            });
+            builder.button(new ButtonScreen.Button(Component.text("Spieler entfernen"), 4, 7), player -> {
+                plugin.getScreen().removeAccess(player, waystone);
+            });
+        }
+
 
         return builder.build();
     }

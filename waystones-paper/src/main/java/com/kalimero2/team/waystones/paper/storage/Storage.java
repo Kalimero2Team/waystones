@@ -255,15 +255,6 @@ public class Storage {
         executeUpdate("UPDATE WAYSTONES SET VISIBILITY = ? WHERE ID = ?;", visibility.ordinal(), id);
     }
 
-    // TODO: Is this method required? It is not used anywhere
-    public boolean hasAccess(OfflinePlayer player, UUID id) {
-        try (ResultSet resultSet = executeQuery("SELECT * FROM ACCESSLISTS WHERE PLAYER = ?;", player.getUniqueId())) {
-            return resultSet.next();
-        } catch (SQLException ignored) {
-        }
-        return false;
-    }
-
     public void addAccess(OfflinePlayer player, UUID id) {
         executeUpdate("INSERT INTO ACCESSLISTS(PLAYER, WAYSTONE) VALUES(?, ?);", player.getUniqueId(), id);
     }
