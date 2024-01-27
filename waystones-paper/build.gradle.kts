@@ -22,11 +22,9 @@ dependencies {
     paperweight.paperDevBundle(libs.versions.paper.get())
     bukkitLibrary(libs.cloud.paper)
     bukkitLibrary(libs.sqlite)
-    compileOnly(libs.floodgate.api)
     implementation(libs.anvilgui)
+    compileOnly(libs.floodgate.api)
     compileOnly("com.kalimero2.team:claims-api:2.0.3")
-    implementation(libs.customblockdata)
-    implementation(libs.morepersistentdatatypes)
 }
 
 tasks {
@@ -39,9 +37,7 @@ tasks {
     }
 
     shadowJar {
-        fun reloc(pkg: String, name: String) = relocate(pkg, "com.kalimero2.team.claims.paper.shaded.$name")
-        reloc("com.jeff_media.customblockdata", "customblockdata")
-        reloc("com.jeff_media.morepersistentdatatypes", "morepersistentdatatypes")
+        fun reloc(pkg: String, name: String) = relocate(pkg, "com.kalimero2.team.waystones.paper.shaded.$name")
         reloc("net.wesjd.anvilgui", "anvilgui")
     }
 }
@@ -52,6 +48,5 @@ bukkit {
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("byquanton", "nanoflux")
     version = "2.0.0"
-    depend = listOf("resource-pack-loader")
-    softDepend = listOf("floodgate", "claims-paper")
+    softDepend = listOf("floodgate", "claims-paper","resource-pack-loader")
 }

@@ -3,11 +3,9 @@ package com.kalimero2.team.waystones.paper;
 import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
 import com.kalimero2.team.waystones.paper.compat.GeyserWaystoneHackCompat;
-import com.kalimero2.team.waystones.paper.compat.LegacyConverter;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
-import com.kalimero2.team.waystones.paper.ui.FloodgateScreens;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
 import com.kalimero2.team.waystones.paper.util.WaystoneTimer;
 import net.kyori.adventure.text.Component;
@@ -59,9 +57,6 @@ public class PaperWayStones extends JavaPlugin {
         manager = new WaystoneManager(this, new File(getDataFolder(), "waystones.db"));
         manager.load();
 
-        if (!getConfig().getBoolean("did-legacy-conversion", false)) {
-            new LegacyConverter(this).convert();
-        }
 
         // Timer to divide every waystones usage score by 1.5 every 24h
         // This is, so that recent usage will be graded higher than past usage
