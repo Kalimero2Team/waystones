@@ -4,6 +4,7 @@ import com.kalimero2.team.waystones.paper.command.CommandManager;
 import com.kalimero2.team.waystones.paper.compat.ClaimsIntegration;
 import com.kalimero2.team.waystones.paper.compat.GeyserWaystoneHackCompat;
 import com.kalimero2.team.waystones.paper.display.DisplayManager;
+import com.kalimero2.team.waystones.paper.listener.TradeListener;
 import com.kalimero2.team.waystones.paper.listener.WayStonesListener;
 import com.kalimero2.team.waystones.paper.storage.WaystoneManager;
 import com.kalimero2.team.waystones.paper.ui.WaystonesScreen;
@@ -102,6 +103,7 @@ public class PaperWayStones extends JavaPlugin {
         // Event Listeners
 
         new WayStonesListener(this);
+        new TradeListener(this);
 
     }
 

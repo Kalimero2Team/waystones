@@ -3,9 +3,11 @@ package com.kalimero2.team.waystones.paper.command;
 import cloud.commandframework.arguments.standard.BooleanArgument;
 import cloud.commandframework.arguments.standard.IntegerArgument;
 import cloud.commandframework.arguments.standard.StringArgument;
+import cloud.commandframework.bukkit.arguments.selector.SingleEntitySelector;
 import cloud.commandframework.bukkit.parsers.PlayerArgument;
 import cloud.commandframework.bukkit.parsers.WorldArgument;
 import cloud.commandframework.bukkit.parsers.location.LocationArgument;
+import cloud.commandframework.bukkit.parsers.selector.SingleEntitySelectorArgument;
 import cloud.commandframework.context.CommandContext;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.command.arguments.WaystoneArgument;
@@ -23,11 +25,14 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 
@@ -211,6 +216,27 @@ public class WayStoneCommands extends CommandHandler {
                 .senderType(Player.class)
                 .handler(this::buttonAddAccess)
         );
+
+
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("trader")
+                .literal("mark")
+                .argument(SingleEntitySelectorArgument.of("entity"))
+                .permission("waystones.trader.mark")
+                .handler(this::markTrader)
+        );
+    }
+
+    private void markTrader(CommandContext<CommandSender> context) {
+        SingleEntitySelector entity = context.get("entity");
+
+        Entity entity1 = entity.getEntity();
+        if(entity1 != null){
+            entity1.getPersistentDataContainer().set(new NamespacedKey("waystones", "trader"), PersistentDataType.BYTE, (byte) 1);
+        }else {
+            context.getSender().sendMessage(Component.text("Entity not found!"));
+        }
+
     }
 
     private void forceMode(CommandContext<CommandSender> context) {
