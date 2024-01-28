@@ -117,12 +117,17 @@ public class NewScreens {
             InputScreen.InputValidation nameValidation = validateWaystoneName(input);
             if (nameValidation != null) return nameValidation;
 
-            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.PUBLIC.id(), Category.NONE.id(), location);
-            plugin.getDisplayManager().updateDisplay(waystone);
-
             if (!player.getGameMode().equals(GameMode.CREATIVE)) {
+
+                if(stack == null || stack.getAmount() < 1){
+                    return new InputScreen.InputValidation(false, "Du hast keinen Waystone im Inventar!");
+                }
+
                 stack.setAmount(stack.getAmount() - 1);
             }
+
+            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.PUBLIC.id(), Category.NONE.id(), location);
+            plugin.getDisplayManager().updateDisplay(waystone);
 
             return new InputScreen.InputValidation(true, null);
         }));
