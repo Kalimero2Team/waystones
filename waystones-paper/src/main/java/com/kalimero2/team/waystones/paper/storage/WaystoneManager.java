@@ -397,8 +397,6 @@ public class WaystoneManager {
         switch (mode) {
             case ALPHABETICAL -> list.sort(Comparator.comparing(StoredWaystone::name));
             case ALPHABETICAL_DESCENDING -> list.sort(Comparator.comparing(StoredWaystone::getName).reversed());
-            case NUMERIC -> list.sort(Comparator.comparing(StoredWaystone::id));
-            case NUMERIC_DESCENDING -> list.sort(Comparator.comparing(StoredWaystone::id).reversed());
             case POPULARITY -> list.sort(Comparator.comparing(StoredWaystone::getUses).reversed());
             case POPULARITY_ASCENDING -> list.sort(Comparator.comparing(StoredWaystone::uses));
         }

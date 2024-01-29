@@ -58,11 +58,11 @@ public class JavaScreens {
             current_page = current_page.append(Component.text("    [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 0")));
 
         if (mode == SortMode.POPULARITY)
-            current_page = current_page.append(Component.text("   [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 5")));
+            current_page = current_page.append(Component.text("   [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 3")));
         else if (mode == SortMode.POPULARITY_ASCENDING)
-            current_page = current_page.append(Component.text("   [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 4")));
+            current_page = current_page.append(Component.text("   [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
         else
-            current_page = current_page.append(Component.text("   [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 4")));
+            current_page = current_page.append(Component.text("   [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
 
         return current_page;
     }

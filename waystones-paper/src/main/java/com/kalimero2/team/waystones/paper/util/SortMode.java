@@ -1,14 +1,13 @@
 package com.kalimero2.team.waystones.paper.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public enum SortMode {
     ALPHABETICAL,
     ALPHABETICAL_DESCENDING,
-
-    NUMERIC,
-    NUMERIC_DESCENDING,
 
     POPULARITY,
     POPULARITY_ASCENDING;
@@ -22,12 +21,12 @@ public enum SortMode {
     }
 
 
-    public static SortMode valueByNumber(int id) {
+    public static @NotNull SortMode valueByNumber(int id) {
         try {
-            return MAP.get(id);
+            return MAP.getOrDefault(id, POPULARITY);
         }
         catch (Exception e) {
-            return NUMERIC;
+            return POPULARITY;
         }
     }
 }
