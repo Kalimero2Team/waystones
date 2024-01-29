@@ -167,7 +167,7 @@ public class WaystoneManager {
     public List<StoredWaystone> getWaystones(Chunk chunk) {
         List<StoredWaystone> waystones = new ArrayList<>();
         for (StoredWaystone waystone : this.waystones.values()) {
-            if (waystone.location().getChunk().equals(chunk)) waystones.add(waystone);
+            if (waystone.chunk_x() == chunk.getX() && waystone.chunk_z() == chunk.getZ() && waystone.world().equals(chunk.getWorld().getUID())) waystones.add(waystone);
         }
         return waystones;
     }
