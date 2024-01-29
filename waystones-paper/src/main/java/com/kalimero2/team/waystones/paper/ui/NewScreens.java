@@ -141,12 +141,17 @@ public class NewScreens {
 
         builder.button(new ButtonScreen.Button(Component.text("Löschen"), 5, 5), player -> {
             plugin.getDisplayManager().clearDisplay(waystone);
+            if (player.getInventory().firstEmpty() == -1) {
+                player.sendMessage(Component.text("Du hast nicht genug Platz im Inventar!", TextUtil.RED));
+                return;
+            }
             if (manager.removeWaystone(waystone.id())) {
                 player.sendMessage(Component.text("Waystone wurde entfernt!", TextUtil.GREEN));
                 player.getInventory().addItem(plugin.getStatic());
             } else {
                 player.sendMessage(Component.text("Waystone konnte nicht entfernt werden.", TextUtil.RED));
             }
+
             player.closeInventory();
         });
         builder.button(new ButtonScreen.Button(Component.text("Abbrechen"), 3, 4), HumanEntity::closeInventory);
