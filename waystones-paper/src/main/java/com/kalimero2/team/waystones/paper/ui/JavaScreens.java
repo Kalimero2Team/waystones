@@ -51,25 +51,18 @@ public class JavaScreens {
         Component current_page = Component.newline();
 
         if (mode == SortMode.ALPHABETICAL)
-            current_page = current_page.append(Component.text("  [A-Z]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 1")));
+            current_page = current_page.append(Component.text("    [A-Z]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 1")));
         else if (mode == SortMode.ALPHABETICAL_DESCENDING)
-            current_page = current_page.append(Component.text("  [A-Z]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 0")));
+            current_page = current_page.append(Component.text("    [A-Z]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 0")));
         else
-            current_page = current_page.append(Component.text("  [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 0")));
-
-        if (mode == SortMode.NUMERIC)
-            current_page = current_page.append(Component.text("  [1-2]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 3")));
-        else if (mode == SortMode.NUMERIC_DESCENDING)
-            current_page = current_page.append(Component.text("  [1-2]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
-        else
-            current_page = current_page.append(Component.text("  [1-2]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
+            current_page = current_page.append(Component.text("    [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 0")));
 
         if (mode == SortMode.POPULARITY)
-            current_page = current_page.append(Component.text("  [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 5")));
+            current_page = current_page.append(Component.text("   [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 5")));
         else if (mode == SortMode.POPULARITY_ASCENDING)
-            current_page = current_page.append(Component.text("  [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 4")));
+            current_page = current_page.append(Component.text("   [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 4")));
         else
-            current_page = current_page.append(Component.text("  [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 4")));
+            current_page = current_page.append(Component.text("   [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 4")));
 
         return current_page;
     }
@@ -84,7 +77,7 @@ public class JavaScreens {
 
     private List<Component> generateWaystonePages(Player player, @Nullable StoredWaystone originWaystone, List<StoredWaystone> waystones) {
         List<Component> pages = new ArrayList<>();
-        int counter = 1;
+        int counter = 2;
 
         Component current_page = Component.empty();
 
@@ -96,7 +89,7 @@ public class JavaScreens {
 
         for (StoredWaystone waystone : waystones) {
             counter++;
-            if (counter == 12) {
+            if (counter == 13) {
                 current_page = current_page.append(sortBar(plugin.getManager().getSortMode(player)));
                 pages.add(current_page);
                 current_page = Component.empty();
