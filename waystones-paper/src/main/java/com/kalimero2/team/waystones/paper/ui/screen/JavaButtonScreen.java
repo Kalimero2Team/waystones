@@ -6,6 +6,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,8 +32,27 @@ public class JavaButtonScreen implements GenericScreen, Listener {
         this.plugin = buttonScreen.getPlugin();
         Component inventoryOverlay = MiniMessage.miniMessage().deserialize("<white><lang:space.-8><font:klm2:waystones>b</font><reset><lang:space.-170>");
         MinecraftFont minecraftFont = MinecraftFont.Font;
-        int titleWidth = minecraftFont.getWidth(TextUtil.compomentToString(buttonScreen.getTitle()));
-        Component negativeSpace = Component.translatable("space.-"+(titleWidth+1));
+
+        int titleWidth;
+        String text = TextUtil.compomentToString(buttonScreen.getTitle());
+        if (minecraftFont.isValid(text)) {
+            titleWidth = minecraftFont.getWidth(TextUtil.compomentToString(buttonScreen.getTitle()));
+        } else {
+            StringBuilder replacedString = new StringBuilder();
+            for (int i = 0; i < text.length(); ++i) {
+                char ch = text.charAt(i);
+                if (ch == ChatColor.COLOR_CHAR || ch == '\n') continue;
+                if (minecraftFont.getChar(ch) == null) {
+                    replacedString.append("e"); // e is quite average
+                } else {
+                    replacedString.append(ch);
+                }
+            }
+            titleWidth = minecraftFont.getWidth(replacedString.toString());
+        }
+
+
+        Component negativeSpace = Component.translatable("space.-" + (titleWidth + 1));
         Component secondLine = Component.text(buttonScreen.getLabel()).font(Key.key("klm2", "second_line"));
         this.inventory = plugin.getServer().createInventory(null, 9 * 2, inventoryOverlay
                 .append(buttonScreen.getTitle())
@@ -65,8 +85,8 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     }
 
     protected void setSlot(int slot, ItemStack item, Consumer<Player> onClick) {
-        slotMapping.put(slot+9, onClick);
-        inventory.setItem(slot+9, item);
+        slotMapping.put(slot + 9, onClick);
+        inventory.setItem(slot + 9, item);
     }
 
 
