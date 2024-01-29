@@ -151,7 +151,6 @@ public class NewScreens {
             } else {
                 player.sendMessage(Component.text("Waystone konnte nicht entfernt werden.", TextUtil.RED));
             }
-
             player.closeInventory();
         });
         builder.button(new ButtonScreen.Button(Component.text("Abbrechen"), 3, 4), HumanEntity::closeInventory);

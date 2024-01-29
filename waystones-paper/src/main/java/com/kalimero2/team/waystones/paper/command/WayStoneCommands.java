@@ -32,6 +32,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
@@ -261,13 +262,18 @@ public class WayStoneCommands extends CommandHandler {
             }
 
             if (!teleportAllowed) {
-                if (player.getInventory().containsAtLeast(plugin.getPortable(), 1)) {
-                    if (player.getLevel() >= 1) {
-                        player.setLevel(player.getLevel() - 1);
-                        teleportAllowed = true;
-                    } else {
-                        player.sendMessage(Component.translatable("waystones.teleport.noxp", TextUtil.ORANGE));
-                        return;
+                for (ItemStack stack : player.getInventory().getContents()) {
+                    if (stack != null) {
+                        if (stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey("waystones", "portable"))) {
+                            if (player.getLevel() >= 1) {
+                                player.setLevel(player.getLevel() - 1);
+                                teleportAllowed = true;
+                            } else {
+                                player.sendMessage(Component.translatable("waystones.teleport.noxp", TextUtil.ORANGE));
+                                return;
+                            }
+                            break;
+                        }
                     }
                 }
             }
