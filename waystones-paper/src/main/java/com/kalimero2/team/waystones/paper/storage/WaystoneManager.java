@@ -562,9 +562,13 @@ public class WaystoneManager {
 
     public void decreaseGlobalUsesScore() {
         storage.decreaseGlobalUsesScore();
+
+        // TODO: This is not a good solution
         waystones.clear();
         waystoneNames.clear();
         waystoneLocations.clear();
         book.clear();
+
+        load();
     }
 }
