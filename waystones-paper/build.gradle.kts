@@ -47,6 +47,5 @@ bukkit {
     apiVersion = "1.20"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("byquanton", "nanoflux")
-    version = "2.0.0"
     softDepend = listOf("floodgate", "claims-paper","resource-pack-loader")
 }
