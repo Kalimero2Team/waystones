@@ -256,6 +256,7 @@ public class WayStoneCommands extends CommandHandler {
             StoredWaystone waystone = context.get("waystone");
 
             boolean teleportAllowed = manager.forceMode(player);
+            boolean xpNeeded = false;
 
             for (StoredWaystone w : manager.getWaystones(player.getWorld())) {
                 if (w.location().distance(player.getLocation()) <= 5) teleportAllowed = true;
@@ -264,9 +265,9 @@ public class WayStoneCommands extends CommandHandler {
             if (!teleportAllowed) {
                 for (ItemStack stack : player.getInventory().getContents()) {
                     if (stack != null) {
-                        if (stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey("waystones", "portable"))) {
+                        if (stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
                             if (player.getLevel() >= 1) {
-                                player.setLevel(player.getLevel() - 1);
+                                xpNeeded = true;
                                 teleportAllowed = true;
                             } else {
                                 player.sendMessage(Component.translatable("waystones.teleport.noxp", TextUtil.ORANGE));
@@ -297,15 +298,17 @@ public class WayStoneCommands extends CommandHandler {
                             break;
                         }
                     }
-                    if(safeLocation != null){
+                    if (safeLocation != null){
                         break;
                     }
                 }
 
-                if(safeLocation == null){
+                if (safeLocation == null){
                     player.sendMessage(Component.translatable("waystones.teleport.nospace", TextUtil.ORANGE)); // TODO: Add String to translations
                     return;
                 }
+
+                if (xpNeeded) player.giveExpLevels( -1);
 
                 player.teleportAsync(safeLocation);
                 manager.addTeleport(player, waystone.id());
