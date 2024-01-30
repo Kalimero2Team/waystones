@@ -264,7 +264,7 @@ public class WayStoneCommands extends CommandHandler {
             if (!teleportAllowed) {
                 for (ItemStack stack : player.getInventory().getContents()) {
                     if (stack != null) {
-                        if (stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey("waystones", "portable"))) {
+                        if (stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "portable"))) {
                             if (player.getLevel() >= 1) {
                                 player.setLevel(player.getLevel() - 1);
                                 teleportAllowed = true;
