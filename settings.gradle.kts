@@ -8,8 +8,8 @@ dependencyResolutionManagement{
             version("geyser-geyserApi","2.2.0-SNAPSHOT")
             version("geyser-geyserCore","2.2.0-SNAPSHOT")
             version("anvilgui","1.9.2-SNAPSHOT")
-            version("sqlite","3.40.0.0")
-            version("cloud", "1.8.0")
+            version("sqlite","3.45.1.0")
+            version("cloud", "1.8.4")
 
             library("floodgate-api","org.geysermc.floodgate","api").versionRef("floodgate-api")
             library("geyser-api","org.geysermc.geyser","api").versionRef("geyser-geyserApi")
@@ -18,8 +18,8 @@ dependencyResolutionManagement{
             library("anvilgui","net.wesjd","anvilgui").versionRef("anvilgui")
 
             // Paper
-            plugin("paper-run","xyz.jpenilla.run-paper").version("2.2.0")
-            plugin("paper-userdev","io.papermc.paperweight.userdev").version("1.5.5")
+            plugin("paper-run","xyz.jpenilla.run-paper").version("2.2.2")
+            plugin("paper-userdev","io.papermc.paperweight.userdev").version("1.5.11")
             plugin("plugin-yml","net.minecrell.plugin-yml.bukkit").version("0.6.0")
 
             version("paper","1.20.1-R0.1-SNAPSHOT")
