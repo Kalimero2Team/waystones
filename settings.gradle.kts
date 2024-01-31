@@ -9,7 +9,7 @@ dependencyResolutionManagement{
             version("geyser-geyserCore","2.2.0-SNAPSHOT")
             version("anvilgui","1.9.2-SNAPSHOT")
             version("sqlite","3.40.0.0")
-            version("cloud", "1.8.0")
+            version("cloud", "1.8.4")
 
             library("floodgate-api","org.geysermc.floodgate","api").versionRef("floodgate-api")
             library("geyser-api","org.geysermc.geyser","api").versionRef("geyser-geyserApi")
