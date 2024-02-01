@@ -17,6 +17,7 @@ import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -39,6 +40,8 @@ public class PaperWayStones extends JavaPlugin {
     private DisplayManager displayManager;
     private WaystonesScreen screen;
 
+    public double decayFactor = 1.25;
+
     @Override
     public void onEnable() {
         //TODO: API
@@ -60,11 +63,15 @@ public class PaperWayStones extends JavaPlugin {
         }
 
         // Display Manager
-
         displayManager = new DisplayManager(this);
 
-        // Storage
+        // Config
+        FileConfiguration config = getConfig();
+        decayFactor = config.getDouble("decayFactor", 1.25);
+        config.set("decayFactor", decayFactor);
+        saveConfig();
 
+        // Storage
         getDataFolder().mkdirs();
         manager = new WaystoneManager(this, new File(getDataFolder(), "waystones.db"));
         manager.load();
