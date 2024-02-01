@@ -304,7 +304,7 @@ public class WayStoneCommands extends CommandHandler {
                 }
 
                 if (safeLocation == null){
-                    player.sendMessage(Component.translatable("waystones.teleport.nospace", TextUtil.ORANGE)); // TODO: Add String to translations
+                    player.sendMessage(Component.translatable("waystones.teleport.nospace", TextUtil.ORANGE));
                     return;
                 }
 

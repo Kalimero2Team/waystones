@@ -1,11 +1,10 @@
 plugins {
     `java-library`
-    id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 allprojects{
     group = "com.kalimero2.team"
-    version = "2.0.4"
+    version = "2.0.6-SNAPSHOT"
 }
 
 java {

@@ -13,12 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -551,7 +546,7 @@ public class WaystoneManager {
         }
         teleportTimestamps.put(new PlayerWaystoneCombo(player.getUniqueId(), waystoneId), System.currentTimeMillis());
         if (countes) {
-            StoredWaystone waystone = storage.getWaystone(waystoneId);
+            StoredWaystone waystone = getWaystone(waystoneId);
             if (waystone != null) {
                 waystone.uses(waystone.uses() + 1);
             }
@@ -563,12 +558,8 @@ public class WaystoneManager {
     public void decreaseGlobalUsesScore() {
         storage.decreaseGlobalUsesScore();
 
-        // TODO: This is not a good solution
-        waystones.clear();
-        waystoneNames.clear();
-        waystoneLocations.clear();
-        book.clear();
-
-        load();
+        for (StoredWaystone waystone : waystones.values()) {
+            waystone.uses((int) (waystone.uses() / plugin.decayFactor));
+        }
     }
 }
