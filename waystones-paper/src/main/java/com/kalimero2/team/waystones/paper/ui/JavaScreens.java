@@ -117,13 +117,19 @@ public class JavaScreens {
             }
 
             Component hoverText = Component.translatable("waystones.ui.clicktoteleport");
+            hoverText = hoverText.append(Component.newline()).append(Component.newline());
+            hoverText = hoverText.append(Component.text(waystone.category().name()));
 
             if (player.hasPermission("waystone.hover_details")) {
                 hoverText = hoverText.append(Component.newline()).append(Component.newline());
                 hoverText = hoverText.append(Component.text("ID: " + waystone.id()));
                 hoverText = hoverText.append(Component.newline());
-                hoverText = hoverText.append(Component.text(waystone.category().name()));
+                hoverText = hoverText.append(Component.text("Owner: " + waystone.owner()));
                 hoverText = hoverText.append(Component.newline()).append(Component.newline());
+                hoverText = hoverText.append(Component.text("Score: " + waystone.uses()));
+                hoverText = hoverText.append(Component.newline());
+                hoverText = hoverText.append(Component.text("Visibility: " + waystone.visibility()));
+                hoverText = hoverText.append(Component.newline());
                 hoverText = hoverText.append(Component.text("Pos: [" + waystone.block_x() + ", " + waystone.block_y() + ", " + waystone.block_z() + "]"));
             }
 
