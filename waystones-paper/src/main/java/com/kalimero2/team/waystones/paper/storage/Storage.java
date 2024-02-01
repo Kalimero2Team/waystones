@@ -364,7 +364,7 @@ public class Storage {
 
 
     public void decreaseGlobalUsesScore() {
-        executeUpdate("UPDATE WAYSTONES SET USES = USES / 1.5;");
+        executeUpdate("UPDATE WAYSTONES SET USES = USES / " + plugin.decayFactor + ";");
     }
 
     public void updateUses(StoredWaystone waystone) {
