@@ -56,11 +56,11 @@ public class JavaScreens {
             current_page = current_page.append(Component.text("    [A-Z]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 0")));
 
         if (mode == SortMode.POPULARITY)
-            current_page = current_page.append(Component.text("   [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 3")));
+            current_page = current_page.append(Component.text("    [★★★]").color(colorSelected).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 3")));
         else if (mode == SortMode.POPULARITY_ASCENDING)
-            current_page = current_page.append(Component.text("   [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
+            current_page = current_page.append(Component.text("    [★★★]").color(colorSelectedInverted).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
         else
-            current_page = current_page.append(Component.text("   [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
+            current_page = current_page.append(Component.text("    [★★★]").color(color).clickEvent(ClickEvent.runCommand("/waystone internal sortingmode 2")));
 
         return current_page;
     }
@@ -89,7 +89,7 @@ public class JavaScreens {
         Component current_page = Component.empty();
 
         if (showControls) {
-            current_page = current_page.append(Component.text(" [░]").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.categories"))).clickEvent(ClickEvent.runCommand("/waystone menu category")).append(Component.text("   [  \uD83D\uDD0D  ").append(Component.translatable("waystones.ui.search")).append(Component.text("  ]   ")).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search"))));
+            current_page = current_page.append(Component.text(" [░]").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.browse"))).clickEvent(ClickEvent.runCommand("/waystone menu category")).append(Component.text("   [  \uD83D\uDD0D  ").append(Component.translatable("waystones.ui.search")).append(Component.text("  ]   ")).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search"))));
             current_page = current_page.append(Component.newline());
             current_page = current_page.append(Component.newline());
             counter = 2;
@@ -154,7 +154,7 @@ public class JavaScreens {
             for (int i = 0; i < 12 - counter; i++) {
                 current_page = current_page.append(Component.newline());
             }
-            current_page = current_page.append(sortBar(plugin.getManager().getSortMode(player)));
+             if (showControls) current_page = current_page.append(sortBar(plugin.getManager().getSortMode(player)));
         }
 
         pages.add(current_page);
