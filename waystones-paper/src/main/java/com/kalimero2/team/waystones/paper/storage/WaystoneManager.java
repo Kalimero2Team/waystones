@@ -416,7 +416,7 @@ public class WaystoneManager {
 
     public void removeFavorite(Player player, UUID id) {
         getFavorites(player).remove(id);
-        storage.addFavorite(player, id);
+        storage.removeFavorite(player, id);
     }
 
 
