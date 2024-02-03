@@ -145,7 +145,7 @@ public class WaystoneManager {
     public Collection<StoredWaystone> getWaystones(Category category) {
         List<StoredWaystone> waystones = new ArrayList<>();
         for (StoredWaystone waystone : this.waystones.values()) {
-            if (waystone.category() == category && waystone.visibility().equals(Visibility.PUBLIC)) waystones.add(waystone);
+            if (waystone.category().equals(category) && waystone.visibility().equals(Visibility.PUBLIC)) waystones.add(waystone);
         }
         waystones.sort(Comparator.comparingInt(StoredWaystone::getUses).reversed());
         return waystones;

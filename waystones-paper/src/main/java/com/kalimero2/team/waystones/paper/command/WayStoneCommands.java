@@ -274,7 +274,7 @@ public class WayStoneCommands extends CommandHandler {
     }
 
     private void browseCategory(CommandContext<CommandSender> context) {
-        screen.browse((Player) context.getSender(), null);
+        screen.browse((Player) context.getSender(), manager.getCategory((int) context.get("category")));
     }
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
