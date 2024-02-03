@@ -16,6 +16,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.wesjd.anvilgui.AnvilGUI;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -25,10 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JavaScreens {
 
@@ -71,26 +69,37 @@ public class JavaScreens {
     public void menu(Player player, @Nullable StoredWaystone waystone) {
         // When the Player opens the Waystone Menu, we check if the Waystone is visible to them (unlisted are not shown)
         List<StoredWaystone> waystones = manager.getWaystones(player, player.getWorld().getUID()).stream().filter(w -> w.visibleTo(player)).toList();
-        List<Component> pages = generateWaystonePages(player, waystone, waystones);
+        List<Component> pages = generateWaystonePages(player, waystone, waystones, true);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+
     }
 
-    private List<Component> generateWaystonePages(Player player, @Nullable StoredWaystone originWaystone, List<StoredWaystone> waystones) {
-        List<Component> pages = new ArrayList<>();
-        int counter = 2;
 
+    public void browse(Player player, Category category) {
+        // When the Player opens the Waystone Menu, we check if the Waystone is visible to them (unlisted are not shown)
+        Collection<StoredWaystone> waystones = manager.getWaystones(category);
+        List<Component> pages = generateWaystonePages(player, null, waystones, false);
+        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+
+    }
+
+    private List<Component> generateWaystonePages(Player player, @Nullable StoredWaystone originWaystone, Collection<StoredWaystone> waystones, boolean showControls) {
+        List<Component> pages = new ArrayList<>();
+        int counter = 0;
         Component current_page = Component.empty();
 
-        current_page = current_page.append(Component.text("    [  \uD83D\uDD0D  ").append(Component.translatable("waystones.ui.search")).append(Component.text("  ]   ")).color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search")));
-
-        current_page = current_page.append(Component.newline());
-        current_page = current_page.append(Component.newline());
+        if (showControls) {
+            current_page = current_page.append(Component.text(" [░]").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.categories"))).clickEvent(ClickEvent.runCommand("/waystone menu category")).append(Component.text("   [  \uD83D\uDD0D  ").append(Component.translatable("waystones.ui.search")).append(Component.text("  ]   ")).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search"))));
+            current_page = current_page.append(Component.newline());
+            current_page = current_page.append(Component.newline());
+            counter = 2;
+        }
 
 
         for (StoredWaystone waystone : waystones) {
             counter++;
             if (counter == 13) {
-                current_page = current_page.append(sortBar(plugin.getManager().getSortMode(player)));
+                if (showControls) current_page = current_page.append(sortBar(plugin.getManager().getSortMode(player)));
                 pages.add(current_page);
                 current_page = Component.empty();
                 counter = 0;
@@ -120,11 +129,11 @@ public class JavaScreens {
             hoverText = hoverText.append(Component.newline()).append(Component.newline());
             hoverText = hoverText.append(Component.text(waystone.category().name()));
 
-            if (player.hasPermission("waystone.hover_details")) {
+            if (player.hasPermission("waystones.hover_details")) {
                 hoverText = hoverText.append(Component.newline()).append(Component.newline());
                 hoverText = hoverText.append(Component.text("ID: " + waystone.id()));
                 hoverText = hoverText.append(Component.newline());
-                hoverText = hoverText.append(Component.text("Owner: " + waystone.owner()));
+                hoverText = hoverText.append(Component.text("Owner: " + Bukkit.getOfflinePlayer(waystone.owner()).getName()));
                 hoverText = hoverText.append(Component.newline()).append(Component.newline());
                 hoverText = hoverText.append(Component.text("Score: " + waystone.uses()));
                 hoverText = hoverText.append(Component.newline());
@@ -194,7 +203,7 @@ public class JavaScreens {
     public void list(Player player, String search) {
         // When the Player searches for a Waystone, we only check if they can teleport (unlisted are shown)
         List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), search).stream().filter(w -> w.checkTeleport(player)).toList();
-        List<Component> pages = generateWaystonePages(player, null, waystones);
+        List<Component> pages = generateWaystonePages(player, null, waystones, false);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
     }
 
@@ -289,6 +298,33 @@ public class JavaScreens {
                 counter = 0;
             }
             current_page = current_page.append(Component.text(category.name()).clickEvent(ClickEvent.runCommand("/waystone category set " + waystone.id() + " " + category.id())));
+            current_page = current_page.append(Component.newline());
+
+            player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+        }
+        pages.add(current_page);
+
+        player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+    }
+
+    public void browseCategorySelection(Player player) {
+        List<Component> pages = new ArrayList<>();
+        Component current_page = Component.translatable("waystones.ui.category.description").decorate(TextDecoration.BOLD);
+        current_page = current_page.append(Component.newline().decoration(TextDecoration.BOLD, false));
+        current_page = current_page.append(Component.newline());
+        int counter = 3;
+
+        WaystoneManager manager = plugin.getManager();
+
+        for (Category category : manager.getCategories()) {
+
+            counter++;
+            if (counter == 14) {
+                pages.add(current_page);
+                current_page = Component.empty();
+                counter = 0;
+            }
+            current_page = current_page.append(Component.text(category.name()).clickEvent(ClickEvent.runCommand("/waystone menu category " + category.id())));
             current_page = current_page.append(Component.newline());
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));

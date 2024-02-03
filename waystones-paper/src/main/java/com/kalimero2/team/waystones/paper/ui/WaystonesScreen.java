@@ -2,6 +2,7 @@ package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -49,6 +50,22 @@ public class WaystonesScreen {
             floodgateScreens.menu(player);
         } else {
             java.menu(player, waystone);
+        }
+    }
+
+    public void browse(Player player, Category category) {
+        if (plugin.isBedrockPlayer(player)) {
+            //TODO: Implement Browse feature for Bedrock
+        } else {
+            java.browse(player, category);
+        }
+    }
+
+    public void browseCategorySelection(Player player) {
+        if (plugin.isBedrockPlayer(player)) {
+            //TODO: Implement Browse feature for Bedrock
+        } else {
+            java.browseCategorySelection(player);
         }
     }
 
