@@ -39,7 +39,7 @@ public class WaystonesScreen {
 
     public void list(Player player, String search) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateScreens.list(player, search);
+            floodgateScreens.list(player, search, null);
         } else {
             java.list(player, search);
         }
