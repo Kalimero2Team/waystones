@@ -379,8 +379,8 @@ public class WaystoneManager {
     }
 
     public void removeCategory(String name) {
-        storage.removeCategory(name);
         categories.remove(getCategory(name).id());
+        storage.removeCategory(name);
     }
 
     private boolean categoryExists(String name) {
