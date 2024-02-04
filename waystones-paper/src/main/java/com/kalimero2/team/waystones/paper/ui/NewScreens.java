@@ -27,10 +27,10 @@ public class NewScreens {
     private final WaystoneManager manager;
     private final WaystonesScreen screen;
 
-    public NewScreens(PaperWayStones plugin, WaystonesScreen screen) {
+    public NewScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = this.plugin.getManager();
-        this.screen = screen;
+        this.screen = plugin.getScreen();
     }
 
     /**

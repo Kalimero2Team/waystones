@@ -24,7 +24,7 @@ public class WaystonesScreen {
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
         this.java = new JavaScreens(plugin);
-        this.newScreens = new NewScreens(plugin, this);
+        this.newScreens = new NewScreens(plugin);
         this.floodgateScreens = new FloodgateScreens(plugin);
     }
 
