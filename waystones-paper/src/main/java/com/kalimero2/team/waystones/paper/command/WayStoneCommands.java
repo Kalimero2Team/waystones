@@ -59,6 +59,19 @@ public class WayStoneCommands extends CommandHandler {
                 .handler(this::menu)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("menu")
+                .literal("category")
+                .senderType(Player.class)
+                .handler(this::browseCategorySelect)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("menu")
+                .literal("category")
+                .argument(IntegerArgument.of("category"))
+                .senderType(Player.class)
+                .handler(this::browseCategory)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("force")
                 .senderType(Player.class)
                 .permission("waystones.admin")
@@ -197,15 +210,21 @@ public class WayStoneCommands extends CommandHandler {
                 .literal("category")
                 .literal("remove")
                 .argument(StringArgument.of("name"))
-                .argument(BooleanArgument.of("public"))
                 .permission("waystones.category")
                 .handler(this::removeCategory)
+        );
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("category")
+                .literal("list")
+                .permission("waystones.category")
+                .handler(this::listCategory)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("category")
                 .literal("set")
                 .argument(WaystoneArgument.of("waystone"))
                 .argument(IntegerArgument.of("category"))
+                .argument(BooleanArgument.of("creation"))
                 .handler(this::setCategory)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
@@ -249,6 +268,14 @@ public class WayStoneCommands extends CommandHandler {
 
     private void menu(CommandContext<CommandSender> context) {
         screen.menu((Player) context.getSender(), null);
+    }
+
+    private void browseCategorySelect(CommandContext<CommandSender> context) {
+        screen.browseCategorySelection((Player) context.getSender());
+    }
+
+    private void browseCategory(CommandContext<CommandSender> context) {
+        screen.browse((Player) context.getSender(), manager.getCategory((int) context.get("category")));
     }
 
     private void teleportToWayStone(CommandContext<CommandSender> context) {
@@ -497,8 +524,12 @@ public class WayStoneCommands extends CommandHandler {
     }
 
     private void removeCategory(CommandContext<CommandSender> context) {
-        manager.addCategory(context.get("name"), context.get("public"));
+        manager.removeCategory(context.get("name"));
         context.getSender().sendMessage(Component.translatable("waystones.category.remove", TextUtil.GREEN, Component.text(context.get("name").toString()).color(TextColor.color(255, 255, 255))));
+    }
+
+    private void listCategory(CommandContext<CommandSender> context) {
+        manager.getCategories().forEach(c -> context.getSender().sendMessage(Component.text(c.name()).color(TextUtil.GREEN).append(Component.text(" - " + c.isPublic()).color(TextUtil.WHITE))));
     }
 
     private void setCategory(CommandContext<CommandSender> context) {
@@ -511,6 +542,9 @@ public class WayStoneCommands extends CommandHandler {
             }
             manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), category, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
             context.getSender().sendMessage(Component.translatable("waystones.category.set", TextUtil.GREEN, Component.text(waystone.name()), Component.text(category.name())));
+            if (context.get("creation")) {
+                screen.accessSettings((Player) context.getSender(), waystone);
+            }
             return;
         }
         context.getSender().sendMessage(Component.translatable("waystones.permission.edit", TextUtil.RED, Component.text(context.get("name").toString()).color(TextUtil.WHITE)));

@@ -138,6 +138,19 @@ public class WaystoneManager {
         return waystones.values();
     }
 
+
+    /**
+     * Returns all waystones from a category
+     */
+    public Collection<StoredWaystone> getWaystones(Category category) {
+        List<StoredWaystone> waystones = new ArrayList<>();
+        for (StoredWaystone waystone : this.waystones.values()) {
+            if (waystone.category().equals(category) && waystone.visibility().equals(Visibility.PUBLIC)) waystones.add(waystone);
+        }
+        waystones.sort(Comparator.comparingInt(StoredWaystone::getUses).reversed());
+        return waystones;
+    }
+
     /**
      * Returns all waystones in the given world
      */
@@ -360,7 +373,14 @@ public class WaystoneManager {
     public Category addCategory(String name, boolean publicCategory) {
         if (categoryExists(name)) return null;
         storage.addCategory(name, publicCategory);
+        categories.clear();
+        storage.getCategories().forEach(category -> categories.put(category.id(), category));
         return getCategory(name);
+    }
+
+    public void removeCategory(String name) {
+        categories.remove(getCategory(name).id());
+        storage.removeCategory(name);
     }
 
     private boolean categoryExists(String name) {

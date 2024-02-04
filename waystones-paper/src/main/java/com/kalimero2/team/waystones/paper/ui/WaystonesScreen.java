@@ -2,6 +2,7 @@ package com.kalimero2.team.waystones.paper.ui;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import com.kalimero2.team.waystones.paper.storage.StoredWaystone;
+import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.LastCreationResult;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -38,7 +39,7 @@ public class WaystonesScreen {
 
     public void list(Player player, String search) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateScreens.list(player, search);
+            floodgateScreens.list(player, search, null);
         } else {
             java.list(player, search);
         }
@@ -49,6 +50,22 @@ public class WaystonesScreen {
             floodgateScreens.menu(player);
         } else {
             java.menu(player, waystone);
+        }
+    }
+
+    public void browse(Player player, Category category) {
+        if (plugin.isBedrockPlayer(player)) {
+            floodgateScreens.menu(player);
+        } else {
+            java.browse(player, category);
+        }
+    }
+
+    public void browseCategorySelection(Player player) {
+        if (plugin.isBedrockPlayer(player)) {
+            floodgateScreens.menu(player);
+        } else {
+            java.browseCategorySelection(player);
         }
     }
 
@@ -64,11 +81,11 @@ public class WaystonesScreen {
         newScreens.rename(player, waystone);
     }
 
-    public void category(Player player, @NotNull StoredWaystone waystone) {
+    public void category(Player player, @NotNull StoredWaystone waystone, boolean creation) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateScreens.setCategory(player, waystone, LastCreationResult.FIRST_CALL);
+            floodgateScreens.setCategory(player, waystone, LastCreationResult.FIRST_CALL, creation);
         } else {
-            java.categorySelection(player, waystone);
+            java.categorySelection(player, waystone, creation);
         }
     }
 

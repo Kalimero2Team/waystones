@@ -8,4 +8,9 @@ public record Category(int id, String name, boolean isPublic) {
     public boolean usableBy(Player player) {
         return isPublic || player.hasPermission("waystones.category");
     }
+
+
+    public boolean equalsOrUndefined(Category other) {
+        return this == other || other == null || other.equals(NONE);
+    }
 }

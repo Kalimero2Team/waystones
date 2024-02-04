@@ -20,15 +20,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
+// TODO: Replace text components with translatables
 public class NewScreens {
 
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
+    private final WaystonesScreen screen;
 
     public NewScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = this.plugin.getManager();
+        this.screen = plugin.getScreen();
     }
 
     /**
@@ -129,6 +131,15 @@ public class NewScreens {
             StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.PUBLIC.id(), Category.NONE.id(), location);
             plugin.getDisplayManager().updateDisplay(waystone);
 
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    screen.category(player, waystone, true);
+                }
+            }.runTaskLater(plugin, 1);
+
+            plugin.getDisplayManager().updateDisplay(waystone);
+
             return new InputScreen.InputValidation(true, null);
         }));
 
@@ -181,6 +192,7 @@ public class NewScreens {
         return builder.build();
     }
 
+
     private ButtonScreen createSettingsScreen(@NotNull StoredWaystone waystone) {
         ButtonScreen.Builder builder = ButtonScreen.builder().title(Component.text("Waystone " + waystone.name())).content("Waystone bearbeiten");
         builder.plugin(plugin);
@@ -195,7 +207,7 @@ public class NewScreens {
             plugin.getScreen().transferOwnership(player, waystone);
         });
         builder.button(new ButtonScreen.Button(Component.text("Kategorie ändern"), 6, 8), player -> {
-            plugin.getScreen().category(player, waystone);
+            plugin.getScreen().category(player, waystone, false);
         });
         builder.button(new ButtonScreen.Button(Component.text("Löschen"), 8, 2), player -> {
             delete(player, waystone);
@@ -203,6 +215,7 @@ public class NewScreens {
 
         return builder.build();
     }
+
 
     private ButtonScreen createAccessSettings(@NotNull StoredWaystone waystone) {
         ButtonScreen.Builder builder = ButtonScreen.builder().title(Component.text("Waystone " + waystone.name())).content("Zugriff Verwalten");

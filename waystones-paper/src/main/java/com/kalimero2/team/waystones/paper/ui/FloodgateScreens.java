@@ -40,17 +40,26 @@ public class FloodgateScreens {
         DropdownComponent.Builder dropdownBuilder = DropdownComponent.builder();
         dropdownBuilder.option("Alphabetisch");
         dropdownBuilder.option("Alphabetisch invertiert");
-        dropdownBuilder.option("Numerisch");
-        dropdownBuilder.option("Numerisch invertiert");
         dropdownBuilder.option("Beliebtheit");
         dropdownBuilder.option("Beliebtheit invertiert");
         dropdownBuilder.defaultOption(manager.getSortMode(player).ordinal());
         builder.dropdown(dropdownBuilder);
 
+        DropdownComponent.Builder dropdownBuilder2 = DropdownComponent.builder();
+        dropdownBuilder2.option("Alle");
+
+        for (Category category : manager.getCategories()) {
+            dropdownBuilder2.option(category.name());
+        }
+        dropdownBuilder2.defaultOption(0);
+        builder.dropdown(dropdownBuilder2);
+
         builder.validResultHandler(customFormResponse -> {
             String input = customFormResponse.asInput();
-            manager.setSortMode(player, SortMode.valueByNumber(customFormResponse.asDropdown()));
-            list(player, input);
+            manager.setSortMode(player, SortMode.valueByNumber(customFormResponse.asDropdown(2)));
+            int c = customFormResponse.asDropdown(3);
+            Category category = c == 0 ? Category.NONE : manager.getCategories().stream().toList().get(c-1);
+            list(player, input, category);
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
@@ -58,14 +67,15 @@ public class FloodgateScreens {
 
     }
 
-    public void list(Player player, String search) {
+    public void list(Player player, String search, Category category) {
         SimpleForm.Builder builder = SimpleForm.builder().title("Waystones").content("Wähle einen Waystone aus!");
 
-        List<StoredWaystone> allWaystones = plugin.getManager().getWaystones(player.getWorld().getUID(), search);;
+        List<StoredWaystone> allWaystones = plugin.getManager().getWaystones(player.getWorld().getUID(), search);
+        allWaystones = allWaystones.stream().filter(waystone -> waystone.category().equalsOrUndefined(category)).toList();
         final List<StoredWaystone> waystones;
-        if(search == null || search.isEmpty() || search.isBlank()){
+        if (search == null || search.isEmpty() || search.isBlank()){
             waystones = allWaystones.stream().filter(waystone -> waystone.visibleTo(player)).toList();
-        }else {
+        } else {
             waystones = allWaystones.stream().filter(waystone -> waystone.checkTeleport(player)).toList();
         }
 
@@ -95,7 +105,7 @@ public class FloodgateScreens {
      * @param player The player that wants to rename the waystone
      * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
-    public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
+    public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr, boolean creation) {
         if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
@@ -145,6 +155,7 @@ public class FloodgateScreens {
             }
 
             manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), storedCategory, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            accessView(player, waystone);
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
