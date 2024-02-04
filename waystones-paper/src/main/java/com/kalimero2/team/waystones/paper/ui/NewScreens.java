@@ -25,10 +25,12 @@ public class NewScreens {
 
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
+    private final WaystonesScreen screen;
 
-    public NewScreens(PaperWayStones plugin) {
+    public NewScreens(PaperWayStones plugin, WaystonesScreen screen) {
         this.plugin = plugin;
         this.manager = this.plugin.getManager();
+        this.screen = screen;
     }
 
     /**
@@ -126,7 +128,16 @@ public class NewScreens {
                 stack.setAmount(stack.getAmount() - 1);
             }
 
-            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.PUBLIC.id(), Category.NONE.id(), location);
+            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.UNLISTED.id(), Category.NONE.id(), location);
+            plugin.getDisplayManager().updateDisplay(waystone);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    screen.category(player, waystone, true);
+                }
+            }.runTaskLater(plugin, 1);
+
             plugin.getDisplayManager().updateDisplay(waystone);
 
             return new InputScreen.InputValidation(true, null);
@@ -196,7 +207,7 @@ public class NewScreens {
             plugin.getScreen().transferOwnership(player, waystone);
         });
         builder.button(new ButtonScreen.Button(Component.text("Kategorie ändern"), 6, 8), player -> {
-            plugin.getScreen().category(player, waystone);
+            plugin.getScreen().category(player, waystone, false);
         });
         builder.button(new ButtonScreen.Button(Component.text("Löschen"), 8, 2), player -> {
             delete(player, waystone);

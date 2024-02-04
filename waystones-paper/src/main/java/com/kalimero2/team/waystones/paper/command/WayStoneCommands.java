@@ -224,6 +224,7 @@ public class WayStoneCommands extends CommandHandler {
                 .literal("set")
                 .argument(WaystoneArgument.of("waystone"))
                 .argument(IntegerArgument.of("category"))
+                .argument(BooleanArgument.of("creation"))
                 .handler(this::setCategory)
         );
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
@@ -541,6 +542,9 @@ public class WayStoneCommands extends CommandHandler {
             }
             manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), category, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
             context.getSender().sendMessage(Component.translatable("waystones.category.set", TextUtil.GREEN, Component.text(waystone.name()), Component.text(category.name())));
+            if (context.get("creation")) {
+                screen.accessSettings((Player) context.getSender(), waystone);
+            }
             return;
         }
         context.getSender().sendMessage(Component.translatable("waystones.permission.edit", TextUtil.RED, Component.text(context.get("name").toString()).color(TextUtil.WHITE)));

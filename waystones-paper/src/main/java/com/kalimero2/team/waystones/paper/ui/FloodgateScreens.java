@@ -105,7 +105,7 @@ public class FloodgateScreens {
      * @param player The player that wants to rename the waystone
      * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
-    public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
+    public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr, boolean creation) {
         if (!waystone.checkPermission(player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
@@ -155,6 +155,7 @@ public class FloodgateScreens {
             }
 
             manager.updateWaystone(new StoredWaystone(waystone.id(), waystone.name(), waystone.owner(), waystone.visibility(), storedCategory, waystone.chunk_x(), waystone.chunk_z(), waystone.block_x(), waystone.block_y(), waystone.block_z(), waystone.world(), waystone.uses()));
+            accessView(player, waystone);
         });
 
         FloodgatePlayer floodgatePlayer = FloodgateApi.getInstance().getPlayer(player.getUniqueId());

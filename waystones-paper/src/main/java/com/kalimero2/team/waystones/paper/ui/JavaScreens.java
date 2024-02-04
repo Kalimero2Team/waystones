@@ -278,7 +278,7 @@ public class JavaScreens {
 
     }
 
-    public void categorySelection(Player player, @NotNull StoredWaystone waystone) {
+    public void categorySelection(Player player, @NotNull StoredWaystone waystone, boolean creation) {
         List<Component> pages = new ArrayList<>();
         Component current_page = Component.translatable("waystones.ui.category.description").decorate(TextDecoration.BOLD);
         current_page = current_page.append(Component.newline().decoration(TextDecoration.BOLD, false));
@@ -297,7 +297,7 @@ public class JavaScreens {
                 current_page = Component.empty();
                 counter = 0;
             }
-            current_page = current_page.append(Component.text(category.name()).clickEvent(ClickEvent.runCommand("/waystone category set " + waystone.id() + " " + category.id())));
+            current_page = current_page.append(Component.text(category.name()).clickEvent(ClickEvent.runCommand("/waystone category set " + waystone.id() + " " + category.id() + " " + creation)));
             current_page = current_page.append(Component.newline());
 
             player.openBook(Book.book(Component.empty(), Component.empty(), pages));
@@ -305,6 +305,7 @@ public class JavaScreens {
         pages.add(current_page);
 
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
+
     }
 
     public void browseCategorySelection(Player player) {

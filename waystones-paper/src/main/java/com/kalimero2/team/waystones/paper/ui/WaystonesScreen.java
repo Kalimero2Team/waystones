@@ -24,7 +24,7 @@ public class WaystonesScreen {
     public WaystonesScreen(PaperWayStones plugin) {
         this.plugin = plugin;
         this.java = new JavaScreens(plugin);
-        this.newScreens = new NewScreens(plugin);
+        this.newScreens = new NewScreens(plugin, this);
         this.floodgateScreens = new FloodgateScreens(plugin);
     }
 
@@ -81,11 +81,11 @@ public class WaystonesScreen {
         newScreens.rename(player, waystone);
     }
 
-    public void category(Player player, @NotNull StoredWaystone waystone) {
+    public void category(Player player, @NotNull StoredWaystone waystone, boolean creation) {
         if (plugin.isBedrockPlayer(player)) {
-            floodgateScreens.setCategory(player, waystone, LastCreationResult.FIRST_CALL);
+            floodgateScreens.setCategory(player, waystone, LastCreationResult.FIRST_CALL, creation);
         } else {
-            java.categorySelection(player, waystone);
+            java.categorySelection(player, waystone, creation);
         }
     }
 
