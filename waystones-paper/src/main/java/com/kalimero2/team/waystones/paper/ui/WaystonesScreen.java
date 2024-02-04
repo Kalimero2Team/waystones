@@ -55,7 +55,7 @@ public class WaystonesScreen {
 
     public void browse(Player player, Category category) {
         if (plugin.isBedrockPlayer(player)) {
-            //TODO: Implement Browse feature for Bedrock
+            floodgateScreens.menu(player);
         } else {
             java.browse(player, category);
         }
@@ -63,7 +63,7 @@ public class WaystonesScreen {
 
     public void browseCategorySelection(Player player) {
         if (plugin.isBedrockPlayer(player)) {
-            //TODO: Implement Browse feature for Bedrock
+            floodgateScreens.menu(player);
         } else {
             java.browseCategorySelection(player);
         }
