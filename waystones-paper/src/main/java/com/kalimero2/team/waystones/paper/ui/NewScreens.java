@@ -128,7 +128,7 @@ public class NewScreens {
                 stack.setAmount(stack.getAmount() - 1);
             }
 
-            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.UNLISTED.id(), Category.NONE.id(), location);
+            StoredWaystone waystone = plugin.getManager().createWaystone(input, player.getUniqueId(), Visibility.PUBLIC.id(), Category.NONE.id(), location);
             plugin.getDisplayManager().updateDisplay(waystone);
 
             new BukkitRunnable() {
