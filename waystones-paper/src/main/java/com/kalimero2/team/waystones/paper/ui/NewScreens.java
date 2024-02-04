@@ -25,12 +25,10 @@ public class NewScreens {
 
     private final PaperWayStones plugin;
     private final WaystoneManager manager;
-    private final WaystonesScreen screen;
 
     public NewScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = this.plugin.getManager();
-        this.screen = plugin.getScreen();
     }
 
     /**
@@ -134,7 +132,7 @@ public class NewScreens {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    screen.category(player, waystone, true);
+                    plugin.getScreen().category(player, waystone, true);
                 }
             }.runTaskLater(plugin, 1);
 
