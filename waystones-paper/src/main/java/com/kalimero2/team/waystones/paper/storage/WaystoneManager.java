@@ -142,14 +142,15 @@ public class WaystoneManager {
     /**
      * Returns all waystones from a category
      */
-    public Collection<StoredWaystone> getWaystones(Category category) {
+    public Collection<StoredWaystone> getWaystones(World world, Category category) {
         List<StoredWaystone> waystones = new ArrayList<>();
         for (StoredWaystone waystone : this.waystones.values()) {
-            if (waystone.category().equals(category) && waystone.visibility().equals(Visibility.PUBLIC)) waystones.add(waystone);
+            if (waystone.world().equals(world) && waystone.category().equals(category)) waystones.add(waystone);
         }
         waystones.sort(Comparator.comparingInt(StoredWaystone::getUses).reversed());
         return waystones;
     }
+
 
     /**
      * Returns all waystones in the given world

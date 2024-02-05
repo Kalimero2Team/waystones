@@ -289,6 +289,11 @@ public class WayStoneCommands extends CommandHandler {
                 if (w.location().distance(player.getLocation()) <= 5) teleportAllowed = true;
             }
 
+            if (!player.getWorld().getUID().equals(waystone.world())) {
+                player.sendMessage(Component.translatable("waystones.teleport.differentworld", TextUtil.ORANGE));
+                return;
+            }
+
             if (!teleportAllowed) {
                 for (ItemStack stack : player.getInventory().getContents()) {
                     if (stack != null) {
