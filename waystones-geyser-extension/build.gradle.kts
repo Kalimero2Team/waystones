@@ -7,7 +7,4 @@ repositories {
 
 dependencies {
     api(libs.geyser.api)
-    api(libs.geyser.core){
-        isTransitive = false
-    }
 }

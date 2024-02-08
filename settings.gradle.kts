@@ -6,14 +6,12 @@ dependencyResolutionManagement{
 
             version("floodgate-api","2.2.2-SNAPSHOT")
             version("geyser-geyserApi","2.2.2-SNAPSHOT")
-            version("geyser-geyserCore","2.2.2-SNAPSHOT")
             version("anvilgui","1.9.2-SNAPSHOT")
             version("sqlite","3.45.1.0")
             version("cloud", "1.8.4")
 
             library("floodgate-api","org.geysermc.floodgate","api").versionRef("floodgate-api")
             library("geyser-api","org.geysermc.geyser","api").versionRef("geyser-geyserApi")
-            library("geyser-core","org.geysermc.geyser","core").versionRef("geyser-geyserCore")
             library("sqlite","org.xerial","sqlite-jdbc").versionRef("sqlite")
             library("anvilgui","net.wesjd","anvilgui").versionRef("anvilgui")
 
