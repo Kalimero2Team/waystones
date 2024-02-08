@@ -4,13 +4,13 @@ import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.block.custom.CustomBlockData;
 import org.geysermc.geyser.api.block.custom.component.BoxComponent;
 import org.geysermc.geyser.api.block.custom.component.CustomBlockComponents;
+import org.geysermc.geyser.api.block.custom.component.GeometryComponent;
 import org.geysermc.geyser.api.block.custom.component.MaterialInstance;
 import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCustomBlocksEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCustomItemsEvent;
 import org.geysermc.geyser.api.extension.Extension;
 import org.geysermc.geyser.api.item.custom.CustomItemData;
 import org.geysermc.geyser.api.item.custom.CustomItemOptions;
-import org.geysermc.geyser.level.block.GeyserGeometryComponent;
 
 public class GeyserWayStones implements Extension {
 
@@ -23,7 +23,7 @@ public class GeyserWayStones implements Extension {
                 .components(CustomBlockComponents.builder()
                         .collisionBox(waystoneBox)
                         .selectionBox(waystoneBox)
-                        .geometry(new GeyserGeometryComponent.GeometryComponentBuilder()
+                        .geometry(GeometryComponent.builder()
                                 .identifier("geometry.waystone")
                                 .build())
                         .materialInstance("*", MaterialInstance.builder().texture("kalimero2team_waystone").renderMethod("alpha_test").build())
