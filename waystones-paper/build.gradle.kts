@@ -24,7 +24,7 @@ dependencies {
     bukkitLibrary(libs.sqlite)
     implementation(libs.anvilgui)
     compileOnly(libs.floodgate.api)
-    compileOnly("com.kalimero2.team:claims-api:2.0.4")
+    compileOnly("com.kalimero2.team:claims-api:2.0.5")
 }
 
 tasks {

@@ -80,7 +80,7 @@ public class JavaScreens {
 
     public void browse(Player player, Category category) {
         // When the Player opens the Waystone Menu, we check if the Waystone is visible to them (unlisted are not shown)
-        Collection<StoredWaystone> waystones = manager.getWaystones(category);
+        Collection<StoredWaystone> waystones = manager.getWaystones(player.getWorld(), category);
         List<Component> pages = generateWaystonePages(player, null, waystones, false);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
 
