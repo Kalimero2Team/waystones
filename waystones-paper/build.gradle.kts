@@ -2,7 +2,6 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     alias(libs.plugins.paper.run)
-    alias(libs.plugins.paper.userdev)
     alias(libs.plugins.plugin.yml)
     alias(libs.plugins.shadow)
 }
@@ -19,10 +18,10 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle(libs.versions.paper.get())
     bukkitLibrary(libs.cloud.paper)
     bukkitLibrary(libs.sqlite)
     implementation(libs.anvilgui)
+    compileOnly(libs.paper)
     compileOnly(libs.floodgate.api)
     compileOnly("com.kalimero2.team:claims-api:2.0.5")
 }
