@@ -563,8 +563,10 @@ public class WaystoneManager {
             StoredWaystone waystone = getWaystone(waystoneId);
             if (waystone != null) {
                 waystone.uses(waystone.uses() + 1);
+                storage.updateUses(waystone);
+            }else  {
+                plugin.getLogger().severe("Can't update Waystone with ID: "+waystoneId+" (Waystone not found)");
             }
-            storage.updateUses(waystone);
         }
     }
 
