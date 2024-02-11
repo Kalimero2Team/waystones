@@ -143,10 +143,7 @@ public class WaystoneManager {
      * Returns all waystones from a category
      */
     public Collection<StoredWaystone> getWaystones(World world, Category category) {
-        List<StoredWaystone> waystones = new ArrayList<>();
-        for (StoredWaystone waystone : this.waystones.values()) {
-            if (waystone.world().equals(world) && waystone.category().equals(category)) waystones.add(waystone);
-        }
+        List<StoredWaystone> waystones = new ArrayList<>(getWaystones(world).stream().filter(waystone -> waystone.category().equals(category)).toList());
         waystones.sort(Comparator.comparingInt(StoredWaystone::getUses).reversed());
         return waystones;
     }
@@ -160,11 +157,7 @@ public class WaystoneManager {
     }
 
     public List<StoredWaystone> getWaystones(UUID world) {
-        List<StoredWaystone> waystones = new ArrayList<>();
-        for (StoredWaystone waystone : this.waystones.values()) {
-            if (waystone.world().equals(world)) waystones.add(waystone);
-        }
-        return waystones;
+        return new ArrayList<>(getWaystones().stream().filter(waystone -> waystone.world().equals(world)).toList());
     }
 
 
@@ -175,7 +168,7 @@ public class WaystoneManager {
      */
     public List<StoredWaystone> getWaystones(Chunk chunk) {
         List<StoredWaystone> waystones = new ArrayList<>();
-        for (StoredWaystone waystone : this.waystones.values()) {
+        for (StoredWaystone waystone : getWaystones()) {
             if (waystone.chunk_x() == chunk.getX() && waystone.chunk_z() == chunk.getZ() && waystone.world().equals(chunk.getWorld().getUID())) waystones.add(waystone);
         }
         return waystones;
