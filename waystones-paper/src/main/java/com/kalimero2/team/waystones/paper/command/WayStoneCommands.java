@@ -437,17 +437,18 @@ public class WayStoneCommands extends CommandHandler {
 
         if (sender instanceof Player player) {
             if (!waystone.owner().equals(player.getUniqueId()) && !player.hasPermission("waystones.remove")) return;
-            player.getInventory().addItem(plugin.getStatic());
+
+            if (!(player.getGameMode().equals(GameMode.CREATIVE) || player.getGameMode().equals(GameMode.SPECTATOR))) {
+                if (player.getInventory().firstEmpty() == -1) {
+                    player.sendMessage(Component.translatable("waystones.remove.inventory_full", TextUtil.RED));
+                    return;
+                }
+                player.getInventory().addItem(plugin.getStatic());
+            }
         }
 
         display.clearDisplay(waystone);
         manager.removeWaystone(waystone.id());
-
-        if (context.getSender() instanceof Player player) {
-            if (!(player.getGameMode().equals(GameMode.CREATIVE) || player.getGameMode().equals(GameMode.SPECTATOR))) {
-                player.getInventory().addItem(plugin.getStatic());
-            }
-        }
 
         sender.sendMessage(Component.translatable("waystones.remove", TextColor.color(255, 73, 0), Component.text(waystone.id().toString())));
     }
