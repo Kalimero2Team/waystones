@@ -149,7 +149,6 @@ public class NewScreens {
         builder.plugin(plugin);
 
         builder.button(new ButtonScreen.Button(Component.text("Löschen"), 5, 5), player -> {
-            plugin.getDisplayManager().clearDisplay(waystone);
             if (player.getInventory().firstEmpty() == -1) {
                 player.sendMessage(Component.text("Du hast nicht genug Platz im Inventar!", TextUtil.RED));
                 return;
