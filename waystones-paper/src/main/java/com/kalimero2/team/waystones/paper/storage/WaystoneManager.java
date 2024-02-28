@@ -258,11 +258,7 @@ public class WaystoneManager {
     public boolean renameWaystone(UUID id, String newName) {
         if (isNameUsed(newName)) return false;
         storage.renameWaystone(id, newName);
-        StoredWaystone waystone = storage.getWaystone(id);
-
-        waystones.put(id, waystone);
-        waystoneLocations.put(waystone.location(), waystone);
-        waystoneNames.put(waystone.name(), waystone);
+        getWaystone(id).name(newName);
         book.clear();
 
         return true;
@@ -293,11 +289,7 @@ public class WaystoneManager {
      */
     public void setVisibility(UUID id, Visibility visibility) {
         storage.setVisibility(id, visibility);
-        StoredWaystone waystone = storage.getWaystone(id);
-
-        waystones.put(id, waystone);
-        waystoneLocations.put(waystone.location(), waystone);
-        waystoneNames.put(waystone.name(), waystone);
+        waystones.get(id).visibility(visibility);
         book.clear();
     }
 
@@ -429,7 +421,7 @@ public class WaystoneManager {
     }
 
     public void removeFavorite(Player player, UUID id) {
-        getFavorites(player).remove(id);
+        System.out.println(getFavorites(player).remove(id));
         storage.removeFavorite(player, id);
     }
 
