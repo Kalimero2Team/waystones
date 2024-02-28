@@ -9,6 +9,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -421,6 +422,7 @@ public class WaystoneManager {
     }
 
     public void removeFavorite(Player player, UUID id) {
+        //TODO: REMOVE DEBUG LINE LATER
         System.out.println(getFavorites(player).remove(id));
         storage.removeFavorite(player, id);
     }
@@ -534,8 +536,10 @@ public class WaystoneManager {
     /**
      * Checks whether the player can edit the waystone
      */
-    public boolean canEdit(StoredWaystone waystone, Player player) {
-        return forceMode(player) || waystone.owner().equals(player.getUniqueId());
+    public boolean canEdit(StoredWaystone waystone, CommandSender sender) {
+        if (sender instanceof Player player)
+            return forceMode(player) || waystone.owner().equals(player.getUniqueId());
+        else return true;
     }
 
 

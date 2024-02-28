@@ -552,7 +552,7 @@ public class WayStoneCommands extends CommandHandler {
 
     private void setCategory(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
-        if (waystone.checkPermission(context.getSender())) {
+        if (manager.canEdit(waystone, context.getSender())) {
             Category category = manager.getCategory((int) context.get("category"));
             if (category == null) {
                 context.getSender().sendMessage(Component.translatable("waystones.category.invalid"));

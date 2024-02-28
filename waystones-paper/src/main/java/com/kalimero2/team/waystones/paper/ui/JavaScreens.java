@@ -71,7 +71,7 @@ public class JavaScreens {
 
     public void menu(Player player, @Nullable StoredWaystone waystone) {
         // When the Player opens the Waystone Menu, we check if the Waystone is visible to them (unlisted are not shown)
-        List<StoredWaystone> waystones = manager.getWaystones(player, player.getWorld().getUID()).stream().filter(w -> w.visibleTo(player)).toList();
+        List<StoredWaystone> waystones = manager.getWaystones(player, player.getWorld().getUID()).stream().filter(w -> manager.canSee(w, player)).toList();
         List<Component> pages = generateWaystonePages(player, waystone, waystones, true);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
 
@@ -205,13 +205,13 @@ public class JavaScreens {
 
     public void list(Player player, String search) {
         // When the Player searches for a Waystone, we only check if they can teleport (unlisted are shown)
-        List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), search).stream().filter(w -> w.checkTeleport(player)).toList();
+        List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), search).stream().filter(w -> manager.canTeleport(w, player)).toList();
         List<Component> pages = generateWaystonePages(player, null, waystones, false);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
     }
 
     public void addAccess(Player player, StoredWaystone waystone) {
-        if (!waystone.checkPermission(player)) return;
+        if (!manager.canEdit(waystone, player)) return;
         ItemStack stack = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta meta = stack.getItemMeta();
         meta.displayName(Component.text("name"));
