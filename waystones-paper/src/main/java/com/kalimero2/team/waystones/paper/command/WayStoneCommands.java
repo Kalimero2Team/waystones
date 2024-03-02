@@ -23,6 +23,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -36,6 +39,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
+import java.util.Objects;
 
 public class WayStoneCommands extends CommandHandler {
 
@@ -404,7 +408,16 @@ public class WayStoneCommands extends CommandHandler {
 
             List<StoredWaystone> waystones = manager.getWaystones(world.getUID());
             for (StoredWaystone waystone : waystones) {
-                player.sendMessage(Component.text("Waystone " + waystone.id() + ": " + waystone.name() + " (" + waystone.block_x() + ", " + waystone.block_y() + ", " + waystone.block_z() + ")" + " Owner: " + waystone.owner()).clickEvent(ClickEvent.runCommand("/tp " + waystone.block_x() + " " + waystone.block_y() + " " + waystone.block_z())));
+                TagResolver.Single id = Placeholder.parsed("id", waystone.id().toString());
+                TagResolver.Single name = Placeholder.parsed("name", waystone.name());
+                TagResolver.Single owner = Placeholder.parsed("owner", Objects.requireNonNullElse(plugin.getServer().getOfflinePlayer(waystone.owner()).getName(), "?"));
+                TagResolver.Single owner_uuid = Placeholder.parsed("owner_uuid", waystone.owner().toString());
+
+                TagResolver.Single x = Placeholder.parsed("waystone_x", String.valueOf(waystone.block_x()));
+                TagResolver.Single y = Placeholder.parsed("waystone_y", String.valueOf(waystone.block_y()));
+                TagResolver.Single z = Placeholder.parsed("waystone_z", String.valueOf(waystone.block_z()));
+
+                player.sendMessage(MiniMessage.miniMessage().deserialize("• <hover:show_text:'ID: <id><br>Click to copy'><click:copy_to_clipboard:\"<id>\"><name></click></hover> (<hover:show_text:'<owner_uuid><br>Click to copy'><click:copy_to_clipboard:\"<owner_uuid>\">Owner: <owner></click></hover>) <hover:show_text:'Click to teleport'><click:run_command:\"/tp <waystone_x> <waystone_y> <waystone_z>\"><green>[<waystone_x>, <waystone_y>, <waystone_z>]</green></click></hover>", id, name, owner, owner_uuid, x, y, z));
             }
         }
     }
