@@ -239,6 +239,13 @@ public class WayStoneCommands extends CommandHandler {
 
 
         commandManager.command(commandManager.commandBuilder("waystone", "waystones")
+                .literal("popularity")
+                .literal("decrease")
+                .permission("waystones.admin")
+                .handler(this::decreasePopularity)
+        );
+
+        commandManager.command(commandManager.commandBuilder("waystone", "waystones")
                 .literal("trader")
                 .literal("mark")
                 .argument(SingleEntitySelectorArgument.of("entity"))
@@ -257,6 +264,11 @@ public class WayStoneCommands extends CommandHandler {
             context.getSender().sendMessage(Component.text("Entity not found!"));
         }
 
+    }
+
+    private void decreasePopularity(CommandContext<CommandSender> context) {
+        manager.decreaseGlobalUsesScore();
+        context.getSender().sendMessage(Component.translatable("waystones.popularity.decrease"));
     }
 
     private void forceMode(CommandContext<CommandSender> context) {
@@ -316,7 +328,7 @@ public class WayStoneCommands extends CommandHandler {
                 return;
             }
 
-            if (waystone.checkTeleport(player) || manager.forceMode(player)) {
+            if (manager.canTeleport(waystone, player)) {
                 Location location = waystone.location();
                 Location safeLocation = null;
 
@@ -540,7 +552,7 @@ public class WayStoneCommands extends CommandHandler {
 
     private void setCategory(CommandContext<CommandSender> context) {
         StoredWaystone waystone = context.get("waystone");
-        if (waystone.checkPermission(context.getSender())) {
+        if (manager.canEdit(waystone, context.getSender())) {
             Category category = manager.getCategory((int) context.get("category"));
             if (category == null) {
                 context.getSender().sendMessage(Component.translatable("waystones.category.invalid"));
