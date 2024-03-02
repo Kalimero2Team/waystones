@@ -422,8 +422,7 @@ public class WaystoneManager {
     }
 
     public void removeFavorite(Player player, UUID id) {
-        //TODO: REMOVE DEBUG LINE LATER
-        System.out.println(getFavorites(player).remove(id));
+        getFavorites(player).remove(id);
         storage.removeFavorite(player, id);
     }
 
