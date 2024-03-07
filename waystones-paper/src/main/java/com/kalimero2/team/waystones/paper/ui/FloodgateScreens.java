@@ -74,9 +74,9 @@ public class FloodgateScreens {
         allWaystones = allWaystones.stream().filter(waystone -> waystone.category().equalsOrUndefined(category)).toList();
         final List<StoredWaystone> waystones;
         if (search == null || search.isEmpty() || search.isBlank()){
-            waystones = allWaystones.stream().filter(waystone -> waystone.visibleTo(player)).toList();
+            waystones = allWaystones.stream().filter(waystone -> manager.canSee(waystone, player)).toList();
         } else {
-            waystones = allWaystones.stream().filter(waystone -> waystone.checkTeleport(player)).toList();
+            waystones = allWaystones.stream().filter(waystone -> manager.canTeleport(waystone, player)).toList();
         }
 
         if (waystones.isEmpty()) {
@@ -106,7 +106,7 @@ public class FloodgateScreens {
      * @param lcr    Whether the screen was called the first time by placing the waystone or because the name was already taken or because the chosen Category was private/invalid
      */
     public void setCategory(Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr, boolean creation) {
-        if (!waystone.checkPermission(player)) {
+        if (!manager.canEdit(waystone, player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -191,7 +191,7 @@ public class FloodgateScreens {
      * @param waystone Waystone the list should be changed of
      */
     public void accessAdd(@NotNull Player player, @NotNull StoredWaystone waystone, LastCreationResult lcr) {
-        if (!waystone.checkPermission(player)) {
+        if (!manager.canEdit(waystone, player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }
@@ -237,7 +237,7 @@ public class FloodgateScreens {
      * @param waystone Waystone the list should be changed of
      */
     public void accessRemove(@NotNull Player player, @NotNull StoredWaystone waystone) {
-        if (!waystone.checkPermission(player)) {
+        if (!manager.canEdit(waystone, player)) {
             player.sendMessage(Component.translatable("waystones.nopermission.edit").fallback("Du hast keine Berechtigung diesen Waystone zu bearbeiten!").asComponent().color(TextColor.color(255, 0, 0)));
             return;
         }

@@ -51,7 +51,7 @@ public class NewScreens {
      * @param waystone Waystone to change the owner
      */
     public void changeOwner(Player player, StoredWaystone waystone) {
-        if (!waystone.checkPermission(player)) return;
+        if (!manager.canEdit(waystone, player)) return;
         InputScreen screen = createChangeOwnerScreen(waystone);
         screen.open(player);
     }
@@ -64,7 +64,7 @@ public class NewScreens {
      * @param waystone Waystone to edit
      */
     public void settings(@NotNull Player player, @NotNull StoredWaystone waystone) {
-        if (!waystone.checkPermission(player)) return;
+        if (!manager.canEdit(waystone, player)) return;
         ButtonScreen build = createSettingsScreen(waystone);
         build.open(player);
     }
@@ -77,7 +77,7 @@ public class NewScreens {
      * @param waystone The waystone to rename
      */
     public void rename(@NotNull Player player, @NotNull StoredWaystone waystone) {
-        if (!waystone.checkPermission(player)) return;
+        if (!manager.canEdit(waystone, player)) return;
         InputScreen build = createRenameScreen(waystone);
         build.open(player);
     }
@@ -90,7 +90,7 @@ public class NewScreens {
      * @param waystone Waystone to delete
      */
     public void delete(Player player, StoredWaystone waystone) {
-        if (!waystone.checkPermission(player)) return;
+        if (!manager.canEdit(waystone, player)) return;
         ButtonScreen build = createDeleteScreen(waystone);
         build.open(player);
     }
@@ -103,7 +103,7 @@ public class NewScreens {
      * @param waystone Waystone to change the access settings
      */
     public void accessSettings(Player player, StoredWaystone waystone) {
-        if (!waystone.checkPermission(player)) return;
+        if (!manager.canEdit(waystone, player)) return;
         ButtonScreen build = createAccessSettings(waystone);
         build.open(player);
     }
@@ -149,7 +149,6 @@ public class NewScreens {
         builder.plugin(plugin);
 
         builder.button(new ButtonScreen.Button(Component.text("Löschen"), 5, 5), player -> {
-            plugin.getDisplayManager().clearDisplay(waystone);
             if (player.getInventory().firstEmpty() == -1) {
                 player.sendMessage(Component.text("Du hast nicht genug Platz im Inventar!", TextUtil.RED));
                 return;

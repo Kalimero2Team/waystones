@@ -69,30 +69,6 @@ public final class StoredWaystone {
         return new Location(Bukkit.getWorld(world), block_x, block_y, block_z);
     }
 
-    public boolean checkTeleport(Player player) {
-        if (!visibility.equals(Visibility.PRIVATE)) return true;
-        if (owner.equals(player.getUniqueId())) return true;
-        WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
-        if (manager.forceMode(player)) return true;
-        return manager.hasAccess(player, id);
-    }
-
-    public boolean checkPermission(CommandSender sender) {
-        if (sender instanceof Player player) {
-            if (owner.equals(player.getUniqueId())) return true;
-            WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
-            return manager.forceMode(player);
-        }
-        return true;
-    }
-
-    public boolean visibleTo(Player player) {
-        if (visibility.equals(Visibility.PUBLIC)) return true;
-        if (owner.equals(player.getUniqueId())) return true;
-        WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
-        if (manager.forceMode(player)) return true;
-        return manager.hasAccess(player, id);
-    }
 
     public UUID id() {
         return id;
