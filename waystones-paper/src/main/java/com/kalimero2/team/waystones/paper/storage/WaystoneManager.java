@@ -1,6 +1,7 @@
 package com.kalimero2.team.waystones.paper.storage;
 
 import com.kalimero2.team.waystones.paper.PaperWayStones;
+import com.kalimero2.team.waystones.paper.display.DisplayManager;
 import com.kalimero2.team.waystones.paper.util.Category;
 import com.kalimero2.team.waystones.paper.util.PlayerWaystoneCombo;
 import com.kalimero2.team.waystones.paper.util.SortMode;
@@ -22,11 +23,13 @@ public class WaystoneManager {
 
     private final PaperWayStones plugin;
     private final Storage storage;
+    private final DisplayManager display;
 
 
     public WaystoneManager(PaperWayStones plugin, File file) {
         this.plugin = plugin;
         storage = new Storage(plugin, file);
+        display = new DisplayManager(plugin);
     }
 
 
@@ -239,6 +242,7 @@ public class WaystoneManager {
         StoredWaystone waystone = storage.getWaystone(id);
         if (waystone != null) {
 
+            display.clearDisplay(waystone);
             waystones.remove(id);
             waystoneLocations.remove(waystone.location());
             waystoneNames.remove(waystone.name());
