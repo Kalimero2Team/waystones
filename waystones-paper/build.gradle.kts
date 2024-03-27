@@ -23,7 +23,7 @@ dependencies {
     implementation(libs.anvilgui)
     compileOnly(libs.paper)
     compileOnly(libs.floodgate.api)
-    compileOnly("com.kalimero2.team:claims-api:2.0.5")
+    compileOnly("com.kalimero2.team:claims-api:2.0.6")
 }
 
 tasks {
