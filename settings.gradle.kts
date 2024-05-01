@@ -16,7 +16,7 @@ dependencyResolutionManagement{
             library("anvilgui","net.wesjd","anvilgui").versionRef("anvilgui")
 
             // Paper
-            plugin("paper-run","xyz.jpenilla.run-paper").version("2.2.3")
+            plugin("paper-run","xyz.jpenilla.run-paper").version("2.3.0")
             plugin("plugin-yml","net.minecrell.plugin-yml.bukkit").version("0.6.0")
 
             version("paper","1.20.1-R0.1-SNAPSHOT")
