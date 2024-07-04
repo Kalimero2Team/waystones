@@ -2,7 +2,7 @@ dependencyResolutionManagement{
     versionCatalogs{
         create("libs"){
             // Core
-            plugin("shadow", "io.github.goooler.shadow").version("8.1.7") // Fork is required for Java 21
+            plugin("shadow", "io.github.goooler.shadow").version("8.1.8") // Fork is required for Java 21
 
             version("floodgate-api","2.2.2-SNAPSHOT")
             version("geyser-geyserApi","2.2.2-SNAPSHOT")
