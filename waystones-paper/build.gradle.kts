@@ -8,7 +8,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
     maven("https://repo.kalimero2.com/releases")
     maven("https://repo.opencollab.dev/maven-snapshots/")
@@ -28,7 +28,7 @@ dependencies {
 
 tasks {
     runServer {
-        minecraftVersion("1.20.1")
+        minecraftVersion("1.20.6")
 
         downloadPlugins {
             url("https://mitochondrium.kalimero2.com/plugins/resource-pack-loader-1.0.0.jar")
