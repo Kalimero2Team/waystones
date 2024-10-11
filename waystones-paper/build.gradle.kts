@@ -26,6 +26,10 @@ dependencies {
     compileOnly("com.kalimero2.team:claims-api:2.0.6")
 }
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
 tasks {
     runServer {
         minecraftVersion("1.20.6")
