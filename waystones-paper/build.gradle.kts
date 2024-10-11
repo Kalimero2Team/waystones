@@ -28,7 +28,7 @@ dependencies {
 
 tasks {
     runServer {
-        minecraftVersion("1.20.1")
+        minecraftVersion("1.20.4")
 
         downloadPlugins {
             url("https://mitochondrium.kalimero2.com/plugins/resource-pack-loader-1.0.0.jar")
@@ -45,6 +45,6 @@ bukkit {
     main = "com.kalimero2.team.waystones.paper.PaperWayStones"
     apiVersion = "1.20"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
-    authors = listOf("byquanton", "nanoflux")
+    authors = listOf("byquanton", "kwantux")
     softDepend = listOf("floodgate", "claims-paper","resource-pack-loader")
 }
