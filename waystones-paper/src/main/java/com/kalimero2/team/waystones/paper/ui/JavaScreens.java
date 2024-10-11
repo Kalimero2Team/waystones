@@ -95,18 +95,17 @@ public class JavaScreens {
             current_page = current_page.append(Component.text(" [ ◇ ]").color(TextColor.color(0, 10, 200)).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.browse"))).clickEvent(ClickEvent.runCommand("/waystone menu category")).append(Component.text("  [  \uD83D\uDD0D  ").append(Component.translatable("waystones.ui.search")).append(Component.text("  ]")).hoverEvent(HoverEvent.showText(Component.translatable("waystones.ui.search"))).clickEvent(ClickEvent.runCommand("/waystone search"))));
             current_page = current_page.append(Component.newline());
             current_page = current_page.append(Component.newline());
-            counter = 2;
+            counter = 1;
         }
 
 
         for (StoredWaystone waystone : waystones) {
             counter++;
-            if (counter == 13) {
+            if (counter == 12) {
                 if (showControls) current_page = current_page.append(sortBar(plugin.getManager().getSortMode(player)));
                 pages.add(current_page);
                 current_page = Component.empty();
                 counter = 0;
-                continue;
             }
 
             String action = "add";
