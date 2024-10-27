@@ -10,7 +10,7 @@ import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
 public class CommandManager {
 
-    public CommandManager(final PaperWayStones wayStones) throws Exception {
+    public CommandManager(final PaperWayStones wayStones){
         final LegacyPaperCommandManager<CommandSender> manager = new LegacyPaperCommandManager<>(
                 wayStones,
                 ExecutionCoordinator.simpleCoordinator(),

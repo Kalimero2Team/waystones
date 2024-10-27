@@ -12,7 +12,7 @@ import org.incendo.cloud.parser.standard.StringParser;
 import java.util.UUID;
 
 
-public final class WaystoneComponent<C> {
+public final class WaystoneComponent {
     private static final WaystoneManager manager = PaperWayStones.getPlugin(PaperWayStones.class).getManager();
 
     public static TypedCommandComponent.Builder<CommandSender, StoredWaystone> of(final String name) {
