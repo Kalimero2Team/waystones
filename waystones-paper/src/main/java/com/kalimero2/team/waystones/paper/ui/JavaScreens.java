@@ -148,8 +148,6 @@ public class JavaScreens {
 
             current_page = current_page.append(waystoneEntry);
             current_page = current_page.append(Component.newline());
-
-            player.openBook(Book.book(Component.empty(), Component.empty(), pages));
         }
 
         if (counter < 12) {
