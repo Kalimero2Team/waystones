@@ -1,44 +1,32 @@
 package com.kalimero2.team.waystones.paper.command;
 
-import cloud.commandframework.brigadier.CloudBrigadierManager;
-import cloud.commandframework.bukkit.CloudBukkitCapabilities;
-import cloud.commandframework.execution.CommandExecutionCoordinator;
-import cloud.commandframework.paper.PaperCommandManager;
 import com.google.common.collect.ImmutableList;
 import com.kalimero2.team.waystones.paper.PaperWayStones;
 import org.bukkit.command.CommandSender;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
-import java.util.function.UnaryOperator;
-
-public class CommandManager extends PaperCommandManager<CommandSender> {
+public class CommandManager {
 
     public CommandManager(final PaperWayStones wayStones) throws Exception {
-        super(
+        final LegacyPaperCommandManager<CommandSender> manager = new LegacyPaperCommandManager<>(
                 wayStones,
-                CommandExecutionCoordinator.simpleCoordinator(),
-                UnaryOperator.identity(),
-                UnaryOperator.identity()
+                ExecutionCoordinator.simpleCoordinator(),
+                SenderMapper.identity()
         );
 
-        if (this.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
-            try {
-                this.registerBrigadier();
-                final CloudBrigadierManager<?, ?> brigManager = this.brigadierManager();
-                if (brigManager != null) {
-                    brigManager.setNativeNumberSuggestions(false);
-                }
-            } catch (final Exception e) {
-                wayStones.getLogger().warning("Failed to initialize Brigadier support: " + e.getMessage());
-            }
-        }
 
-        if (this.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-            this.registerAsynchronousCompletions();
+        if (manager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
+            manager.registerBrigadier();
+        } else if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+            manager.registerAsynchronousCompletions();
         }
 
 
         ImmutableList.of(
-                new WayStoneCommands(wayStones, this)
+                new WayStoneCommands(wayStones, manager)
         ).forEach(CommandHandler::register);
 
 

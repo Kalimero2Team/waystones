@@ -28,6 +28,7 @@ public class JavaButtonScreen implements GenericScreen, Listener {
     private final Inventory inventory;
     private final HashMap<Integer, Consumer<Player>> slotMapping = new HashMap<>();
 
+    @SuppressWarnings("deprecation") // For ChatColor
     protected JavaButtonScreen(ButtonScreen buttonScreen) {
         this.plugin = buttonScreen.getPlugin();
         Component inventoryOverlay = MiniMessage.miniMessage().deserialize("<white><lang:space.-8><font:klm2:waystones>b</font><reset><lang:space.-170>");
@@ -41,7 +42,7 @@ public class JavaButtonScreen implements GenericScreen, Listener {
             StringBuilder replacedString = new StringBuilder();
             for (int i = 0; i < text.length(); ++i) {
                 char ch = text.charAt(i);
-                if (ch == ChatColor.COLOR_CHAR || ch == '\n') continue;
+                if (ch ==  ChatColor.COLOR_CHAR || ch == '\n') continue;
                 if (minecraftFont.getChar(ch) == null) {
                     replacedString.append("e"); // e is quite average
                 } else {
