@@ -30,6 +30,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JavaScreens {
 
@@ -38,11 +41,49 @@ public class JavaScreens {
 
     private final Component anvilUIPrefix = MiniMessage.miniMessage().deserialize("<white><tr:space.-60><font:klm2:waystones>c</font><tr:space.-172>");
 
+    private final Map<UUID, CacheEntry> pageCache = new ConcurrentHashMap<>();
+    private static final long CACHE_EXPIRY_MS = 5 * 60 * 1000; // Cache size is 5 Minutes
+
     public JavaScreens(PaperWayStones plugin) {
         this.plugin = plugin;
         this.manager = plugin.getManager();
     }
 
+    private static class CacheEntry {
+        List<Component> pages;
+        long timestamp;
+
+        CacheEntry(List<Component> pages, long timestamp) {
+            this.pages = pages;
+            this.timestamp = timestamp;
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() - timestamp > CACHE_EXPIRY_MS;
+        }
+    }
+
+    private List<Component> getCachedPages(Player player, StoredWaystone originWaystone, Collection<StoredWaystone> waystones, boolean showControls) {
+        UUID cacheKey = getCacheKey(player, waystones, showControls);
+
+        pageCache.entrySet().removeIf(entry -> entry.getValue().isExpired());
+
+        CacheEntry entry = pageCache.get(cacheKey);
+
+        if (entry != null && !entry.isExpired()) {
+            return entry.pages;
+        }
+
+        List<Component> pages = generateWaystonePages(player, originWaystone, waystones, showControls);
+        pageCache.put(cacheKey, new CacheEntry(pages, System.currentTimeMillis()));
+        return pages;
+    }
+
+    private UUID getCacheKey(Player player, Collection<StoredWaystone> waystones, boolean showControls) {
+        int waystonesHash = waystones.hashCode();
+        String keyString = player.getUniqueId().toString() + waystonesHash + showControls;
+        return UUID.nameUUIDFromBytes(keyString.getBytes());
+    }
 
     private Component sortBar(SortMode mode) {
         TextColor color = TextColor.color(0, 0, 0);
@@ -72,18 +113,16 @@ public class JavaScreens {
     public void menu(Player player, @Nullable StoredWaystone waystone) {
         // When the Player opens the Waystone Menu, we check if the Waystone is visible to them (unlisted are not shown)
         List<StoredWaystone> waystones = manager.getWaystones(player, player.getWorld().getUID()).stream().filter(w -> manager.canSee(w, player)).toList();
-        List<Component> pages = generateWaystonePages(player, waystone, waystones, true);
+        List<Component> pages = getCachedPages(player, waystone, waystones, true);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
-
     }
 
 
     public void browse(Player player, Category category) {
         // When the Player opens the Waystone Menu, we check if the Waystone is visible to them (unlisted are not shown)
         List<StoredWaystone> waystones = manager.getWaystones(player.getWorld(), category).stream().filter(w -> manager.canSee(w, player)).toList();
-        List<Component> pages = generateWaystonePages(player, null, waystones, false);
+        List<Component> pages = getCachedPages(player, null, waystones, false);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
-
     }
 
     private List<Component> generateWaystonePages(Player player, @Nullable StoredWaystone originWaystone, Collection<StoredWaystone> waystones, boolean showControls) {
@@ -148,8 +187,6 @@ public class JavaScreens {
 
             current_page = current_page.append(waystoneEntry);
             current_page = current_page.append(Component.newline());
-
-            player.openBook(Book.book(Component.empty(), Component.empty(), pages));
         }
 
         if (counter < 12) {
@@ -160,7 +197,6 @@ public class JavaScreens {
         }
 
         pages.add(current_page);
-
         return pages;
     }
 
@@ -205,7 +241,7 @@ public class JavaScreens {
     public void list(Player player, String search) {
         // When the Player searches for a Waystone, we only check if they can teleport (unlisted are shown)
         List<StoredWaystone> waystones = manager.getWaystones(player.getWorld().getUID(), search).stream().filter(w -> manager.canTeleport(w, player)).toList();
-        List<Component> pages = generateWaystonePages(player, null, waystones, false);
+        List<Component> pages = getCachedPages(player, null, waystones, false);
         player.openBook(Book.book(Component.empty(), Component.empty(), pages));
     }
 
