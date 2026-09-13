@@ -19,7 +19,7 @@ dependencyResolutionManagement{
             plugin("paper-run","xyz.jpenilla.run-paper").version("2.3.1")
             plugin("plugin-yml","net.minecrell.plugin-yml.bukkit").version("0.6.0")
 
-            version("paper","1.20.6-R0.1-SNAPSHOT")
+            version("paper","26.2.build.123-stable")
 
             library("paper","io.papermc.paper","paper-api").versionRef("paper")
             library("cloud-paper","org.incendo","cloud-paper").versionRef("cloud")
